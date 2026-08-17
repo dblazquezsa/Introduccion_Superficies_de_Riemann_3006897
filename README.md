@@ -9,9 +9,7 @@ Material interactivo para el curso *Introducción a las Superficies de Riemann* 
 | Unidad | Applet | Enlace |
 |---|---|---|
 | 1. Plano complejo extendido y transformaciones de Möbius | Transformaciones de Möbius sobre la esfera de Riemann | [Abrir](mobius-riemann-sphere.html) |
-| 2. Funciones elípticas | — | próximamente |
-| 3. Continuación meromorfa y superficies de Riemann | — | próximamente |
-| 4. Superficies de Riemann abstractas | — | próximamente |
+
 
 ## Cómo está organizado
 
