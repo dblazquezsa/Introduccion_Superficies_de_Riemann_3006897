@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Transformaciones de Möbius sobre la esfera de Riemann</title>
+<style>
+  :root{
+    --bg:#0a0d16;
+    --panel:#121729;
+    --panel-2:#0e1220;
+    --border:#232b45;
+    --grid:#2a3350;
+    --text:#eef1f8;
+    --text-dim:#8b93ab;
+    --p-color:#f0b23e;
+    --q-color:#47c9c2;
+    --accent:#ef8a6c;
+    --violet:#b98af0;
+    --warn:#ef6f6c;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{ background:var(--bg); color:var(--text); font-family:var(--sans); padding:22px 18px 40px; }
+  .app{ max-width:1180px; margin:0 auto; }
+  header{ margin-bottom:20px; }
+  header .eyebrow{ font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--q-color); margin-bottom:8px; }
+  header h1{ font-family:var(--serif); font-weight:600; font-size:clamp(21px,3.2vw,32px); margin:0 0 8px; letter-spacing:.2px; }
+  header p.subtitle{ color:var(--text-dim); font-size:14px; max-width:70ch; line-height:1.55; margin:0; }
+
+  .canvases{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+  @media (max-width:780px){ .canvases{ grid-template-columns:1fr; } }
+  .panel{ background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:14px; }
+  .panel-label{ display:flex; justify-content:space-between; align-items:baseline; font-family:var(--mono); font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--text-dim); margin-bottom:9px; }
+  .panel-label .hint{ color:#59627e; text-transform:none; letter-spacing:0; }
+  canvas{ width:100%; aspect-ratio:1/1; display:block; border-radius:10px; background:#0a0d18; touch-action:none; cursor:grab; }
+  canvas.dragging{ cursor:grabbing; }
+
+  .controls{ margin-bottom:16px; }
+  .row-label{ font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-dim); margin:0 0 8px; }
+
+  .tabbar{ display:flex; gap:6px; margin-bottom:16px; background:var(--panel-2); padding:5px; border-radius:12px; border:1px solid var(--border); }
+  .tab-btn{ flex:1 1 auto; background:transparent; border:none; color:var(--text-dim); font-family:var(--sans); font-size:12.5px; padding:10px 8px; border-radius:8px; cursor:pointer; transition:background .15s,color .15s; }
+  .tab-btn.active{ background:#1b2340; color:var(--text); }
+  .tab-btn:focus-visible{ outline:2px solid var(--q-color); outline-offset:2px; }
+
+  .tab-panel{ display:none; }
+  .tab-panel.active{ display:block; }
+
+  .presets{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+  .chip{ background:var(--panel-2); border:1px solid var(--border); color:var(--text); font-family:var(--sans); font-size:12.5px; padding:7px 13px; border-radius:999px; cursor:pointer; transition:border-color .15s; }
+  .chip:hover{ border-color:var(--q-color); }
+  .chip:focus-visible{ outline:2px solid var(--q-color); outline-offset:2px; }
+
+  .mode-select{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:18px; background:var(--panel-2); padding:5px; border-radius:12px; border:1px solid var(--border); }
+  .mode-btn{ flex:1 1 150px; background:transparent; border:none; color:var(--text-dim); font-family:var(--sans); font-size:12.5px; padding:9px 8px; border-radius:8px; cursor:pointer; transition:background .15s,color .15s; }
+  .mode-btn.active{ background:#1b2340; color:var(--text); }
+  .mode-btn:focus-visible{ outline:2px solid var(--q-color); outline-offset:2px; }
+
+  .sliders-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px 24px; }
+  @media (max-width:640px){ .sliders-grid{ grid-template-columns:1fr; } }
+  .slider-field{ display:none; }
+  .slider-field.show, .slider-field.always{ display:block; }
+  .slider-field label{ display:flex; justify-content:space-between; font-size:12.5px; color:var(--text-dim); margin-bottom:6px; }
+  .slider-field label .val{ font-family:var(--mono); color:var(--text); }
+  input[type=range]{ width:100%; -webkit-appearance:none; appearance:none; height:4px; border-radius:2px; background:var(--grid); outline:none; }
+  input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:var(--q-color); cursor:pointer; border:2px solid #0a0d18; }
+  input[type=range]::-moz-range-thumb{ width:14px; height:14px; border-radius:50%; background:var(--q-color); cursor:pointer; border:2px solid #0a0d18; }
+
+  .tau-row{ display:flex; align-items:center; gap:12px; margin-top:16px; padding-top:14px; border-top:1px solid var(--border); }
+  .tau-row .slider-field{ flex:1; margin-bottom:0; }
+  #playBtn{ background:var(--q-color); color:#06111a; border:none; font-family:var(--sans); font-weight:600; font-size:12.5px; padding:10px 16px; border-radius:9px; cursor:pointer; white-space:nowrap; }
+  #playBtn:disabled{ opacity:.55; cursor:default; }
+
+  .pad-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:16px; max-width:420px; }
+  .pad-grid.three{ grid-template-columns:repeat(3,1fr); max-width:none; }
+  @media (max-width:560px){ .pad-grid.three{ grid-template-columns:1fr 1fr; } }
+  .pad-wrap{ background:var(--panel-2); border:1px solid var(--border); border-radius:12px; padding:10px; }
+  .pad-wrap canvas{ aspect-ratio:1/1; border-radius:8px; cursor:crosshair; }
+  .pad-top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:7px; font-size:12px; color:var(--text-dim); }
+  .pad-value{ margin-top:7px; font-family:var(--mono); font-size:12px; text-align:center; color:var(--text); }
+  .inf-btn{ background:transparent; border:1px solid var(--border); color:var(--text-dim); font-family:var(--mono); font-size:11px; padding:3px 8px; border-radius:6px; cursor:pointer; }
+  .inf-btn.active{ background:var(--violet); border-color:var(--violet); color:#0a0d18; }
+
+  .det-note{ margin-top:12px; font-family:var(--mono); font-size:12.5px; color:var(--text-dim); }
+  .det-note.warn{ color:var(--warn); }
+
+  .cr-note{ margin:0 0 14px; color:var(--text-dim); font-size:13px; line-height:1.55; max-width:64ch; }
+
+  .info{ display:grid; grid-template-columns:auto 1fr 1fr; gap:14px 26px; align-items:start; }
+  @media (max-width:780px){ .info{ grid-template-columns:1fr; } }
+  .badge{ font-family:var(--serif); font-size:19px; padding:9px 16px; border-radius:10px; border:1px solid var(--border); white-space:nowrap; align-self:center; }
+  .info dl{ margin:0; }
+  .info dt{ font-family:var(--mono); font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--text-dim); margin-bottom:3px; }
+  .info dd{ margin:0 0 12px; font-family:var(--mono); font-size:13.5px; color:var(--text); line-height:1.5; }
+  .info dd:last-child{ margin-bottom:0; }
+  .dot-p{ color:var(--p-color); } .dot-q{ color:var(--q-color); }
+
+  footer{ margin-top:18px; color:#5c6684; font-size:12px; line-height:1.6; max-width:82ch; }
+  footer strong{ color:var(--text-dim); }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="eyebrow">Introducción a las Superficies de Riemann · Unidad 1</div>
+    <h1>Transformaciones de Möbius sobre la esfera de Riemann</h1>
+    <p class="subtitle">Tres maneras equivalentes de determinar la misma transformación: por sus puntos fijos y un multiplicador, por su matriz en PGL(2,&#8450;), o por las imágenes de 0, 1 e &#8734; (razón cruzada). Cambia de pestaña sin perder de vista el plano ni la esfera.</p>
+  </header>
+
+  <main>
+    <div class="canvases">
+      <section class="panel">
+        <div class="panel-label"><span>Plano complejo extendido &#8450;&#8734;</span><span class="hint" id="planeHint">arrastra p / q</span></div>
+        <canvas id="planeCanvas" aria-label="Plano complejo con la transformación de Möbius"></canvas>
+      </section>
+      <section class="panel">
+        <div class="panel-label"><span>Esfera de Riemann S&sup2;</span><span class="hint">arrastra para rotar</span></div>
+        <canvas id="sphereCanvas" aria-label="Esfera de Riemann con la transformación proyectada"></canvas>
+      </section>
+    </div>
+
+    <section class="panel controls">
+      <div class="tabbar" id="tabbar" role="tablist">
+        <button class="tab-btn active" data-tab="fixed-points">Puntos fijos y multiplicador</button>
+        <button class="tab-btn" data-tab="matrix">Matriz (a, b, c, d)</button>
+        <button class="tab-btn" data-tab="cross-ratio">Imágenes de 0, 1, ∞</button>
+      </div>
+
+      <!-- ============ PESTAÑA 1: puntos fijos y multiplicador ============ -->
+      <div class="tab-panel active" data-tab="fixed-points">
+        <p class="row-label">Ejemplos</p>
+        <div class="presets" id="presets">
+          <button class="chip" data-preset="identidad">Identidad</button>
+          <button class="chip" data-preset="traslacion">Traslación</button>
+          <button class="chip" data-preset="rotacion">Rotación (elíptica)</button>
+          <button class="chip" data-preset="homotecia">Homotecia (hiperbólica)</button>
+          <button class="chip" data-preset="loxodromica">Loxodrómica</button>
+          <button class="chip" data-preset="parabolica">Parabólica</button>
+          <button class="chip" data-preset="inversion">Inversión z ↦ 1/z</button>
+        </div>
+
+        <p class="row-label">Configuración de puntos fijos</p>
+        <div class="mode-select" id="modeSelect" role="tablist">
+          <button class="mode-btn" data-mode="two-points">Dos puntos finitos</button>
+          <button class="mode-btn" data-mode="one-point-infinity">Punto finito + ∞</button>
+          <button class="mode-btn" data-mode="parabolic-finite">Parabólica (punto finito)</button>
+          <button class="mode-btn" data-mode="parabolic-infinite">Parabólica en ∞ (traslación)</button>
+        </div>
+
+        <div class="sliders-grid">
+          <div class="slider-field group-lambda" id="fieldK">
+            <label for="kSlider">Magnitud del multiplicador |&lambda;| = k <span class="val" id="kVal">1.80</span></label>
+            <input type="range" id="kSlider" min="0.2" max="5" step="0.01" value="1.8">
+          </div>
+          <div class="slider-field group-lambda" id="fieldTheta">
+            <label for="thetaSlider">Ángulo del multiplicador arg(&lambda;) = &theta; <span class="val" id="thetaVal">40°</span></label>
+            <input type="range" id="thetaSlider" min="-180" max="180" step="1" value="40">
+          </div>
+          <div class="slider-field group-para" id="fieldParaMag">
+            <label for="paraMagSlider">Magnitud de la traslación |t| <span class="val" id="paraMagVal">1.00</span></label>
+            <input type="range" id="paraMagSlider" min="0" max="2.5" step="0.01" value="1.0">
+          </div>
+          <div class="slider-field group-para" id="fieldParaAngle">
+            <label for="paraAngleSlider">Dirección de la traslación <span class="val" id="paraAngleVal">20°</span></label>
+            <input type="range" id="paraAngleSlider" min="-180" max="180" step="1" value="20">
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ PESTAÑA 2: matriz a,b,c,d ============ -->
+      <div class="tab-panel" data-tab="matrix">
+        <p class="cr-note">Arrastra cada punto para fijar el valor complejo de a, b, c y d. La transformación es T(z) = (az+b)/(cz+d); dos matrices que difieren en un factor escalar representan la misma clase en PGL(2,&#8450;).</p>
+        <div class="pad-grid">
+          <div class="pad-wrap"><div class="pad-top"><span>a</span></div><canvas id="padA"></canvas><div class="pad-value" id="valA">—</div></div>
+          <div class="pad-wrap"><div class="pad-top"><span>b</span></div><canvas id="padB"></canvas><div class="pad-value" id="valB">—</div></div>
+          <div class="pad-wrap"><div class="pad-top"><span>c</span></div><canvas id="padC"></canvas><div class="pad-value" id="valC">—</div></div>
+          <div class="pad-wrap"><div class="pad-top"><span>d</span></div><canvas id="padD"></canvas><div class="pad-value" id="valD">—</div></div>
+        </div>
+        <p class="det-note" id="detNote">det = ad − bc = —</p>
+      </div>
+
+      <!-- ============ PESTAÑA 3: imágenes de 0,1,infinito ============ -->
+      <div class="tab-panel" data-tab="cross-ratio">
+        <p class="cr-note">Tres puntos y sus imágenes determinan de forma única una transformación de Möbius. Aquí fijas dónde van a parar 0, 1 e &#8734; (con la razón cruzada); cualquiera de los tres puede enviarse también al punto &#8734;.</p>
+        <div class="pad-grid three">
+          <div class="pad-wrap">
+            <div class="pad-top"><span>T(0) = w&#8320;</span><button class="inf-btn" data-target="w0">= ∞</button></div>
+            <canvas id="padW0"></canvas><div class="pad-value" id="valW0">—</div>
+          </div>
+          <div class="pad-wrap">
+            <div class="pad-top"><span>T(1) = w&#8321;</span><button class="inf-btn" data-target="w1">= ∞</button></div>
+            <canvas id="padW1"></canvas><div class="pad-value" id="valW1">—</div>
+          </div>
+          <div class="pad-wrap">
+            <div class="pad-top"><span>T(∞) = w&#8734;</span><button class="inf-btn" data-target="wInf">= ∞</button></div>
+            <canvas id="padWInf"></canvas><div class="pad-value" id="valWInf">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tau-row">
+        <div class="slider-field always">
+          <label for="tauSlider">Interpolación identidad → transformación (&tau;) <span class="val" id="tauVal">1.00</span></label>
+          <input type="range" id="tauSlider" min="0" max="1" step="0.005" value="1">
+        </div>
+        <button id="playBtn">▶ Reproducir</button>
+      </div>
+    </section>
+
+    <section class="panel info">
+      <div class="badge" id="badge">—</div>
+      <dl>
+        <dt>Puntos fijos</dt>
+        <dd id="infoFixed">—</dd>
+        <dt>Multiplicador / traslación</dt>
+        <dd id="infoLambda">—</dd>
+      </dl>
+      <dl>
+        <dt>Matriz representativa (salvo escalar, en PGL(2,&#8450;))</dt>
+        <dd id="infoMatrix">—</dd>
+        <dt>Invariante tr&sup2;/det = &lambda; + 1/&lambda; + 2</dt>
+        <dd id="infoInvariant">—</dd>
+      </dl>
+    </section>
+  </main>
+
+  <footer>
+    <strong>Cómo leerlo:</strong> cada curva conserva el color de su posición original (el matiz codifica el argumento del punto de partida), así que el mismo color en el plano y en la esfera indica el mismo punto. La reja tenue es la posición de referencia (&tau;=0); la reja intensa es la transformada actual. En cualquier pestaña, la transformación se descompone internamente en su forma canónica (puntos fijos + multiplicador) para poder animarla y clasificarla — la misma idea de las clases de conjugación de PGL(2,&#8450;) (Sección 1.3) se usa aquí para pasar de "matriz cruda" o "tres imágenes" a "puntos fijos y &lambda;".
+  </footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+// ===================== Aritmética compleja =====================
+const C = {
+  add:(a,b)=>({re:a.re+b.re, im:a.im+b.im}),
+  sub:(a,b)=>({re:a.re-b.re, im:a.im-b.im}),
+  mul:(a,b)=>({re:a.re*b.re-a.im*b.im, im:a.re*b.im+a.im*b.re}),
+  div:(a,b)=>{ const d=b.re*b.re+b.im*b.im; return {re:(a.re*b.re+a.im*b.im)/d, im:(a.im*b.re-a.re*b.im)/d}; },
+  scale:(a,s)=>({re:a.re*s, im:a.im*s}),
+  abs:(a)=>Math.hypot(a.re,a.im),
+  fromPolar:(r,t)=>({re:r*Math.cos(t), im:r*Math.sin(t)}),
+};
+const ONE={re:1,im:0}, ZERO={re:0,im:0};
+
+function complexSqrt(z){
+  const r=Math.hypot(z.re,z.im);
+  const re=Math.sqrt((r+z.re)/2);
+  let im=Math.sqrt(Math.max(0,(r-z.re)/2));
+  if(z.im<0) im=-im;
+  return {re,im};
+}
+function powLambda(lambda, tau){
+  const r=Math.hypot(lambda.re,lambda.im), theta=Math.atan2(lambda.im,lambda.re);
+  const rt=Math.pow(r,tau), tt=theta*tau;
+  return {re:rt*Math.cos(tt), im:rt*Math.sin(tt)};
+}
+function matrixFromNormalForm(nf, tau){
+  switch(nf.kind){
+    case 'identity': return {a:ONE,b:ZERO,c:ZERO,d:ONE};
+    case 'degenerate': return {a:ONE,b:ZERO,c:ZERO,d:ONE};
+    case 'two-finite': {
+      const lambda=powLambda(nf.lambda,tau), p=nf.p,q=nf.q;
+      return { a:C.sub(C.mul(q,lambda),p), b:C.mul(C.mul(p,q),C.sub(ONE,lambda)), c:C.sub(lambda,ONE), d:C.sub(q,C.mul(lambda,p)) };
+    }
+    case 'one-infinite': {
+      const lambda=powLambda(nf.lambda,tau), p=nf.p;
+      return { a:lambda, b:C.mul(p,C.sub(ONE,lambda)), c:ZERO, d:ONE };
+    }
+    case 'parabolic-finite': {
+      const t=C.scale(nf.t,tau), p=nf.p, p2=C.mul(p,p);
+      return { a:C.add(ONE,C.mul(p,t)), b:C.scale(C.mul(p2,t),-1), c:t, d:C.sub(ONE,C.mul(p,t)) };
+    }
+    case 'parabolic-infinite': {
+      const t=C.scale(nf.t,tau);
+      return { a:ONE, b:t, c:ZERO, d:ONE };
+    }
+  }
+}
+function decompose(a,b,c,d){
+  const det = C.sub(C.mul(a,d), C.mul(b,c));
+  const detAbs = C.abs(det);
+  const refScale = C.abs(a)+C.abs(b)+C.abs(c)+C.abs(d)+1e-12;
+  if(detAbs < 1e-7*refScale*refScale) return {kind:'degenerate'};
+  const cAbs = C.abs(c);
+  if(cAbs < 1e-9*refScale){
+    const A=C.div(a,d), B=C.div(b,d);
+    if(C.abs(C.sub(A,ONE)) < 1e-7){
+      if(C.abs(B) < 1e-9) return {kind:'identity'};
+      return {kind:'parabolic-infinite', t:B};
+    }
+    const p = C.div(B, C.sub(ONE,A));
+    return {kind:'one-infinite', p, lambda:A};
+  }
+  const A2=c, B2=C.sub(d,a), C2=C.scale(b,-1);
+  const disc = C.sub(C.mul(B2,B2), C.scale(C.mul(A2,C2),4));
+  const discAbs=C.abs(disc);
+  if(discAbs < 1e-7*refScale*refScale){
+    const p = C.div(C.scale(B2,-1), C.scale(A2,2));
+    const trace = C.add(a,d);
+    const normFactor = C.scale(trace, 0.5);
+    const tParam = C.div(c, normFactor);
+    return {kind:'parabolic-finite', p, t:tParam};
+  }
+  const sqrtDisc = complexSqrt(disc);
+  const p = C.div(C.add(C.scale(B2,-1), sqrtDisc), C.scale(A2,2));
+  const q = C.div(C.sub(C.scale(B2,-1), sqrtDisc), C.scale(A2,2));
+  const zs = C.add(p, C.scale(C.sub(q,p), 0.4142135));
+  const num=C.add(C.mul(a,zs), b), den=C.add(C.mul(c,zs), d);
+  const w = C.div(num,den);
+  const ratioIn = C.div(C.sub(zs,p), C.sub(zs,q));
+  const ratioOut = C.div(C.sub(w,p), C.sub(w,q));
+  const lambda = C.div(ratioOut, ratioIn);
+  return {kind:'two-finite', p, q, lambda};
+}
+function crossRatioMatrix(w0,w1,wInf,infTarget){
+  let aN,bN,cN,dN;
+  if(infTarget==='w0'){ aN=ZERO; bN=C.sub(w1,wInf); cN=ONE; dN=C.scale(wInf,-1); }
+  else if(infTarget==='w1'){ aN=ONE; bN=C.scale(w0,-1); cN=ONE; dN=C.scale(wInf,-1); }
+  else if(infTarget==='wInf'){ aN=ONE; bN=C.scale(w0,-1); cN=ZERO; dN=C.sub(w1,w0); }
+  else {
+    aN=C.sub(w1,wInf);
+    bN=C.scale(C.mul(w0,C.sub(w1,wInf)),-1);
+    cN=C.sub(w1,w0);
+    dN=C.scale(C.mul(wInf,C.sub(w1,w0)),-1);
+  }
+  return { a:dN, b:C.scale(bN,-1), c:C.scale(cN,-1), d:aN };
+}
+function applyMobius(z,m){
+  const num=C.add(C.mul(m.a,z), m.b);
+  const den=C.add(C.mul(m.c,z), m.d);
+  return C.div(num,den);
+}
+
+// ===================== Estado =====================
+const state = {
+  activeTab:'fixed-points',
+  // pestaña 1
+  fpMode:'two-points',
+  p:{re:-1.2, im:0.4},
+  q:{re:1.1, im:-0.3},
+  k:1.8,
+  theta:40,
+  paraMag:1.0,
+  paraAngle:20,
+  // pestaña 2
+  mA:{re:1,im:0.25}, mB:{re:0.4,im:-0.6}, mC:{re:0.35,im:0.1}, mD:{re:0.9,im:-0.15},
+  // pestaña 3
+  w0:{re:0.2,im:1.1}, w1:{re:1.7,im:-0.3}, wInf:{re:-0.9,im:-0.8}, infTarget:null,
+  // comunes
+  tau:1,
+  rotX:0.35, rotY:-0.55,
+};
+
+function nfFromTab1(){
+  switch(state.fpMode){
+    case 'two-points':
+      return {kind:'two-finite', p:state.p, q:state.q, lambda:C.fromPolar(state.k, state.theta*Math.PI/180)};
+    case 'one-point-infinity':
+      return {kind:'one-infinite', p:state.p, lambda:C.fromPolar(state.k, state.theta*Math.PI/180)};
+    case 'parabolic-finite':
+      return {kind:'parabolic-finite', p:state.p, t:C.fromPolar(state.paraMag, state.paraAngle*Math.PI/180)};
+    case 'parabolic-infinite':
+      return {kind:'parabolic-infinite', t:C.fromPolar(state.paraMag, state.paraAngle*Math.PI/180)};
+  }
+}
+function getActiveNF(){
+  if(state.activeTab==='fixed-points') return nfFromTab1();
+  if(state.activeTab==='matrix') return decompose(state.mA,state.mB,state.mC,state.mD);
+  return decompose.apply(null, (()=>{ const m=crossRatioMatrix(state.w0,state.w1,state.wInf,state.infTarget); return [m.a,m.b,m.c,m.d]; })());
+}
+function getTargetMatrix(){
+  if(state.activeTab==='fixed-points') return matrixFromNormalForm(nfFromTab1(), 1);
+  if(state.activeTab==='matrix') return {a:state.mA,b:state.mB,c:state.mC,d:state.mD};
+  return crossRatioMatrix(state.w0,state.w1,state.wInf,state.infTarget);
+}
+function getCurrentMatrix(tau){
+  if(state.activeTab==='fixed-points') return matrixFromNormalForm(nfFromTab1(), tau);
+  const nf = getActiveNF();
+  if(nf.kind==='degenerate') return getTargetMatrix();
+  return matrixFromNormalForm(nf, tau);
+}
+function classifyNF(nf){
+  if(nf.kind==='degenerate') return 'Degenerada';
+  if(nf.kind==='identity') return 'Identidad';
+  if(nf.kind==='parabolic-finite' || nf.kind==='parabolic-infinite'){
+    return C.abs(nf.t) < 1e-6 ? 'Identidad' : 'Parabólica';
+  }
+  const lambda=nf.lambda, k=C.abs(lambda);
+  let th=Math.atan2(lambda.im,lambda.re)*180/Math.PI;
+  const kNear1=Math.abs(k-1)<1e-3, thNear0=Math.abs(th)<0.2;
+  if(kNear1 && thNear0) return 'Identidad';
+  if(kNear1) return 'Elíptica';
+  if(thNear0) return 'Hiperbólica';
+  return 'Loxodrómica';
+}
+function traceSqOverDetNF(nf){
+  if(nf.kind==='degenerate') return null;
+  if(nf.kind==='identity' || nf.kind==='parabolic-finite' || nf.kind==='parabolic-infinite') return {re:4,im:0};
+  const lambda=nf.lambda;
+  return C.add(C.add(lambda, C.div(ONE,lambda)), {re:2,im:0});
+}
+const CLASS_COLOR = {
+  'Identidad':'#8b93ab', 'Elíptica':'#47c9c2', 'Hiperbólica':'#f0b23e',
+  'Loxodrómica':'#ef8a6c', 'Parabólica':'#b98af0', 'Degenerada':'#ef6f6c',
+};
+
+// ===================== Rejilla =====================
+function buildGrid(){
+  const lines=[]; const N=140, R=4.4;
+  for(let i=-8;i<=8;i++){ const x=i*0.5, pts=[]; for(let j=0;j<=N;j++){ pts.push({re:x, im:-R+2*R*j/N}); } lines.push({pts, kind: i===0?'axis':'v'}); }
+  for(let i=-8;i<=8;i++){ const y=i*0.5, pts=[]; for(let j=0;j<=N;j++){ pts.push({re:-R+2*R*j/N, im:y}); } lines.push({pts, kind: i===0?'axis':'h'}); }
+  const NC=220, cpts=[]; for(let j=0;j<=NC;j++){ const a=-Math.PI+2*Math.PI*j/NC; cpts.push({re:Math.cos(a), im:Math.sin(a)}); }
+  lines.push({pts:cpts, kind:'circle'});
+  for(const line of lines){
+    if(line.kind==='axis'){ line.color='rgba(238,241,248,0.5)'; line.colorFull='rgba(238,241,248,0.92)'; }
+    else if(line.kind==='circle'){ line.color='rgba(239,138,108,0.5)'; line.colorFull='rgba(239,138,108,0.95)'; }
+    else {
+      const mid=line.pts[Math.floor(line.pts.length/2)];
+      const hue=((Math.atan2(mid.im,mid.re)+Math.PI)/(2*Math.PI))*360;
+      line.color=`hsla(${hue.toFixed(1)},60%,55%,0.42)`;
+      line.colorFull=`hsla(${hue.toFixed(1)},75%,62%,0.95)`;
+    }
+  }
+  return lines;
+}
+const grid = buildGrid();
+
+// ===================== Canvas: plano y esfera =====================
+const planeCanvas=document.getElementById('planeCanvas'), planeCtx=planeCanvas.getContext('2d');
+const sphereCanvas=document.getElementById('sphereCanvas'), sphereCtx=sphereCanvas.getContext('2d');
+let planeSize=0, sphereSize=0;
+
+function fitCanvas(canvas, ctx){
+  const cssSize = canvas.clientWidth;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.round(cssSize*dpr);
+  canvas.height = Math.round(cssSize*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  return cssSize;
+}
+function drawPath(ctx, screenPts, color, width, breakLimit){
+  ctx.strokeStyle=color; ctx.lineWidth=width; ctx.lineJoin='round'; ctx.lineCap='round';
+  ctx.beginPath();
+  let started=false;
+  for(const s of screenPts){
+    const ok = isFinite(s.x) && isFinite(s.y) && Math.abs(s.x)<breakLimit && Math.abs(s.y)<breakLimit;
+    if(ok){ if(!started){ ctx.moveTo(s.x,s.y); started=true; } else { ctx.lineTo(s.x,s.y); } }
+    else { started=false; }
+  }
+  ctx.stroke();
+}
+function renderPlane(nf){
+  const size=planeSize, cx=size/2, cy=size/2, scale=(size/2)/4.6;
+  const toScreen=(z)=>({x:cx+z.re*scale, y:cy-z.im*scale});
+  planeCtx.clearRect(0,0,size,size);
+  const mTau = getCurrentMatrix(state.tau);
+  const limit = size*6;
+  for(const line of grid){ drawPath(planeCtx, line.pts.map(toScreen), line.color, line.kind==='circle'?1.8:(line.kind==='axis'?1.3:0.9), limit); }
+  for(const line of grid){ drawPath(planeCtx, line.pts.map(z=>toScreen(applyMobius(z, mTau))), line.colorFull, line.kind==='circle'?2.4:(line.kind==='axis'?1.9:1.5), limit); }
+
+  const drawHandle=(z,color,label)=>{
+    const s=toScreen(z);
+    if(Math.abs(s.x)>size*3 || Math.abs(s.y)>size*3) return;
+    planeCtx.beginPath(); planeCtx.arc(s.x,s.y,7,0,2*Math.PI);
+    planeCtx.fillStyle=color; planeCtx.fill();
+    planeCtx.lineWidth=2; planeCtx.strokeStyle='#0a0d18'; planeCtx.stroke();
+    planeCtx.font='600 12px ' + getComputedStyle(document.body).fontFamily;
+    planeCtx.fillStyle=color;
+    planeCtx.fillText(label, s.x+11, s.y-9);
+  };
+  if(nf.kind==='two-finite'){ drawHandle(nf.p,'#f0b23e','p'); drawHandle(nf.q,'#47c9c2','q'); }
+  else if(nf.kind==='one-infinite'){ drawHandle(nf.p,'#f0b23e','p'); }
+  else if(nf.kind==='parabolic-finite'){ drawHandle(nf.p,'#b98af0','p'); }
+}
+function stereographic(z){ const r2=z.re*z.re+z.im*z.im, den=1+r2; return {X:2*z.re/den, Y:2*z.im/den, Z:(r2-1)/den}; }
+function rotatePoint(X,Y,Z,rx,ry){
+  const y1=Y*Math.cos(rx)-Z*Math.sin(rx), z1=Y*Math.sin(rx)+Z*Math.cos(rx), x1=X;
+  const x2=x1*Math.cos(ry)+z1*Math.sin(ry), z2=-x1*Math.sin(ry)+z1*Math.cos(ry);
+  return {x:x2, y:y1, z:z2};
+}
+function renderSphere(){
+  const size=sphereSize, cx=size/2, cy=size/2, R=size*0.42;
+  sphereCtx.clearRect(0,0,size,size);
+  const grad = sphereCtx.createRadialGradient(cx-R*0.35,cy-R*0.4,R*0.12, cx,cy,R*1.05);
+  grad.addColorStop(0,'#242e50'); grad.addColorStop(0.62,'#141a30'); grad.addColorStop(1,'#090c16');
+  sphereCtx.beginPath(); sphereCtx.arc(cx,cy,R,0,2*Math.PI); sphereCtx.fillStyle=grad; sphereCtx.fill();
+  sphereCtx.lineWidth=1; sphereCtx.strokeStyle='rgba(147,158,196,0.35)'; sphereCtx.stroke();
+
+  const project=(z)=>{ const st=stereographic(z); const r=rotatePoint(st.X,st.Y,st.Z,state.rotX,state.rotY); return {x:cx+r.x*R, y:cy-r.y*R, front:r.z>-0.01}; };
+  const drawSpherePath=(pts,color,width)=>{
+    sphereCtx.strokeStyle=color; sphereCtx.lineWidth=width; sphereCtx.lineJoin='round'; sphereCtx.lineCap='round';
+    sphereCtx.beginPath(); let started=false;
+    for(const s of pts){ if(s.front){ if(!started){ sphereCtx.moveTo(s.x,s.y); started=true; } else { sphereCtx.lineTo(s.x,s.y); } } else { started=false; } }
+    sphereCtx.stroke();
+  };
+  const mTau = getCurrentMatrix(state.tau);
+  for(const line of grid){ drawSpherePath(line.pts.map(project), line.color, line.kind==='circle'?1.8:(line.kind==='axis'?1.2:0.8)); }
+  for(const line of grid){ drawSpherePath(line.pts.map(z=>project(applyMobius(z,mTau))), line.colorFull, line.kind==='circle'?2.2:(line.kind==='axis'?1.7:1.15)); }
+
+  const projV=(v)=>{ const r=rotatePoint(v.X,v.Y,v.Z,state.rotX,state.rotY); return {x:cx+r.x*R, y:cy-r.y*R, front:r.z>-0.05}; };
+  const south=projV({X:0,Y:0,Z:-1}), north=projV({X:0,Y:0,Z:1});
+  sphereCtx.font='600 12px ' + getComputedStyle(document.body).fontFamily;
+  const drawPole=(pt,label)=>{
+    if(!pt.front) return;
+    sphereCtx.beginPath(); sphereCtx.arc(pt.x,pt.y,3.2,0,2*Math.PI);
+    sphereCtx.fillStyle='rgba(238,241,248,0.92)'; sphereCtx.fill();
+    sphereCtx.fillStyle='rgba(238,241,248,0.85)';
+    sphereCtx.fillText(label, pt.x+7, pt.y+4);
+  };
+  drawPole(south,'0'); drawPole(north,'∞');
+}
+
+// ===================== Panel de información =====================
+function fmtNum(x){ return (Math.abs(x)<1e-9?0:x).toFixed(2); }
+function fmtC(z){ const re=fmtNum(z.re), im=fmtNum(Math.abs(z.im)); return `${re} ${z.im<0?'-':'+'} ${im}i`; }
+
+function updateInfo(nf){
+  const type=classifyNF(nf);
+  const badge=document.getElementById('badge');
+  badge.textContent=type; badge.style.color=CLASS_COLOR[type]; badge.style.borderColor=CLASS_COLOR[type];
+
+  const fixedEl=document.getElementById('infoFixed'), lambdaEl=document.getElementById('infoLambda');
+  if(nf.kind==='two-finite'){
+    fixedEl.innerHTML = `<span class="dot-p">p</span> = ${fmtC(nf.p)} &nbsp; <span class="dot-q">q</span> = ${fmtC(nf.q)}`;
+    lambdaEl.textContent = `λ = ${fmtC(nf.lambda)}  (|λ|=${fmtNum(C.abs(nf.lambda))}, arg λ=${fmtNum(Math.atan2(nf.lambda.im,nf.lambda.re)*180/Math.PI)}°)`;
+  } else if(nf.kind==='one-infinite'){
+    fixedEl.innerHTML = `<span class="dot-p">p</span> = ${fmtC(nf.p)} &nbsp; q = ∞`;
+    lambdaEl.textContent = `λ = ${fmtC(nf.lambda)}  (|λ|=${fmtNum(C.abs(nf.lambda))}, arg λ=${fmtNum(Math.atan2(nf.lambda.im,nf.lambda.re)*180/Math.PI)}°)`;
+  } else if(nf.kind==='parabolic-finite'){
+    fixedEl.innerHTML = `<span class="dot-p" style="color:var(--violet)">p</span> = ${fmtC(nf.p)} (doble)`;
+    lambdaEl.textContent = `t = ${fmtC(nf.t)}`;
+  } else if(nf.kind==='parabolic-infinite'){
+    fixedEl.textContent = `∞ (doble)`;
+    lambdaEl.textContent = `t = ${fmtC(nf.t)}`;
+  } else if(nf.kind==='identity'){
+    fixedEl.textContent = `todo punto de la esfera es fijo`;
+    lambdaEl.textContent = `λ = 1`;
+  } else {
+    fixedEl.textContent = `— (matriz singular)`;
+    lambdaEl.textContent = `ad − bc ≈ 0`;
+  }
+
+  const m=getTargetMatrix();
+  document.getElementById('infoMatrix').innerHTML = `a = ${fmtC(m.a)}<br>b = ${fmtC(m.b)}<br>c = ${fmtC(m.c)}<br>d = ${fmtC(m.d)}`;
+  const inv=traceSqOverDetNF(nf);
+  document.getElementById('infoInvariant').textContent = inv ? fmtC(inv) : '— (no definido)';
+}
+
+function renderAll(){
+  const nf = getActiveNF();
+  renderPlane(nf);
+  renderSphere();
+  updateInfo(nf);
+  if(state.activeTab==='matrix') drawMatrixPads();
+  if(state.activeTab==='cross-ratio') drawCRPads();
+  document.getElementById('planeHint').textContent = state.activeTab==='fixed-points' ? 'arrastra p / q' : 'p, q de referencia';
+}
+
+// ===================== Controles: pestaña 1 =====================
+const GROUP_VISIBILITY = {
+  'two-points':['group-lambda'], 'one-point-infinity':['group-lambda'],
+  'parabolic-finite':['group-para'], 'parabolic-infinite':['group-para'],
+};
+function syncControlGroups(){
+  const visible = GROUP_VISIBILITY[state.fpMode];
+  document.querySelectorAll('.slider-field.group-lambda, .slider-field.group-para').forEach(el=>{
+    const g = el.classList.contains('group-lambda') ? 'group-lambda' : 'group-para';
+    el.classList.toggle('show', visible.includes(g));
+  });
+  document.querySelectorAll('.mode-btn').forEach(btn=> btn.classList.toggle('active', btn.dataset.mode===state.fpMode));
+}
+function syncSlidersFromState(){
+  document.getElementById('kSlider').value=state.k; document.getElementById('kVal').textContent=fmtNum(state.k);
+  document.getElementById('thetaSlider').value=state.theta; document.getElementById('thetaVal').textContent=Math.round(state.theta)+'°';
+  document.getElementById('paraMagSlider').value=state.paraMag; document.getElementById('paraMagVal').textContent=fmtNum(state.paraMag);
+  document.getElementById('paraAngleSlider').value=state.paraAngle; document.getElementById('paraAngleVal').textContent=Math.round(state.paraAngle)+'°';
+  document.getElementById('tauSlider').value=state.tau; document.getElementById('tauVal').textContent=fmtNum(state.tau);
+  syncControlGroups();
+}
+const PRESETS = {
+  identidad:{mode:'one-point-infinity', p:{re:0,im:0}, k:1, theta:0},
+  traslacion:{mode:'parabolic-infinite', paraMag:1.4, paraAngle:20},
+  rotacion:{mode:'one-point-infinity', p:{re:0,im:0}, k:1, theta:55},
+  homotecia:{mode:'one-point-infinity', p:{re:0,im:0}, k:2.4, theta:0},
+  loxodromica:{mode:'two-points', p:{re:-1.2,im:0.4}, q:{re:1.1,im:-0.3}, k:1.8, theta:40},
+  parabolica:{mode:'parabolic-finite', p:{re:0.4,im:-0.5}, paraMag:1.0, paraAngle:0},
+  inversion:{mode:'two-points', p:{re:1,im:0}, q:{re:-1,im:0}, k:1, theta:180},
+};
+document.getElementById('presets').addEventListener('click',(e)=>{
+  const btn=e.target.closest('[data-preset]'); if(!btn) return;
+  const preset=PRESETS[btn.dataset.preset];
+  state.fpMode=preset.mode;
+  Object.assign(state, preset);
+  state.tau=1;
+  syncSlidersFromState();
+  renderAll();
+});
+document.getElementById('modeSelect').addEventListener('click',(e)=>{
+  const btn=e.target.closest('[data-mode]'); if(!btn) return;
+  state.fpMode=btn.dataset.mode;
+  syncControlGroups();
+  renderAll();
+});
+function bindSlider(id, field, valId, fmt){
+  document.getElementById(id).addEventListener('input',(e)=>{
+    state[field]=parseFloat(e.target.value);
+    document.getElementById(valId).textContent=fmt(state[field]);
+    renderAll();
+  });
+}
+bindSlider('kSlider','k','kVal',fmtNum);
+bindSlider('thetaSlider','theta','thetaVal',(v)=>Math.round(v)+'°');
+bindSlider('paraMagSlider','paraMag','paraMagVal',fmtNum);
+bindSlider('paraAngleSlider','paraAngle','paraAngleVal',(v)=>Math.round(v)+'°');
+bindSlider('tauSlider','tau','tauVal',fmtNum);
+
+let playing=false;
+document.getElementById('playBtn').addEventListener('click',()=>{
+  if(playing) return;
+  playing=true;
+  const btn=document.getElementById('playBtn'); btn.disabled=true;
+  const duration=1700, start=performance.now();
+  function ease(t){ return t<0.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2; }
+  function step(now){
+    const t=Math.min(1, (now-start)/duration);
+    state.tau=ease(t);
+    document.getElementById('tauSlider').value=state.tau;
+    document.getElementById('tauVal').textContent=fmtNum(state.tau);
+    renderAll();
+    if(t<1){ requestAnimationFrame(step); } else { playing=false; btn.disabled=false; }
+  }
+  state.tau=0;
+  requestAnimationFrame(step);
+});
+
+// ===================== Interacción: arrastrar p,q en el plano (solo pestaña 1) =====================
+let dragTarget=null;
+function planeToWorld(px,py){ const size=planeSize, cx=size/2, cy=size/2, scale=(size/2)/4.6; return {re:(px-cx)/scale, im:-(py-cy)/scale}; }
+function worldToPlane(z){ const size=planeSize, cx=size/2, cy=size/2, scale=(size/2)/4.6; return {x:cx+z.re*scale, y:cy-z.im*scale}; }
+function pointerPos(evt, canvas){ const rect=canvas.getBoundingClientRect(); return {x:evt.clientX-rect.left, y:evt.clientY-rect.top}; }
+planeCanvas.addEventListener('pointerdown',(e)=>{
+  if(state.activeTab!=='fixed-points') return;
+  const pos=pointerPos(e,planeCanvas);
+  const candidates=[];
+  if(state.fpMode==='two-points'){ candidates.push(['p',state.p],['q',state.q]); }
+  else if(state.fpMode==='one-point-infinity' || state.fpMode==='parabolic-finite'){ candidates.push(['p',state.p]); }
+  let best=null, bestDist=18;
+  for(const [key,z] of candidates){
+    const s=worldToPlane(z); const d=Math.hypot(s.x-pos.x, s.y-pos.y);
+    if(d<bestDist){ bestDist=d; best=key; }
+  }
+  if(best){ dragTarget=best; planeCanvas.classList.add('dragging'); planeCanvas.setPointerCapture(e.pointerId); }
+});
+planeCanvas.addEventListener('pointermove',(e)=>{
+  if(!dragTarget) return;
+  const pos=pointerPos(e,planeCanvas);
+  state[dragTarget]=planeToWorld(pos.x,pos.y);
+  renderAll();
+});
+function releasePlane(){ if(dragTarget){ dragTarget=null; planeCanvas.classList.remove('dragging'); } }
+planeCanvas.addEventListener('pointerup',releasePlane);
+planeCanvas.addEventListener('pointercancel',releasePlane);
+
+// ===================== Interacción: rotar la esfera =====================
+let sphereDragging=false, lastX=0, lastY=0;
+sphereCanvas.addEventListener('pointerdown',(e)=>{ sphereDragging=true; lastX=e.clientX; lastY=e.clientY; sphereCanvas.classList.add('dragging'); sphereCanvas.setPointerCapture(e.pointerId); });
+sphereCanvas.addEventListener('pointermove',(e)=>{
+  if(!sphereDragging) return;
+  const dx=e.clientX-lastX, dy=e.clientY-lastY; lastX=e.clientX; lastY=e.clientY;
+  state.rotY += dx*0.008;
+  state.rotX = Math.max(-1.45, Math.min(1.45, state.rotX - dy*0.008));
+  renderSphere();
+});
+function releaseSphere(){ sphereDragging=false; sphereCanvas.classList.remove('dragging'); }
+sphereCanvas.addEventListener('pointerup',releaseSphere);
+sphereCanvas.addEventListener('pointercancel',releaseSphere);
+
+// ===================== Pestaña 2: pads de matriz =====================
+function makePad(canvas, opts){
+  const ctx=canvas.getContext('2d');
+  let size=0;
+  function fit(){ size=fitCanvas(canvas, ctx); }
+  function toScreen(z){ const cx=size/2,cy=size/2, scale=(size/2)/(opts.range*1.15); return {x:cx+z.re*scale, y:cy-z.im*scale}; }
+  function toWorld(px,py){ const cx=size/2,cy=size/2, scale=(size/2)/(opts.range*1.15); return {re:(px-cx)/scale, im:-(py-cy)/scale}; }
+  function draw(){
+    if(size<=0) return;
+    ctx.clearRect(0,0,size,size);
+    ctx.strokeStyle='rgba(147,158,196,0.18)'; ctx.lineWidth=1;
+    const rr=Math.ceil(opts.range);
+    for(let i=-rr;i<=rr;i++){
+      const s1=toScreen({re:i,im:0});
+      ctx.beginPath(); ctx.moveTo(s1.x,0); ctx.lineTo(s1.x,size); ctx.stroke();
+      const s2=toScreen({re:0,im:i});
+      ctx.beginPath(); ctx.moveTo(0,s2.y); ctx.lineTo(size,s2.y); ctx.stroke();
+    }
+    ctx.strokeStyle='rgba(238,241,248,0.35)'; ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.moveTo(size/2,0); ctx.lineTo(size/2,size); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,size/2); ctx.lineTo(size,size/2); ctx.stroke();
+    const unitR=(size/2)/(opts.range*1.15);
+    ctx.strokeStyle='rgba(239,138,108,0.35)';
+    ctx.beginPath(); ctx.arc(size/2,size/2,unitR,0,2*Math.PI); ctx.stroke();
+
+    if(opts.isInfinity && opts.isInfinity()){
+      ctx.fillStyle=opts.color;
+      ctx.font='600 22px ' + getComputedStyle(document.body).fontFamily;
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('∞', size/2, size/2);
+      ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+    } else {
+      const z=opts.getValue();
+      const s=toScreen(z);
+      ctx.beginPath(); ctx.arc(s.x,s.y,7,0,2*Math.PI);
+      ctx.fillStyle=opts.color; ctx.fill();
+      ctx.lineWidth=2; ctx.strokeStyle='#0a0d18'; ctx.stroke();
+    }
+  }
+  let dragging=false;
+  function handleMove(e){
+    const rect=canvas.getBoundingClientRect();
+    const px=e.clientX-rect.left, py=e.clientY-rect.top;
+    opts.setValue(toWorld(px,py));
+    opts.onChange();
+  }
+  canvas.addEventListener('pointerdown',(e)=>{
+    if(opts.isInfinity && opts.isInfinity()) return;
+    dragging=true; canvas.setPointerCapture(e.pointerId); canvas.classList.add('dragging');
+    handleMove(e);
+  });
+  canvas.addEventListener('pointermove',(e)=>{ if(dragging) handleMove(e); });
+  function release(){ dragging=false; canvas.classList.remove('dragging'); }
+  canvas.addEventListener('pointerup',release);
+  canvas.addEventListener('pointercancel',release);
+  return { draw, fit };
+}
+
+const matrixPads = {
+  a: makePad(document.getElementById('padA'), { range:2.2, color:'#f0b23e', getValue:()=>state.mA, setValue:(z)=>{state.mA=z;}, onChange:renderAll }),
+  b: makePad(document.getElementById('padB'), { range:2.2, color:'#47c9c2', getValue:()=>state.mB, setValue:(z)=>{state.mB=z;}, onChange:renderAll }),
+  c: makePad(document.getElementById('padC'), { range:2.2, color:'#ef8a6c', getValue:()=>state.mC, setValue:(z)=>{state.mC=z;}, onChange:renderAll }),
+  d: makePad(document.getElementById('padD'), { range:2.2, color:'#b98af0', getValue:()=>state.mD, setValue:(z)=>{state.mD=z;}, onChange:renderAll }),
+};
+function drawMatrixPads(){
+  matrixPads.a.draw(); matrixPads.b.draw(); matrixPads.c.draw(); matrixPads.d.draw();
+  document.getElementById('valA').textContent='a = '+fmtC(state.mA);
+  document.getElementById('valB').textContent='b = '+fmtC(state.mB);
+  document.getElementById('valC').textContent='c = '+fmtC(state.mC);
+  document.getElementById('valD').textContent='d = '+fmtC(state.mD);
+  const det=C.sub(C.mul(state.mA,state.mD), C.mul(state.mB,state.mC));
+  const detNote=document.getElementById('detNote');
+  const singular = C.abs(det) < 1e-6*(C.abs(state.mA)+C.abs(state.mB)+C.abs(state.mC)+C.abs(state.mD)+1e-9);
+  detNote.textContent = 'det = ad − bc = ' + fmtC(det) + (singular ? '  ⚠ matriz singular' : '');
+  detNote.classList.toggle('warn', singular);
+}
+
+// ===================== Pestaña 3: pads de razón cruzada =====================
+const crPads = {
+  w0: makePad(document.getElementById('padW0'), { range:2.4, color:'#f0b23e', getValue:()=>state.w0, setValue:(z)=>{state.w0=z;}, isInfinity:()=>state.infTarget==='w0', onChange:renderAll }),
+  w1: makePad(document.getElementById('padW1'), { range:2.4, color:'#47c9c2', getValue:()=>state.w1, setValue:(z)=>{state.w1=z;}, isInfinity:()=>state.infTarget==='w1', onChange:renderAll }),
+  wInf: makePad(document.getElementById('padWInf'), { range:2.4, color:'#ef8a6c', getValue:()=>state.wInf, setValue:(z)=>{state.wInf=z;}, isInfinity:()=>state.infTarget==='wInf', onChange:renderAll }),
+};
+function drawCRPads(){
+  crPads.w0.draw(); crPads.w1.draw(); crPads.wInf.draw();
+  document.getElementById('valW0').textContent = state.infTarget==='w0' ? '∞' : fmtC(state.w0);
+  document.getElementById('valW1').textContent = state.infTarget==='w1' ? '∞' : fmtC(state.w1);
+  document.getElementById('valWInf').textContent = state.infTarget==='wInf' ? '∞' : fmtC(state.wInf);
+  document.querySelectorAll('.inf-btn').forEach(btn=> btn.classList.toggle('active', state.infTarget===btn.dataset.target));
+}
+document.querySelectorAll('.inf-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const key=btn.dataset.target;
+    state.infTarget = (state.infTarget===key) ? null : key;
+    renderAll();
+  });
+});
+
+// ===================== Pestañas =====================
+document.getElementById('tabbar').addEventListener('click',(e)=>{
+  const btn=e.target.closest('[data-tab]'); if(!btn) return;
+  state.activeTab=btn.dataset.tab;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b===btn));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active', p.dataset.tab===state.activeTab));
+  if(state.activeTab==='matrix'){ matrixPads.a.fit(); matrixPads.b.fit(); matrixPads.c.fit(); matrixPads.d.fit(); }
+  if(state.activeTab==='cross-ratio'){ crPads.w0.fit(); crPads.w1.fit(); crPads.wInf.fit(); }
+  renderAll();
+});
+
+// ===================== Resize =====================
+function handleResize(){
+  planeSize=fitCanvas(planeCanvas, planeCtx);
+  sphereSize=fitCanvas(sphereCanvas, sphereCtx);
+  if(state.activeTab==='matrix'){ matrixPads.a.fit(); matrixPads.b.fit(); matrixPads.c.fit(); matrixPads.d.fit(); }
+  if(state.activeTab==='cross-ratio'){ crPads.w0.fit(); crPads.w1.fit(); crPads.wInf.fit(); }
+  renderAll();
+}
+window.addEventListener('resize', handleResize);
+
+// ===================== Inicio =====================
+syncSlidersFromState();
+handleResize();
+})();
+</script>
+</body>
+</html>
