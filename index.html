@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Introducción a las Superficies de Riemann · 3006897</title>
+<meta name="description" content="Material interactivo del curso Introducción a las Superficies de Riemann (3006897), Universidad Nacional de Colombia.">
+<style>
+  :root{
+    --bg:#0a0d16;
+    --panel:#121729;
+    --panel-2:#0e1220;
+    --border:#232b45;
+    --text:#eef1f8;
+    --text-dim:#8b93ab;
+    --text-faint:#5c6684;
+    --p-color:#f0b23e;
+    --q-color:#47c9c2;
+    --accent:#ef8a6c;
+    --violet:#b98af0;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+  }
+  .hero{
+    position:relative;
+    padding:64px 20px 46px;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 18% 22%, rgba(71,201,194,0.10), transparent 42%),
+      radial-gradient(circle at 82% 12%, rgba(240,178,62,0.09), transparent 40%),
+      var(--bg);
+    border-bottom:1px solid var(--border);
+  }
+  .hero::before{
+    content:"";
+    position:absolute; inset:-20% -10% auto -10%; height:520px;
+    background-image:
+      repeating-radial-gradient(circle at 50% 120%, transparent 0 54px, rgba(147,158,196,0.055) 55px 56px);
+    pointer-events:none;
+  }
+  .hero-inner{ position:relative; max-width:920px; margin:0 auto; }
+  .eyebrow{ font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--q-color); margin-bottom:14px; }
+  h1{ font-family:var(--serif); font-weight:600; font-size:clamp(28px,4.4vw,44px); line-height:1.15; margin:0 0 14px; letter-spacing:.2px; }
+  .hero p{ color:var(--text-dim); font-size:15.5px; max-width:62ch; line-height:1.65; margin:0 0 22px; }
+  .hero-meta{ display:flex; flex-wrap:wrap; gap:10px 22px; font-family:var(--mono); font-size:12px; color:var(--text-faint); }
+  .hero-meta span strong{ color:var(--text-dim); font-weight:500; }
+
+  main{ max-width:920px; margin:0 auto; padding:44px 20px 60px; }
+
+  .unit{ margin-bottom:44px; }
+  .unit-head{ display:flex; align-items:baseline; gap:12px; margin-bottom:16px; }
+  .unit-num{ font-family:var(--serif); font-size:22px; color:var(--text-faint); min-width:28px; }
+  .unit-title{ font-family:var(--sans); font-size:15px; font-weight:600; color:var(--text); }
+  .unit-sub{ font-family:var(--mono); font-size:11px; color:var(--text-faint); margin-left:auto; text-transform:uppercase; letter-spacing:.06em; }
+
+  .cards{ display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; }
+
+  a.card{
+    display:block; background:var(--panel); border:1px solid var(--border); border-radius:14px;
+    padding:18px; text-decoration:none; color:inherit; transition:transform .15s, border-color .15s, background .15s;
+  }
+  a.card:hover{ transform:translateY(-2px); border-color:var(--q-color); background:#141a30; }
+  a.card:focus-visible{ outline:2px solid var(--q-color); outline-offset:2px; }
+  .card-tag{ display:inline-block; font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--q-color); background:rgba(71,201,194,0.12); border-radius:999px; padding:3px 10px; margin-bottom:12px; }
+  .card h3{ font-family:var(--serif); font-size:17px; font-weight:600; margin:0 0 8px; line-height:1.3; }
+  .card p{ color:var(--text-dim); font-size:13px; line-height:1.55; margin:0 0 14px; }
+  .card .open{ font-family:var(--mono); font-size:12px; color:var(--p-color); }
+
+  .card.placeholder{ background:transparent; border:1px dashed var(--border); cursor:default; }
+  .card.placeholder:hover{ transform:none; border-color:var(--border); background:transparent; }
+  .card.placeholder .card-tag{ color:var(--text-faint); background:rgba(139,147,171,0.08); }
+  .card.placeholder h3{ color:var(--text-dim); }
+  .card.placeholder p{ color:var(--text-faint); }
+  .card.placeholder .open{ color:var(--text-faint); }
+
+  footer{ max-width:920px; margin:0 auto; padding:0 20px 50px; color:var(--text-faint); font-size:12px; line-height:1.7; }
+  footer a{ color:var(--text-dim); }
+  footer .rule{ border:none; border-top:1px solid var(--border); margin:0 0 22px; }
+</style>
+</head>
+<body>
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="eyebrow">Universidad Nacional de Colombia · Departamento de Matemáticas — Fac. Ciencias</div>
+      <h1>Introducción a las Superficies de Riemann</h1>
+      <p>Material interactivo del curso 3006897. Cada applet complementa la teoría con una exploración manipulable: arrastra puntos, ajusta parámetros y observa la construcción en tiempo real, en el plano y en la esfera.</p>
+      <div class="hero-meta">
+        <span><strong>Código</strong> · 3006897</span>
+        <span><strong>Créditos</strong> · 4</span>
+        <span><strong>Horas presenciales</strong> · 4</span>
+      </div>
+    </div>
+  </div>
+
+  <main>
+
+    <section class="unit">
+      <div class="unit-head">
+        <span class="unit-num">1</span>
+        <span class="unit-title">El plano complejo extendido y transformaciones de Möbius</span>
+      </div>
+      <div class="cards">
+        <a class="card" href="mobius-riemann-sphere.html">
+          <span class="card-tag">Disponible</span>
+          <h3>Transformaciones de Möbius sobre la esfera de Riemann</h3>
+          <p>Puntos fijos y multiplicador, matriz (a,b,c,d), o imágenes de 0, 1 e ∞ — tres formas de construir la misma transformación, con animación y clasificación en vivo.</p>
+          <span class="open">Abrir el applet →</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="unit">
+      <div class="unit-head">
+        <span class="unit-num">2</span>
+        <span class="unit-title">Funciones elípticas</span>
+        <span class="unit-sub">próximamente</span>
+      </div>
+      <div class="cards">
+        <div class="card placeholder">
+          <span class="card-tag">Próximamente</span>
+          <h3>Retículos, el toro y la función de Weierstrass ℘</h3>
+          <p>Visualizador del dominio fundamental de un retículo y la función ℘ asociada.</p>
+          <span class="open">En preparación</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="unit">
+      <div class="unit-head">
+        <span class="unit-num">3</span>
+        <span class="unit-title">Continuación meromorfa y superficies de Riemann</span>
+        <span class="unit-sub">próximamente</span>
+      </div>
+      <div class="cards">
+        <div class="card placeholder">
+          <span class="card-tag">Próximamente</span>
+          <h3>Monodromía y continuación analítica</h3>
+          <p>Continuación de log(z) y z^(1/q) a lo largo de un lazo, y el grupo fundamental del complemento de los puntos de ramificación.</p>
+          <span class="open">En preparación</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="unit">
+      <div class="unit-head">
+        <span class="unit-num">4</span>
+        <span class="unit-title">Superficies de Riemann abstractas</span>
+        <span class="unit-sub">próximamente</span>
+      </div>
+      <div class="cards">
+        <div class="card placeholder">
+          <span class="card-tag">Próximamente</span>
+          <h3>Superficies de recubrimiento ramificado</h3>
+          <p>Construcción de la superficie asociada a z^(1/q) pegando hojas, y cálculo del género vía Riemann-Hurwitz.</p>
+          <span class="open">En preparación</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <hr class="rule">
+    Material de apoyo para el curso 3006897. Cada applet es un archivo HTML independiente y autocontenido — se puede abrir localmente con doble clic o desde este sitio, publicado con GitHub Pages.
+  </footer>
+</body>
+</html>
