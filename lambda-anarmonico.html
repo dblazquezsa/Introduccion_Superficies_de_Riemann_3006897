@@ -100,17 +100,27 @@
 
     <div class="canvases">
       <section class="panel">
-        <div class="panel-label"><span>Semiplano superior ℍ</span><span class="hint">arrastra τ</span></div>
+        <div class="panel-label">
+          <span>Semiplano superior ℍ</span>
+          <span class="hint">
+            <span class="btn-row" style="display:inline-flex; gap:6px;">
+              <button class="preset-btn" id="viewH" style="border-color:var(--q-color); background:#e3ede9; color:var(--q-color);">Semiplano ℍ</button>
+              <button class="preset-btn" id="viewDisk">Disco de Poincaré</button>
+            </span>
+            &nbsp; arrastra τ
+          </span>
+        </div>
         <canvas id="tauCanvas" aria-label="Semiplano superior con el punto tau"></canvas>
         <div class="legend" style="display:flex; gap:14px; flex-wrap:wrap; font-family:var(--mono); font-size:11px; color:var(--text-dim); margin-top:9px;">
-          <span><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(22,128,121,0.18);border:1px solid rgba(22,128,121,0.55);vertical-align:middle;margin-right:5px;"></span>mitad derecha (→ Im λ&gt;0)</span>
-          <span><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(108,83,184,0.18);border:1px solid rgba(108,83,184,0.55);vertical-align:middle;margin-right:5px;"></span>mitad izquierda (→ Im λ&lt;0)</span>
-          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#6c53b8;vertical-align:middle;margin-right:5px;"></span>órbita de τ bajo Γ(2)</span>
+          <span><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(22,128,121,0.18);border:1px solid rgba(22,128,121,0.55);vertical-align:middle;margin-right:5px;"></span>teselas tipo derecha (→ Im λ&gt;0)</span>
+          <span><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(108,83,184,0.18);border:1px solid rgba(108,83,184,0.55);vertical-align:middle;margin-right:5px;"></span>teselas tipo izquierda (→ Im λ&lt;0)</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#6c53b8;vertical-align:middle;margin-right:5px;"></span>algunos puntos de la órbita de τ bajo Γ(2)</span>
         </div>
       </section>
       <section class="panel">
         <div class="panel-label"><span>Plano λ</span><span class="hint">los 6 valores anarmónicos</span></div>
         <canvas id="lambdaCanvas" aria-label="Los 6 valores del grupo anarmonico"></canvas>
+        <p style="font-family:var(--mono); font-size:11px; color:var(--text-dim); margin:9px 0 0;">Los puntos señalados son los puntos de la órbita de λ bajo el grupo anarmónico S₃ (vista: |Re λ|≤2, |Im λ|≤2).</p>
       </section>
     </div>
 
@@ -123,7 +133,7 @@
   </main>
 
   <footer>
-    <strong>Cómo leerlo:</strong> el dominio sombreado en verde es un dominio fundamental de Γ(2) — todo punto de ℍ es Γ(2)-equivalente a exactamente uno de su interior o borde. Los puntos violeta son una muestra de la órbita de τ bajo Γ(2) (palabras cortas en A, A⁻¹, B, B⁻¹): en todos ellos λ toma el mismo valor, por construcción. τ y su imagen bajo S o T (que no están en Γ(2)) dan, en general, un valor distinto de entre los otros 5 del grupo anarmónico {λ, 1−λ, 1/λ, 1/(1−λ), λ/(λ−1), (λ−1)/λ} — mostrados en el plano λ del mismo color violeta, para distinguirlos de λ misma. Estos 6 valores son las raíces de la ecuación que expresa j en términos de λ — por eso j(τ) (ver el artefacto correspondiente) es invariante bajo el grupo modular completo aunque λ no lo sea. La segunda definición, vía ℘ evaluada en los tres semiperíodos no triviales del retículo ℤ+ℤτ, es la que conecta λ directamente con los puntos de ramificación de ℘′ del artefacto de Weierstrass.
+    <strong>Cómo leerlo:</strong> el dominio fundamental de Γ(2) son las dos teselas centrales (n=−1 y n=0, a opacidad plena). A su alrededor hay tres niveles de teselas vecinas, cada vez más tenues, con el mismo número de teselas reflejadas a cada lado del dominio: 6 teselas verticales (n=−3..2, dos más a cada lado del dominio; sin vértice finito arriba — llegan hasta i∞), 6 teselas acotadas justo debajo de esas (una por cada vertical, de color <em>opuesto</em> a ella) y 12 teselas más pequeñas debajo de esas 6 (dos por cada una, del mismo color que la vertical original). El patrón de color es el de un árbol bipartito: cada vez que cruzas un arco a la tesela vecina, el color se invierte. Los puntos violeta son una muestra de la órbita de τ bajo Γ(2) (palabras cortas en A, A⁻¹, B, B⁻¹): en todos ellos λ toma el mismo valor, por construcción. τ y su imagen bajo S o T (que no están en Γ(2)) dan, en general, un valor distinto de entre los otros 5 del grupo anarmónico {λ, 1−λ, 1/λ, 1/(1−λ), λ/(λ−1), (λ−1)/λ} — mostrados en el plano λ del mismo color violeta, para distinguirlos de λ misma. Estos 6 valores son las raíces de la ecuación que expresa j en términos de λ — por eso j(τ) (ver el artefacto correspondiente) es invariante bajo el grupo modular completo aunque λ no lo sea. La segunda definición, vía ℘ evaluada en los tres semiperíodos no triviales del retículo ℤ+ℤτ, es la que conecta λ directamente con los puntos de ramificación de ℘′ del artefacto de Weierstrass. El botón "Disco de Poincaré" aplica τ↦(τ−a)/(τ−ā) con a=e^(iπ/3), la transformación de Möbius que manda ℍ al disco unidad llevando 0, 1, ∞ a los vértices de un triángulo equilátero — la misma superficie, solo que ahora todo el dominio (no acotado en ℍ) cabe en una región finita.
   </footer>
 </div>
 
@@ -214,7 +224,16 @@ function lambdaViaWeierstrass(tau){
   return { e1,e2,e3, lambda:C.div(C.sub(e3,e2), C.sub(e1,e2)) };
 }
 
-const state = { tau:{re:0.3,im:1.2} };
+const state = { tau:{re:0.3,im:1.2}, viewMode:'H' };
+
+// ===== disco de Poincare: M(tau)=(tau-a)/(tau-abar), a=e^{i pi/3}, manda 0,1,infinito a 120 grados entre si =====
+const DISK_A={re:0.5, im:Math.sqrt(3)/2}, DISK_ABAR={re:0.5, im:-Math.sqrt(3)/2};
+function diskMap(tau){ return C.div(C.sub(tau,DISK_A), C.sub(tau,DISK_ABAR)); }
+function diskMapInv(w){
+  const num=C.sub(C.mul(w,DISK_ABAR), DISK_A);
+  const den=C.sub(w, ONE);
+  return C.div(num,den);
+}
 
 const tauCanvas=document.getElementById('tauCanvas'), tauCtx=tauCanvas.getContext('2d');
 const lambdaCanvas=document.getElementById('lambdaCanvas'), lambdaCtx=lambdaCanvas.getContext('2d');
@@ -227,11 +246,16 @@ function fitCanvas(canvas, ctx){
   return cssSize;
 }
 const TAU_RANGE=2.2, TAU_YMAX=2*TAU_RANGE; // TAU_YMAX = borde superior real del canvas (visible y arrastrable)
-const LAMBDA_MAX_MAG=4.0; // escala fija: con esta cota, 0 y 1 quedan bien ubicados para el tau por defecto
+const LAMBDA_VIEW_HALF=2.0; // se muestra exactamente |Re λ|<=2, |Im λ|<=2
 const RIGHT_TINT='rgba(22,128,121,0.07)';  // Re(tau)>0  <->  Im(lambda)>0
 const LEFT_TINT='rgba(108,83,184,0.07)';   // Re(tau)<0  <->  Im(lambda)<0
 function tauToScreen(t){ const size=tauSize; const scale=size/(2*TAU_RANGE); return {x:size/2+t.re*scale, y:size-t.im*scale}; }
 function screenToTau(px,py){ const size=tauSize; const scale=size/(2*TAU_RANGE); return {re:(px-size/2)/scale, im:(size-py)/scale}; }
+const DISK_R_FRAC=0.46;
+function diskWToScreen(w){ const size=tauSize, cx=size/2, cy=size/2, R=size*DISK_R_FRAC; return {x:cx+w.re*R, y:cy-w.im*R}; }
+function diskScreenToW(px,py){ const size=tauSize, cx=size/2, cy=size/2, R=size*DISK_R_FRAC; return {re:(px-cx)/R, im:-(py-cy)/R}; }
+function activeToScreen(t){ return state.viewMode==='disk' ? diskWToScreen(diskMap(t)) : tauToScreen(t); }
+function activeScreenToTau(px,py){ return state.viewMode==='disk' ? diskMapInv(diskScreenToW(px,py)) : screenToTau(px,py); }
 function drawMarker(ctx, s, color, label, r){
   ctx.beginPath(); ctx.arc(s.x,s.y,r||5,0,2*Math.PI);
   ctx.fillStyle=color; ctx.fill();
@@ -242,10 +266,17 @@ function drawMarker(ctx, s, color, label, r){
 function renderTau(){
   const size=tauSize;
   tauCtx.clearRect(0,0,size,size);
+  const disk = state.viewMode==='disk';
+  const proj = activeToScreen;
 
-  // dominio fundamental de Gamma(2): -1<=Re(t)<=1, |t-1/2|>=1/2, |t+1/2|>=1/2
-  // se divide en dos mitades (izquierda: -1..0, derecha: 0..1) que lambda manda
-  // a los semiplanos inferior y superior del plano lambda, respectivamente.
+  // borde del disco de Poincare (solo en modo disco)
+  if(disk){
+    const cx=size/2, cy=size/2, R=size*DISK_R_FRAC;
+    tauCtx.beginPath(); tauCtx.arc(cx,cy,R,0,2*Math.PI);
+    tauCtx.strokeStyle='rgba(35,32,25,0.3)'; tauCtx.lineWidth=1.4; tauCtx.stroke();
+  }
+
+  // triangulo ideal con vertices n, n+1, infinito (dominio fundamental de Gamma(2) si n=-1 o n=0)
   const NA=40;
   function arcPts(center, fromAng, toAng){
     const pts=[];
@@ -255,52 +286,110 @@ function renderTau(){
     }
     return pts;
   }
-  const leftPath = [{re:-1,im:TAU_YMAX}, {re:-1,im:0.001}]
-    .concat(arcPts(-0.5, Math.PI, 0))
-    .concat([{re:0,im:0.001}, {re:0,im:TAU_YMAX}]);
-  const rightPath = [{re:0,im:TAU_YMAX}, {re:0,im:0.001}]
-    .concat(arcPts(0.5, Math.PI, 0))
-    .concat([{re:1,im:0.001}, {re:1,im:TAU_YMAX}]);
-
-  function fillHalf(pathPts, fillRGB, stroke){
-    const scr=pathPts.map(tauToScreen);
+  // puntos a lo largo de la recta vertical Re(tau)=n, acercandose suavemente a i*infinito
+  // (im=tan(theta), theta->pi/2) en vez de truncar en 2 puntos a una altura fija: con solo
+  // el punto inicial y final, el segmento se veia recto tras transformar al disco; con muchos
+  // puntos y la parametrizacion en theta, la imagen es un arco suave que SI llega al borde.
+  const THETA_EPS=0.0004, NV=50;
+  function vertRayPts(n, ascending){
+    const pts=[];
+    for(let i=0;i<=NV;i++){
+      const frac = ascending ? i/NV : 1-i/NV;
+      const theta = THETA_EPS + (Math.PI/2-2*THETA_EPS)*frac;
+      pts.push({re:n, im:Math.tan(theta)});
+    }
+    return pts;
+  }
+  function unitTrianglePath(n){
+    return vertRayPts(n, false)
+      .concat(arcPts(n+0.5, Math.PI, 0).slice(1))
+      .concat(vertRayPts(n+1, true).slice(1));
+  }
+  // triangulo ideal acotado (sin vertice en infinito), con vertices finitos v1<v2<v3.
+  // borde: arco pequeño v1->v2, arco pequeño v2->v3, arco grande v3->v1 (cerrando por arriba).
+  function arcBetween(va,vb){
+    const center=(va+vb)/2, radius=(vb-va)/2, pts=[];
+    for(let i=0;i<=NA;i++){
+      const ang=Math.PI - Math.PI*(i/NA);
+      pts.push({re:center+radius*Math.cos(ang), im:radius*Math.sin(ang)});
+    }
+    return pts;
+  }
+  function boundedTrianglePath(v1,v2,v3){
+    return arcBetween(v1,v2)
+      .concat(arcBetween(v2,v3).slice(1))
+      .concat(arcBetween(v1,v3).reverse().slice(1));
+  }
+  function fillPath(pts, teal, opacityScale, bounded){
+    const rgb = teal ? '22,128,121' : '108,83,184';
+    const scr = pts.map(proj);
     tauCtx.beginPath();
     tauCtx.moveTo(scr[0].x,scr[0].y);
     for(let i=1;i<scr.length;i++) tauCtx.lineTo(scr[i].x,scr[i].y);
-    // el dominio no esta acotado arriba (llega hasta i∞): el relleno se desvanece
-    // en vez de cortarse con una linea, y el trazo NO cierra el borde superior
-    // (no llamamos closePath: fill() cierra implicitamente solo para rellenar).
-    const grad=tauCtx.createLinearGradient(0,size,0,0);
-    grad.addColorStop(0, `rgba(${fillRGB},0.11)`);
-    grad.addColorStop(0.55, `rgba(${fillRGB},0.11)`);
-    grad.addColorStop(1, `rgba(${fillRGB},0)`);
-    tauCtx.fillStyle=grad;
+    if(disk || bounded){
+      // acotado (o en vista de disco, donde todo cabe): relleno solido
+      tauCtx.fillStyle=`rgba(${rgb},${(0.11*opacityScale).toFixed(3)})`;
+    } else {
+      // en H, las teselas verticales no estan acotadas arriba: degradado en vez de borde recto
+      const grad=tauCtx.createLinearGradient(0,size,0,0);
+      grad.addColorStop(0, `rgba(${rgb},${(0.11*opacityScale).toFixed(3)})`);
+      grad.addColorStop(0.55, `rgba(${rgb},${(0.11*opacityScale).toFixed(3)})`);
+      grad.addColorStop(1, `rgba(${rgb},0)`);
+      tauCtx.fillStyle=grad;
+    }
     tauCtx.fill();
-    tauCtx.strokeStyle=stroke; tauCtx.lineWidth=1.6; tauCtx.stroke();
+    tauCtx.strokeStyle=`rgba(${rgb},${(0.55*opacityScale).toFixed(3)})`; tauCtx.lineWidth=1.6; tauCtx.stroke();
   }
-  fillHalf(leftPath, '108,83,184', 'rgba(108,83,184,0.55)');
-  fillHalf(rightPath, '22,128,121', 'rgba(22,128,121,0.55)');
+  function fillTile(n, opacityScale){
+    const teal = (n%2===0); // n par -> mismo color que la mitad derecha (0..1); impar -> izquierda
+    fillPath(unitTrianglePath(n), teal, opacityScale, false);
+  }
 
-  const o=tauToScreen({re:0,im:0});
-  tauCtx.strokeStyle='rgba(35,32,25,0.35)'; tauCtx.lineWidth=1.3;
-  tauCtx.beginPath(); tauCtx.moveTo(0,o.y); tauCtx.lineTo(size,o.y); tauCtx.stroke();
-  [-1,0,1].forEach(x=>{
-    const s1=tauToScreen({re:x,im:0}), s2=tauToScreen({re:x,im:TAU_YMAX});
-    tauCtx.strokeStyle='rgba(35,32,25,0.1)'; tauCtx.lineWidth=1;
-    tauCtx.beginPath(); tauCtx.moveTo(s1.x,s1.y); tauCtx.lineTo(s2.x,s2.y); tauCtx.stroke();
+  // 6 teselas verticales: dominio fundamental (n=-1,0, opacidad plena) + 4 vecinas laterales
+  const VERT_TILES=[-3,-2,-1,0,1,2]; // dominio {-1,0} + 2 teselas a cada lado (mismo numero en cada direccion)
+  VERT_TILES.forEach(n=>{
+    const isMain = (n===-1||n===0);
+    fillTile(n, isMain?1:0.5);
   });
+
+  // nivel 1: una tesela acotada justo debajo de cada tesela vertical (color OPUESTO al de esa vertical)
+  VERT_TILES.forEach(n=>{
+    const tealVert = (n%2===0);
+    fillPath(boundedTrianglePath(n, n+0.5, n+1), !tealVert, 0.42, true);
+  });
+
+  // nivel 2: dos teselas debajo de cada una de nivel 1 (color IGUAL al de la vertical original)
+  VERT_TILES.forEach(n=>{
+    const tealVert = (n%2===0);
+    fillPath(boundedTrianglePath(n, n+1/3, n+0.5), tealVert, 0.26, true);
+    fillPath(boundedTrianglePath(n+0.5, n+2/3, n+1), tealVert, 0.26, true);
+  });
+
+  if(!disk){
+    const o=tauToScreen({re:0,im:0});
+    tauCtx.strokeStyle='rgba(35,32,25,0.35)'; tauCtx.lineWidth=1.3;
+    tauCtx.beginPath(); tauCtx.moveTo(0,o.y); tauCtx.lineTo(size,o.y); tauCtx.stroke();
+  } else {
+    // etiquetas 0, 1, infinito en los vertices del triangulo equilatero
+    [{t:{re:0,im:0},lab:'0'},{t:{re:1,im:0},lab:'1'},{t:{re:1e7,im:0},lab:'∞'}].forEach(({t,lab})=>{
+      const s=proj(t);
+      tauCtx.font='600 12px '+getComputedStyle(document.body).fontFamily;
+      tauCtx.fillStyle='rgba(189,86,54,0.85)';
+      tauCtx.fillText(lab, s.x-4, s.y+(s.y<size/2?-8:16));
+    });
+  }
 
   // orbita de tau bajo Gamma(2) (muestra local, palabras cortas en los generadores)
   const orbitPts=gamma2Orbit(state.tau, 3);
   orbitPts.forEach(p=>{
-    const s=tauToScreen(p);
+    const s=proj(p);
     if(s.x<-20||s.x>size+20||s.y<-20||s.y>size+20) return;
     tauCtx.beginPath(); tauCtx.arc(s.x,s.y,3.4,0,2*Math.PI);
     tauCtx.fillStyle='rgba(108,83,184,0.55)'; tauCtx.fill();
   });
 
-  drawMarker(tauCtx, tauToScreen({re:0,im:1}), 'rgba(181,121,26,0.6)', 'i', 3);
-  drawMarker(tauCtx, tauToScreen(state.tau), '#232019', 'τ', 6);
+  drawMarker(tauCtx, proj({re:0,im:1}), 'rgba(181,121,26,0.6)', 'i', 3);
+  drawMarker(tauCtx, proj(state.tau), '#232019', 'τ', 6);
 }
 
 function renderLambda(){
@@ -308,7 +397,7 @@ function renderLambda(){
   lambdaCtx.clearRect(0,0,size,size);
   const l = lambdaOf(state.tau);
   const orbit = anharmonicSet(l);
-  const scale=(size/2*0.82)/LAMBDA_MAX_MAG;
+  const scale=size/(2*LAMBDA_VIEW_HALF);
   const toScreen=(z)=>({x:cx+z.re*scale, y:cy-z.im*scale});
   const onScreen=(s)=> s.x>-40 && s.x<size+40 && s.y>-40 && s.y<size+40;
 
@@ -383,6 +472,19 @@ function Smap(t){ return C.neg(C.div(ONE,t)); }
 function Tmap(t){ return C.add(t,ONE); }
 function TmapInv(t){ return C.sub(t,ONE); }
 
+document.getElementById('viewH').addEventListener('click',()=>{
+  state.viewMode='H';
+  document.getElementById('viewH').style.cssText='border-color:var(--q-color); background:#e3ede9; color:var(--q-color);';
+  document.getElementById('viewDisk').style.cssText='';
+  renderTau();
+});
+document.getElementById('viewDisk').addEventListener('click',()=>{
+  state.viewMode='disk';
+  document.getElementById('viewDisk').style.cssText='border-color:var(--q-color); background:#e3ede9; color:var(--q-color);';
+  document.getElementById('viewH').style.cssText='';
+  renderTau();
+});
+
 document.getElementById('applyA').addEventListener('click',()=>{ state.tau=Amap(state.tau); renderAll(); });
 document.getElementById('applyAinv').addEventListener('click',()=>{ state.tau=AmapInv(state.tau); renderAll(); });
 document.getElementById('applyB').addEventListener('click',()=>{
@@ -420,12 +522,12 @@ let dragging=false;
 function pointerPos(evt, canvas){ const rect=canvas.getBoundingClientRect(); return {x:evt.clientX-rect.left, y:evt.clientY-rect.top}; }
 tauCanvas.addEventListener('pointerdown',(e)=>{
   dragging=true; tauCanvas.classList.add('dragging'); tauCanvas.setPointerCapture(e.pointerId);
-  const pos=pointerPos(e,tauCanvas); const t=screenToTau(pos.x,pos.y);
+  const pos=pointerPos(e,tauCanvas); const t=activeScreenToTau(pos.x,pos.y);
   if(t.im>0.02){ state.tau=t; renderAll(); }
 });
 tauCanvas.addEventListener('pointermove',(e)=>{
   if(!dragging) return;
-  const pos=pointerPos(e,tauCanvas); const t=screenToTau(pos.x,pos.y);
+  const pos=pointerPos(e,tauCanvas); const t=activeScreenToTau(pos.x,pos.y);
   if(t.im>0.02){ state.tau=t; renderAll(); }
 });
 function releaseTau(){ dragging=false; tauCanvas.classList.remove('dragging'); }

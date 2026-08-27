@@ -98,7 +98,7 @@
   </main>
 
   <footer>
-    <strong>Cómo leerlo:</strong> el dominio sombreado (−1/2≤Re τ≤1/2, |τ|≥1) es un dominio fundamental para PSL(2,ℤ) — todo τ∈ℍ es equivalente a exactamente un punto de su interior o borde (con las identificaciones habituales en el borde). g₂ y g₃ son las mismas series de Eisenstein del artefacto de Weierstrass-℘, y Δ=g₂³−27g₃² es el discriminante — nunca se anula para τ∈ℍ, porque eso significaría un retículo degenerado. La relación j=256(1−λ+λ²)³/(λ²(1−λ)²) conecta este artefacto con el de la función λ: los 6 valores anarmónicos de λ dan, los seis, el mismo j — por eso j sí es invariante bajo el grupo modular completo aunque λ no lo sea.
+    <strong>Cómo leerlo:</strong> el dominio fundamental F (−1/2≤Re τ≤1/2, |τ|≥1, a opacidad plena) es solo una de infinitas copias que tesela ℍ bajo PSL(2,ℤ). A los lados se ven T(F) y T⁻¹(F) — las mismas copias trasladadas por τ↦τ±1 — y justo debajo de cada una, un triángulo acotado más pequeño (vértices en un entero k y en los dos puntos ρ-tipo de la tesela de arriba): esa es la tesela que se obtiene aplicando S a cada copia, y su existencia es la razón por la que la vista arranca en Im τ=0 en vez de en la altura del arco. g₂ y g₃ son las mismas series de Eisenstein del artefacto de Weierstrass-℘, y Δ=g₂³−27g₃² es el discriminante — nunca se anula para τ∈ℍ, porque eso significaría un retículo degenerado. La relación j=256(1−λ+λ²)³/(λ²(1−λ)²) conecta este artefacto con el de la función λ: los 6 valores anarmónicos de λ dan, los seis, el mismo j — por eso j sí es invariante bajo el grupo modular completo aunque λ no lo sea.
   </footer>
 </div>
 
@@ -154,7 +154,7 @@ function fitCanvas(canvas, ctx){
   ctx.setTransform(dpr,0,0,dpr,0,0);
   return cssSize;
 }
-const TAU_RANGE=2.2, TAU_YMAX=3.0;
+const TAU_RANGE=1.5; // vista: Re(tau) en [-1.5,1.5], Im(tau) en [0, 2*TAU_RANGE]=[0,3]
 function tauToScreen(t){ const size=tauSize; const scale=size/(2*TAU_RANGE); return {x:size/2+t.re*scale, y:size-t.im*scale}; }
 function screenToTau(px,py){ const size=tauSize; const scale=size/(2*TAU_RANGE); return {re:(px-size/2)/scale, im:(size-py)/scale}; }
 function drawMarker(ctx, s, color, label, r){
@@ -164,44 +164,77 @@ function drawMarker(ctx, s, color, label, r){
   if(label){ ctx.font='600 11px '+getComputedStyle(document.body).fontFamily; ctx.fillStyle=color; ctx.fillText(label, s.x+8, s.y-8); }
 }
 
-function renderTau(){
-  const size=tauSize;
-  tauCtx.clearRect(0,0,size,size);
-  const o=tauToScreen({re:0,im:0});
-  tauCtx.strokeStyle='rgba(35,32,25,0.35)'; tauCtx.lineWidth=1.3;
-  tauCtx.beginPath(); tauCtx.moveTo(0,o.y); tauCtx.lineTo(size,o.y); tauCtx.stroke();
-
-  // dominio fundamental: -1/2<=Re<=1/2, |tau|>=1
-  const path=[];
-  path.push({re:-0.5, im:TAU_YMAX});
-  path.push({re:-0.5, im:Math.sqrt(3)/2});
-  const NA=40;
-  for(let i=0;i<=NA;i++){
-    const ang=(2*Math.PI/3) + (Math.PI/3)*(i/NA); // de 120 a 60 grados
-    path.push({re:Math.cos(ang), im:Math.sin(ang)});
+// alto de rho=e^{i pi/3} (los dos vertices finitos del dominio F estan a esta altura)
+const RHO_H=Math.sqrt(3)/2;
+const NA=40;
+// puntos a lo largo de la recta vertical Re(tau)=re, desde la altura RHO_H hasta i*infinito
+// (usando im=tan(theta), theta->pi/2, en vez de truncar a una altura fija: asi el relleno
+// se desvanece de verdad en vez de cortarse con un borde recto).
+const THETA_MIN=Math.atan(RHO_H), THETA_MAX=Math.PI/2-0.0005, NV=50;
+function vertRayPts(re, ascending){
+  const pts=[];
+  for(let i=0;i<=NV;i++){
+    const frac = ascending ? i/NV : 1-i/NV;
+    const theta = THETA_MIN + (THETA_MAX-THETA_MIN)*frac;
+    pts.push({re, im:Math.tan(theta)});
   }
-  path.push({re:0.5, im:TAU_YMAX});
-  const scr=path.map(tauToScreen);
+  return pts;
+}
+// arco de radio 1 centrado en "center", entre los angulos dados (todas las aristas de este
+// dominio son arcos de circulos de radio 1 centrados en enteros: |tau-k|=1)
+function arcPtsGen(center, fromAng, toAng){
+  const pts=[];
+  for(let i=0;i<=NA;i++){
+    const ang=fromAng+(toAng-fromAng)*(i/NA);
+    pts.push({re:center+Math.cos(ang), im:Math.sin(ang)});
+  }
+  return pts;
+}
+// tesela "ojo de cerradura" centrada en el entero k: F trasladada por T^k
+function unboundedTilePath(k){
+  return vertRayPts(k-0.5, false)
+    .concat(arcPtsGen(k, 2*Math.PI/3, Math.PI/3).slice(1))
+    .concat(vertRayPts(k+0.5, true).slice(1));
+}
+// triangulo acotado justo debajo de la tesela k: vertices k, RHO_L+k, RHO_R+k
+// (arcos |tau-(k-1)|=1 y |tau-(k+1)|=1 — verificado numericamente antes de implementar)
+function boundedTilePath(k){
+  return arcPtsGen(k-1, 0, Math.PI/3)
+    .concat(arcPtsGen(k, 2*Math.PI/3, Math.PI/3).slice(1))
+    .concat(arcPtsGen(k+1, 2*Math.PI/3, Math.PI).slice(1));
+}
+function fillPath(pts, opacityScale, bounded){
+  const scr=pts.map(tauToScreen);
   tauCtx.beginPath();
   tauCtx.moveTo(scr[0].x,scr[0].y);
   for(let i=1;i<scr.length;i++) tauCtx.lineTo(scr[i].x,scr[i].y);
-  tauCtx.strokeStyle='rgba(22,128,121,0.9)'; tauCtx.lineWidth=2; tauCtx.stroke();
-  tauCtx.fillStyle='rgba(22,128,121,0.07)';
-  tauCtx.lineTo(scr[scr.length-1].x, tauToScreen({re:0.5,im:0}).y);
-  tauCtx.lineTo(scr[0].x, tauToScreen({re:-0.5,im:0}).y);
+  if(bounded){
+    tauCtx.fillStyle=`rgba(22,128,121,${(0.11*opacityScale).toFixed(3)})`;
+  } else {
+    const grad=tauCtx.createLinearGradient(0,tauSize,0,0);
+    grad.addColorStop(0, `rgba(22,128,121,${(0.11*opacityScale).toFixed(3)})`);
+    grad.addColorStop(0.55, `rgba(22,128,121,${(0.11*opacityScale).toFixed(3)})`);
+    grad.addColorStop(1, 'rgba(22,128,121,0)');
+    tauCtx.fillStyle=grad;
+  }
   tauCtx.fill();
+  tauCtx.strokeStyle=`rgba(22,128,121,${(0.6*opacityScale).toFixed(3)})`; tauCtx.lineWidth=1.6; tauCtx.stroke();
+}
 
-  // copias vecinas (traslacion +-1), tenues, solo de contexto
-  [-1,1].forEach(shift=>{
-    const scr2=path.map(p=>tauToScreen({re:p.re+shift, im:p.im}));
-    tauCtx.beginPath();
-    tauCtx.moveTo(scr2[0].x,scr2[0].y);
-    for(let i=1;i<scr2.length;i++) tauCtx.lineTo(scr2[i].x,scr2[i].y);
-    tauCtx.strokeStyle='rgba(35,32,25,0.15)'; tauCtx.lineWidth=1; tauCtx.stroke();
-  });
+function renderTau(){
+  const size=tauSize;
+  tauCtx.clearRect(0,0,size,size);
+
+  // 3 teselas "ojo de cerradura" (F y sus vecinas T(F), T^{-1}(F)) + 3 triangulos acotados debajo
+  const KS=[-1,0,1];
+  KS.forEach(k=>fillPath(unboundedTilePath(k), k===0?1:0.5, false));
+  KS.forEach(k=>fillPath(boundedTilePath(k), k===0?0.4:0.24, true));
 
   drawMarker(tauCtx, tauToScreen({re:0,im:1}), 'rgba(181,121,26,0.8)', 'i', 4);
-  drawMarker(tauCtx, tauToScreen({re:0.5,im:Math.sqrt(3)/2}), 'rgba(189,86,54,0.8)', 'ρ', 4);
+  [-1,0,1].forEach(k=>{
+    drawMarker(tauCtx, tauToScreen({re:k+0.5,im:RHO_H}), 'rgba(189,86,54,0.8)', k===0?'ρ':'', 4);
+  });
+
   drawMarker(tauCtx, tauToScreen(state.tau), '#232019', 'τ', 6);
 }
 
