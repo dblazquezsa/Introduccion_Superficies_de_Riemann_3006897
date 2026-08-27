@@ -133,7 +133,7 @@
   </main>
 
   <footer>
-    <strong>Cómo leerlo:</strong> el dominio fundamental de Γ(2) son las dos teselas centrales (n=−1 y n=0, a opacidad plena). A su alrededor hay tres niveles de teselas vecinas, cada vez más tenues, con el mismo número de teselas reflejadas a cada lado del dominio: 6 teselas verticales (n=−3..2, dos más a cada lado del dominio; sin vértice finito arriba — llegan hasta i∞), 6 teselas acotadas justo debajo de esas (una por cada vertical, de color <em>opuesto</em> a ella) y 12 teselas más pequeñas debajo de esas 6 (dos por cada una, del mismo color que la vertical original). El patrón de color es el de un árbol bipartito: cada vez que cruzas un arco a la tesela vecina, el color se invierte. Los puntos violeta son una muestra de la órbita de τ bajo Γ(2) (palabras cortas en A, A⁻¹, B, B⁻¹): en todos ellos λ toma el mismo valor, por construcción. τ y su imagen bajo S o T (que no están en Γ(2)) dan, en general, un valor distinto de entre los otros 5 del grupo anarmónico {λ, 1−λ, 1/λ, 1/(1−λ), λ/(λ−1), (λ−1)/λ} — mostrados en el plano λ del mismo color violeta, para distinguirlos de λ misma. Estos 6 valores son las raíces de la ecuación que expresa j en términos de λ — por eso j(τ) (ver el artefacto correspondiente) es invariante bajo el grupo modular completo aunque λ no lo sea. La segunda definición, vía ℘ evaluada en los tres semiperíodos no triviales del retículo ℤ+ℤτ, es la que conecta λ directamente con los puntos de ramificación de ℘′ del artefacto de Weierstrass. El botón "Disco de Poincaré" aplica τ↦(τ−a)/(τ−ā) con a=e^(iπ/3), la transformación de Möbius que manda ℍ al disco unidad llevando 0, 1, ∞ a los vértices de un triángulo equilátero — la misma superficie, solo que ahora todo el dominio (no acotado en ℍ) cabe en una región finita.
+    <strong>Cómo leerlo:</strong> la tesela central (0, 1, ∞ — a opacidad plena) es un triángulo hiperbólico ideal. Cada tesela vecina se obtiene reflejando hiperbólicamente respecto a uno de sus lados, hasta 5 reflexiones en cada dirección — así el número de teselas que se extienden desde el centro es el mismo en todas direcciones, sin importar que unas terminen más cerca o más lejos en el semiplano. El color se invierte en cada reflexión (un patrón de árbol bipartito), y coincide exactamente con qué semiplano de λ le corresponde a esa tesela. Los puntos violeta son la órbita de τ bajo Γ(2): cada uno se obtiene tras un número <em>par</em> de reflexiones (2 o 4) — las que preservan λ, por ser genuinos elementos de Γ(2) — hasta 4 reflexiones, un valor con el que el cálculo sigue siendo preciso. τ y su imagen bajo S o T (que no están en Γ(2)) dan, en general, un valor distinto de entre los otros 5 del grupo anarmónico {λ, 1−λ, 1/λ, 1/(1−λ), λ/(λ−1), (λ−1)/λ} — mostrados en el plano λ del mismo color violeta, para distinguirlos de λ misma. Estos 6 valores son las raíces de la ecuación que expresa j en términos de λ — por eso j(τ) (ver el artefacto correspondiente) es invariante bajo el grupo modular completo aunque λ no lo sea. La segunda definición, vía ℘ evaluada en los tres semiperíodos no triviales del retículo ℤ+ℤτ, es la que conecta λ directamente con los puntos de ramificación de ℘′ del artefacto de Weierstrass. El botón "Disco de Poincaré" aplica τ↦(τ−a)/(τ−ā) con a=e^(iπ/3), la transformación de Möbius que manda ℍ al disco unidad llevando 0, 1, ∞ a los vértices de un triángulo equilátero — la misma superficie, solo que ahora todo el dominio (no acotado en ℍ) cabe en una región finita, y la tesela central se ve, precisamente, como un triángulo equilátero curvilíneo.
   </footer>
 </div>
 
@@ -179,26 +179,72 @@ function anharmonicSet(l){
   ];
 }
 
-// ===== generadores de Gamma(2) =====
+// ===== generadores de Gamma(2) (para los botones A,B) =====
 function Amap(t){ return C.add(t,{re:2,im:0}); }
 function AmapInv(t){ return C.sub(t,{re:2,im:0}); }
 function Bmap(t){ return C.div(t, C.add(C.scale(t,2), ONE)); }
 function BmapInv(t){ return C.div(t, C.sub(ONE, C.scale(t,2))); }
 
-// muestra de la orbita de tau bajo Gamma(2): todas las palabras de longitud <=3 en A,Ainv,B,Binv
-const GEN_LIST=[Amap,AmapInv,Bmap,BmapInv];
-function gamma2Orbit(tau, maxLen){
-  let frontier=[tau], seen=[tau], out=[];
-  for(let l=0;l<maxLen;l++){
+// ===== teselado por reflexiones hiperbolicas (arbol de Farey) =====
+// La tesela central (0,1,infinito) es un triangulo ideal (0,0,0). Cada tesela vecina se obtiene
+// reflejando hiperbolicamente respecto a uno de sus lados. Verificado numericamente: el color
+// (mismo semiplano de lambda que la tesela raiz, o el opuesto) coincide EXACTAMENTE con la
+// paridad del numero de reflexiones, para profundidad 0..5.
+function reflectAcrossCircle(z,c,R){
+  const diffRe=z.re-c, diffIm=-z.im; // Re/Im de conj(z)-c
+  const d2=diffRe*diffRe+diffIm*diffIm;
+  return { re:c+R*R*diffRe/d2, im:R*R*(-diffIm)/d2 };
+}
+function reflectAcrossLine(z,c){ return { re:2*c-z.re, im:z.im }; }
+function edgeReflect(vA,vB){
+  if(vA.q===0) return (z)=>reflectAcrossLine(z, vB.p/vB.q);
+  if(vB.q===0) return (z)=>reflectAcrossLine(z, vA.p/vA.q);
+  const ra=vA.p/vA.q, rb=vB.p/vB.q;
+  const c=(ra+rb)/2, R=Math.abs(rb-ra)/2;
+  return (z)=>reflectAcrossCircle(z,c,R);
+}
+function fracEq(a,b){ return a.p*b.q===b.p*a.q; }
+function normalize(v){ return v.q<0 ? {p:-v.p,q:-v.q} : v; }
+function mediant(v1,v2,exclude){
+  // el mediante estandar (p1+p2,q1+q2) da el vertice equivocado (el que se debe excluir) cuando
+  // uno de los dos vertices es infinito con cierta orientacion: probamos el otro signo entonces.
+  const cand1=normalize({p:v1.p+v2.p, q:v1.q+v2.q});
+  if(!fracEq(cand1,exclude)) return cand1;
+  return normalize({p:v1.p-v2.p, q:v1.q-v2.q});
+}
+const TILE_MAX_DEPTH=5, ORBIT_MAX_DEPTH=4;
+function buildTileTree(maxDepth){
+  const root={ verts:[{p:0,q:1},{p:1,q:1},{p:1,q:0}], depth:0, parentIdx:-1, edgeUsed:null, isRoot:true };
+  const all=[root];
+  let frontier=[0];
+  for(let d=0; d<maxDepth; d++){
     const next=[];
-    frontier.forEach(t=>{
-      GEN_LIST.forEach(g=>{
-        const img=g(t);
-        if(img.im>0.01) next.push(img);
+    frontier.forEach(idx=>{
+      const tile=all[idx], V=tile.verts;
+      const opts = tile.isRoot
+        ? [[V[1],V[2],V[0]],[V[0],V[2],V[1]],[V[0],V[1],V[2]]]
+        : [[V[1],V[2],V[0]],[V[0],V[2],V[1]]]; // no volver a cruzar la arista que nos trajo aqui
+      opts.forEach(([a,b,excl])=>{
+        const m=mediant(a,b,excl);
+        const child={ verts:[a,b,m], depth:d+1, parentIdx:idx, edgeUsed:[a,b], isRoot:false };
+        const newIdx=all.length; all.push(child); next.push(newIdx);
       });
     });
-    out=out.concat(next);
     frontier=next;
+  }
+  return all;
+}
+const TILE_TREE = buildTileTree(TILE_MAX_DEPTH); // estructura fija, no depende de tau: se calcula una sola vez
+function computeOrbitPoints(tau0){
+  const tauImg=new Array(TILE_TREE.length);
+  tauImg[0]=tau0;
+  const out=[];
+  for(let i=1;i<TILE_TREE.length;i++){
+    const tile=TILE_TREE[i];
+    if(tile.depth>ORBIT_MAX_DEPTH){ continue; }
+    const refl=edgeReflect(tile.edgeUsed[0], tile.edgeUsed[1]);
+    tauImg[i]=refl(tauImg[tile.parentIdx]);
+    if(tile.depth%2===0) out.push(tauImg[i]); // solo profundidades pares: son las que preservan lambda
   }
   return out;
 }
@@ -268,6 +314,9 @@ function renderTau(){
   tauCtx.clearRect(0,0,size,size);
   const disk = state.viewMode==='disk';
   const proj = activeToScreen;
+  const NA=22; // resolucion por arista (moderada: hay ~94 teselas, no hace falta NA alto para que se vean lisas)
+  const NV=40;
+  const THETA_EPS=0.0004, THETA_MAX=Math.PI/2-0.0006;
 
   // borde del disco de Poincare (solo en modo disco)
   if(disk){
@@ -276,101 +325,63 @@ function renderTau(){
     tauCtx.strokeStyle='rgba(35,32,25,0.3)'; tauCtx.lineWidth=1.4; tauCtx.stroke();
   }
 
-  // triangulo ideal con vertices n, n+1, infinito (dominio fundamental de Gamma(2) si n=-1 o n=0)
-  const NA=40;
-  function arcPts(center, fromAng, toAng){
-    const pts=[];
-    for(let i=0;i<=NA;i++){
-      const ang=fromAng + (toAng-fromAng)*(i/NA);
-      pts.push({re:center+0.5*Math.cos(ang), im:0.5*Math.sin(ang)});
-    }
-    return pts;
-  }
-  // puntos a lo largo de la recta vertical Re(tau)=n, acercandose suavemente a i*infinito
-  // (im=tan(theta), theta->pi/2) en vez de truncar en 2 puntos a una altura fija: con solo
-  // el punto inicial y final, el segmento se veia recto tras transformar al disco; con muchos
-  // puntos y la parametrizacion en theta, la imagen es un arco suave que SI llega al borde.
-  const THETA_EPS=0.0004, NV=50;
-  function vertRayPts(n, ascending){
+  // arista entre dos vertices (fracciones {p,q}, q=0 representa infinito): arco de circulo si
+  // ambos son finitos, recta vertical (con la parametrizacion tan(theta)->infinito) si uno no lo es.
+  function vertRay(re, ascending){
     const pts=[];
     for(let i=0;i<=NV;i++){
       const frac = ascending ? i/NV : 1-i/NV;
-      const theta = THETA_EPS + (Math.PI/2-2*THETA_EPS)*frac;
-      pts.push({re:n, im:Math.tan(theta)});
+      const theta = THETA_EPS + (THETA_MAX-THETA_EPS)*frac;
+      pts.push({re, im:Math.tan(theta)});
     }
     return pts;
   }
-  function unitTrianglePath(n){
-    return vertRayPts(n, false)
-      .concat(arcPts(n+0.5, Math.PI, 0).slice(1))
-      .concat(vertRayPts(n+1, true).slice(1));
-  }
-  // triangulo ideal acotado (sin vertice en infinito), con vertices finitos v1<v2<v3.
-  // borde: arco pequeño v1->v2, arco pequeño v2->v3, arco grande v3->v1 (cerrando por arriba).
-  function arcBetween(va,vb){
-    const center=(va+vb)/2, radius=(vb-va)/2, pts=[];
-    for(let i=0;i<=NA;i++){
-      const ang=Math.PI - Math.PI*(i/NA);
-      pts.push({re:center+radius*Math.cos(ang), im:radius*Math.sin(ang)});
-    }
+  function edgePts(v1,v2){
+    const r1=v1.q===0?null:v1.p/v1.q, r2=v2.q===0?null:v2.p/v2.q;
+    if(r1===null) return vertRay(r2,false);
+    if(r2===null) return vertRay(r1,true);
+    const c=(r1+r2)/2, R=Math.abs(r2-r1)/2;
+    const angStart = r1<c ? Math.PI : 0, angEnd = r2<c ? Math.PI : 0;
+    const pts=[];
+    for(let i=0;i<=NA;i++){ const ang=angStart+(angEnd-angStart)*(i/NA); pts.push({re:c+R*Math.cos(ang), im:R*Math.sin(ang)}); }
     return pts;
   }
-  function boundedTrianglePath(v1,v2,v3){
-    return arcBetween(v1,v2)
-      .concat(arcBetween(v2,v3).slice(1))
-      .concat(arcBetween(v1,v3).reverse().slice(1));
+  function trianglePath(verts){
+    return edgePts(verts[0],verts[1])
+      .concat(edgePts(verts[1],verts[2]).slice(1))
+      .concat(edgePts(verts[2],verts[0]).slice(1));
   }
-  function fillPath(pts, teal, opacityScale, bounded){
+  function fillTriangle(tile){
+    const teal = (tile.depth%2===0); // verificado: la paridad de reflexiones determina el color exactamente
     const rgb = teal ? '22,128,121' : '108,83,184';
-    const scr = pts.map(proj);
+    const opacityScale = Math.pow(0.72, tile.depth); // se atenua con la profundidad
+    const hasInfinity = tile.verts.some(v=>v.q===0);
+    const pts=trianglePath(tile.verts);
+    const scr=pts.map(proj);
     tauCtx.beginPath();
     tauCtx.moveTo(scr[0].x,scr[0].y);
     for(let i=1;i<scr.length;i++) tauCtx.lineTo(scr[i].x,scr[i].y);
-    if(disk || bounded){
-      // acotado (o en vista de disco, donde todo cabe): relleno solido
-      tauCtx.fillStyle=`rgba(${rgb},${(0.11*opacityScale).toFixed(3)})`;
+    if(disk || !hasInfinity){
+      tauCtx.fillStyle=`rgba(${rgb},${(0.13*opacityScale).toFixed(3)})`;
     } else {
-      // en H, las teselas verticales no estan acotadas arriba: degradado en vez de borde recto
       const grad=tauCtx.createLinearGradient(0,size,0,0);
-      grad.addColorStop(0, `rgba(${rgb},${(0.11*opacityScale).toFixed(3)})`);
-      grad.addColorStop(0.55, `rgba(${rgb},${(0.11*opacityScale).toFixed(3)})`);
+      grad.addColorStop(0, `rgba(${rgb},${(0.13*opacityScale).toFixed(3)})`);
+      grad.addColorStop(0.55, `rgba(${rgb},${(0.13*opacityScale).toFixed(3)})`);
       grad.addColorStop(1, `rgba(${rgb},0)`);
       tauCtx.fillStyle=grad;
     }
     tauCtx.fill();
-    tauCtx.strokeStyle=`rgba(${rgb},${(0.55*opacityScale).toFixed(3)})`; tauCtx.lineWidth=1.6; tauCtx.stroke();
-  }
-  function fillTile(n, opacityScale){
-    const teal = (n%2===0); // n par -> mismo color que la mitad derecha (0..1); impar -> izquierda
-    fillPath(unitTrianglePath(n), teal, opacityScale, false);
+    tauCtx.strokeStyle=`rgba(${rgb},${(0.6*opacityScale).toFixed(3)})`; tauCtx.lineWidth=1.3; tauCtx.stroke();
   }
 
-  // 6 teselas verticales: dominio fundamental (n=-1,0, opacidad plena) + 4 vecinas laterales
-  const VERT_TILES=[-3,-2,-1,0,1,2]; // dominio {-1,0} + 2 teselas a cada lado (mismo numero en cada direccion)
-  VERT_TILES.forEach(n=>{
-    const isMain = (n===-1||n===0);
-    fillTile(n, isMain?1:0.5);
-  });
-
-  // nivel 1: una tesela acotada justo debajo de cada tesela vertical (color OPUESTO al de esa vertical)
-  VERT_TILES.forEach(n=>{
-    const tealVert = (n%2===0);
-    fillPath(boundedTrianglePath(n, n+0.5, n+1), !tealVert, 0.42, true);
-  });
-
-  // nivel 2: dos teselas debajo de cada una de nivel 1 (color IGUAL al de la vertical original)
-  VERT_TILES.forEach(n=>{
-    const tealVert = (n%2===0);
-    fillPath(boundedTrianglePath(n, n+1/3, n+0.5), tealVert, 0.26, true);
-    fillPath(boundedTrianglePath(n+0.5, n+2/3, n+1), tealVert, 0.26, true);
-  });
+  // todas las teselas del arbol (0 a TILE_MAX_DEPTH reflexiones desde la central), fijo en todas direcciones
+  TILE_TREE.forEach(fillTriangle);
 
   if(!disk){
     const o=tauToScreen({re:0,im:0});
     tauCtx.strokeStyle='rgba(35,32,25,0.35)'; tauCtx.lineWidth=1.3;
     tauCtx.beginPath(); tauCtx.moveTo(0,o.y); tauCtx.lineTo(size,o.y); tauCtx.stroke();
   } else {
-    // etiquetas 0, 1, infinito en los vertices del triangulo equilatero
     [{t:{re:0,im:0},lab:'0'},{t:{re:1,im:0},lab:'1'},{t:{re:1e7,im:0},lab:'∞'}].forEach(({t,lab})=>{
       const s=proj(t);
       tauCtx.font='600 12px '+getComputedStyle(document.body).fontFamily;
@@ -379,13 +390,12 @@ function renderTau(){
     });
   }
 
-  // orbita de tau bajo Gamma(2) (muestra local, palabras cortas en los generadores)
-  const orbitPts=gamma2Orbit(state.tau, 3);
-  orbitPts.forEach(p=>{
+  // orbita de tau bajo Gamma(2): puntos obtenidos tras un numero PAR de reflexiones (2,4,...,ORBIT_MAX_DEPTH)
+  computeOrbitPoints(state.tau).forEach(p=>{
     const s=proj(p);
     if(s.x<-20||s.x>size+20||s.y<-20||s.y>size+20) return;
     tauCtx.beginPath(); tauCtx.arc(s.x,s.y,3.4,0,2*Math.PI);
-    tauCtx.fillStyle='rgba(108,83,184,0.55)'; tauCtx.fill();
+    tauCtx.fillStyle='rgba(108,83,184,0.6)'; tauCtx.fill();
   });
 
   drawMarker(tauCtx, proj({re:0,im:1}), 'rgba(181,121,26,0.6)', 'i', 3);
