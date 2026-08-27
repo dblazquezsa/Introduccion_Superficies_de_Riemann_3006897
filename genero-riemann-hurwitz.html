@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Género y la fórmula de Riemann-Hurwitz</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.18.4/dist/katex.min.css" integrity="sha384-u1zONI5gPXUx0UKI62c75/zww972y0v2rSK5ZYlVdS6xEuWDeZWUI66v6t1gvlXJ" crossorigin="anonymous">
+<style>
+  :root{
+    --bg:#f7f6f2; --panel:#ffffff; --panel-2:#efeee7; --border:#dbd7cc; --grid:#e0dcd0;
+    --text:#232019; --text-dim:#6b6659;
+    --p-color:#b5791a; --q-color:#168079; --accent:#bd5636; --violet:#6c53b8; --warn:#c13d38;
+    --mono: ui-monospace,"SF Mono","Cascadia Code",Menlo,Consolas,monospace;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{ background:var(--bg); color:var(--text); font-family:var(--sans); padding:22px 18px 40px; }
+  .app{ max-width:1180px; margin:0 auto; }
+  header{ margin-bottom:20px; }
+  header .eyebrow{ font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--q-color); margin-bottom:8px; }
+  header h1{ font-family:var(--serif); font-weight:600; font-size:clamp(20px,3vw,30px); margin:0 0 8px; letter-spacing:.2px; }
+  header p.subtitle{ color:var(--text-dim); font-size:14px; max-width:none; line-height:1.6; margin:0; }
+
+  .panel{ background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:14px; }
+  .controls{ margin-bottom:16px; }
+  .row-label{ font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-dim); margin:0 0 10px; }
+  .sliders-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px 24px; margin-bottom:16px; }
+  @media (max-width:640px){ .sliders-grid{ grid-template-columns:1fr; } }
+  .slider-field label{ display:flex; justify-content:space-between; font-size:12.5px; color:var(--text-dim); margin-bottom:6px; }
+  .slider-field label .val{ font-family:var(--mono); color:var(--text); }
+  input[type=range]{ width:100%; -webkit-appearance:none; appearance:none; height:4px; border-radius:2px; background:var(--grid); outline:none; }
+  input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:var(--q-color); cursor:pointer; border:2px solid #fbfbf9; }
+  input[type=range]::-moz-range-thumb{ width:14px; height:14px; border-radius:50%; background:var(--q-color); cursor:pointer; border:2px solid #fbfbf9; }
+  .chip-row{ display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+  .chip{ background:var(--panel-2); border:1px solid var(--border); color:var(--text); font-family:var(--sans); font-size:12.5px; padding:8px 14px; border-radius:999px; cursor:pointer; }
+  .chip.active{ border-color:var(--q-color); background:#e3ede9; color:var(--q-color); }
+  .preset-row{ display:flex; gap:8px; flex-wrap:wrap; }
+  .preset-btn{ background:var(--panel-2); border:1px solid var(--border); color:var(--text); font-family:var(--sans); font-size:12px; padding:7px 12px; border-radius:8px; cursor:pointer; }
+  .preset-btn:hover{ border-color:var(--q-color); }
+
+  .points{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  @media (max-width:700px){ .points{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:460px){ .points{ grid-template-columns:1fr; } }
+  .pt-card{ background:var(--panel-2); border:1px solid var(--border); border-radius:12px; padding:11px; }
+  .pt-head{ display:flex; align-items:center; gap:7px; font-size:12px; color:var(--text-dim); margin-bottom:8px; }
+  .pt-dot{ width:9px; height:9px; border-radius:50%; }
+  .stepper{ display:flex; align-items:center; gap:10px; }
+  .step-btn{ width:28px; height:28px; border-radius:8px; border:1px solid var(--border); background:var(--panel); color:var(--text); font-family:var(--mono); font-size:15px; cursor:pointer; line-height:1; }
+  .step-btn:hover{ border-color:var(--q-color); }
+  .step-val{ font-family:var(--mono); font-size:14px; min-width:64px; text-align:center; }
+
+  .formula-panel{ margin:16px 0; }
+  .formula-box{ padding:8px 4px 2px; font-size:1.05em; color:var(--text); overflow-x:auto; line-height:1.9; }
+  .formula-box .katex{ color:var(--text); }
+
+  .canvases{ display:grid; grid-template-columns:1fr; gap:16px; margin:16px 0; }
+  .panel-label{ display:flex; justify-content:space-between; align-items:baseline; font-family:var(--mono); font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--text-dim); margin-bottom:9px; }
+  .panel-label .hint{ color:#8c8778; text-transform:none; letter-spacing:0; }
+  canvas{ width:100%; aspect-ratio:2.4/1; display:block; border-radius:10px; background:#fbfbf9; touch-action:none; cursor:grab; }
+  canvas.dragging{ cursor:grabbing; }
+
+  .summary{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:16px; }
+  @media (max-width:760px){ .summary{ grid-template-columns:1fr; } }
+  .summary-card{ background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:16px 18px; }
+  .summary-card.hi{ border-color:var(--q-color); }
+  .summary-card.warn{ border-color:var(--warn); }
+  .summary-card .lab{ font-family:var(--mono); font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--text-dim); margin-bottom:8px; }
+  .summary-card .val{ font-family:var(--mono); font-size:20px; color:var(--text); line-height:1.5; }
+  .summary-card .val.small{ font-size:13.5px; }
+
+  footer{ margin-top:18px; color:#8c8778; font-size:12px; line-height:1.65; max-width:86ch; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="eyebrow">Unidad 4 · 4.3–4.4 Género y superficies de recubrimiento</div>
+    <h1>Género y la fórmula de Riemann-Hurwitz</h1>
+    <p class="subtitle">2g<sub>X</sub>−2 = n(2g<sub>Y</sub>−2) + Σ(e<sub>p</sub>−1): el género de un recubrimiento de grado n queda determinado por el género de la base y cuánto se ramifica en cada punto. Ajusta el grado y los índices de ramificación y observa cómo cambia el género — incluidos los dos casos que ya construiste: z^(1/q) siempre da género 0, y √p(z) con 3 raíces te da exactamente la curva elíptica de género 1.</p>
+  </header>
+
+  <main>
+    <section class="panel controls">
+      <p class="row-label">Recubrimiento</p>
+      <div class="sliders-grid">
+        <div class="slider-field">
+          <label for="nSlider">Grado del recubrimiento, n <span class="val" id="nVal">3</span></label>
+          <input type="range" id="nSlider" min="2" max="10" step="1" value="3">
+        </div>
+        <div>
+          <p class="row-label" style="margin-bottom:8px;">Género de la base Y</p>
+          <div class="chip-row" id="baseGenusSelect">
+            <button class="chip active" data-g="0">Esfera (g=0)</button>
+            <button class="chip" data-g="1">Toro (g=1)</button>
+          </div>
+        </div>
+      </div>
+      <p class="row-label">Ejemplos — cargan grado y ramificación de artefactos anteriores</p>
+      <div class="preset-row">
+        <button class="preset-btn" data-preset="root3">z^(1/3)</button>
+        <button class="preset-btn" data-preset="root5">z^(1/5)</button>
+        <button class="preset-btn" data-preset="sqrt2">√p(z), 2 raíces</button>
+        <button class="preset-btn" data-preset="sqrt3">√p(z), 3 raíces (+∞)</button>
+        <button class="preset-btn" data-preset="sqrt5">√p(z), 5 raíces (+∞)</button>
+        <button class="preset-btn" data-preset="unramified">Recubrimiento sin ramificar</button>
+      </div>
+    </section>
+
+    <section class="panel controls">
+      <p class="row-label">Puntos de ramificación — índice e (0 = inactivo, contribuye e−1)</p>
+      <div class="points" id="points"></div>
+    </section>
+
+    <section class="panel formula-panel">
+      <div class="panel-label"><span>Fórmula de Riemann-Hurwitz</span></div>
+      <div id="formulaBox" class="formula-box">—</div>
+    </section>
+
+    <section class="summary" id="summarySection"></section>
+
+    <div class="canvases">
+      <section class="panel">
+        <div class="panel-label"><span>Esquema del género resultante</span><span class="hint">arrastra para rotar</span></div>
+        <canvas id="genusCanvas" aria-label="Esquema esfera con g asas"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <strong>Cómo leerlo:</strong> cada punto de ramificación activo representa una fibra donde un punto de X tiene índice e (las hojas se pegan de a e) y el resto quedan sin ramificar — el modelo más simple, pero exactamente el que aparece en z^(1/q) (ramificación total en 0 e ∞) y en √p(z) (ramificación simple en cada raíz). La suma Σ(e−1) debe ser par para que exista un recubrimiento real; si no lo es, la tarjeta de género se marca en rojo. El esquema de la derecha muestra g asas por separado a modo ilustrativo — no es una incrustación isométrica de la superficie, solo una forma de "contar agujeros".
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.18.4/dist/katex.min.js" integrity="sha384-ykMNcWQhhTUb0YV9SPpPUFURHZ+tWmubkakGBP+OgNK/UXdO2gtzglWx0Rj9hnO3" crossorigin="anonymous"></script>
+<script>
+(function(){
+"use strict";
+
+const state = {
+  n:3,
+  baseGenus:0,
+  branchPoints:[3,3,0,0,0,0],
+  rotX:0.5, rotY:-0.6,
+};
+const PT_COLORS=['#b5791a','#168079','#bd5636','#6c53b8','#c13d38','#8a8e2e'];
+const MAX_TORI_SHOWN=6;
+
+function activeBranchIndices(){ return state.branchPoints.filter(e=>e>=2); }
+function computeGenus(){
+  const sum = activeBranchIndices().reduce((a,e)=>a+(e-1),0);
+  const twoGXminus2 = state.n*(2*state.baseGenus-2) + sum;
+  const gXraw = (twoGXminus2+2)/2;
+  const valid = Number.isInteger(gXraw) && gXraw>=0;
+  return { gX: valid?gXraw:null, gXraw, sum, valid };
+}
+
+const genusCanvas=document.getElementById('genusCanvas'), genusCtx=genusCanvas.getContext('2d');
+let genusW=0, genusH=0;
+function fitCanvas(canvas, ctx){
+  const cssW=canvas.clientWidth, cssH=canvas.clientHeight || Math.round(cssW/2.4), dpr=window.devicePixelRatio||1;
+  canvas.width=Math.round(cssW*dpr); canvas.height=Math.round(cssH*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  return {w:cssW,h:cssH};
+}
+function project3(v3, cx, cy, R){
+  const [X,Y,Z]=v3;
+  const y1=Y*Math.cos(state.rotX)-Z*Math.sin(state.rotX);
+  const z1=Y*Math.sin(state.rotX)+Z*Math.cos(state.rotX);
+  const x1=X;
+  const x2=x1*Math.cos(state.rotY)+z1*Math.sin(state.rotY);
+  const z2=-x1*Math.sin(state.rotY)+z1*Math.cos(state.rotY);
+  return {x:cx+x2*R, y:cy-y1*R, depth:z2};
+}
+function torusEmbed(u,v,Rmaj,rmin,offsetX){
+  const a=2*Math.PI*u, b=2*Math.PI*v;
+  const rad=Rmaj+rmin*Math.cos(b);
+  return [offsetX+rad*Math.cos(a), rad*Math.sin(a), rmin*Math.sin(b)];
+}
+function sphereEmbed(u,v,Rr){
+  const a=2*Math.PI*u, b=Math.PI*v-Math.PI/2;
+  return [Rr*Math.cos(b)*Math.cos(a), Rr*Math.cos(b)*Math.sin(a), Rr*Math.sin(b)];
+}
+
+function renderGenus(){
+  const w=genusW, h=genusH, cx=w/2, cy=h/2;
+  genusCtx.clearRect(0,0,w,h);
+  const {gX} = computeGenus();
+
+  if(gX===null){
+    genusCtx.font='500 13px '+getComputedStyle(document.body).fontFamily;
+    genusCtx.fillStyle='#c13d38'; genusCtx.textAlign='center';
+    genusCtx.fillText('Configuración no válida (Σ(e−1) debe ser par)', cx, cy);
+    genusCtx.textAlign='left';
+    return;
+  }
+
+  if(gX===0){
+    const Rr=Math.min(w,h)*0.32;
+    const proj=(v3)=>project3(v3,cx,cy,Rr);
+    const pts=[]; const SS=26;
+    for(let i=0;i<SS;i++) for(let j=0;j<SS;j++) pts.push(proj(sphereEmbed(i/SS,j/SS,1)));
+    pts.sort((a,b)=>a.depth-b.depth);
+    pts.forEach(p=>{
+      const shade=0.15+0.5*(p.depth+1)/2;
+      genusCtx.beginPath(); genusCtx.arc(p.x,p.y,1.8,0,2*Math.PI);
+      genusCtx.fillStyle=`rgba(108,83,184,${Math.max(0.08,Math.min(0.65,shade)).toFixed(2)})`; genusCtx.fill();
+    });
+    genusCtx.strokeStyle='rgba(35,32,25,0.35)'; genusCtx.lineWidth=1.3;
+    genusCtx.beginPath(); genusCtx.arc(cx,cy,Rr,0,2*Math.PI); genusCtx.stroke();
+    return;
+  }
+
+  const shown=Math.min(gX, MAX_TORI_SHOWN);
+  const Rmaj=0.62, rmin=0.28;
+  const spacing=1.55;
+  const worldHalfWidth=(shown-1)/2*spacing + Rmaj+rmin+0.3;
+  const Rr=Math.min((w*0.44)/worldHalfWidth, h*0.36/(Rmaj+rmin));
+  const proj=(v3)=>project3(v3,cx,cy,Rr);
+
+  const allPts=[];
+  for(let t=0;t<shown;t++){
+    const offsetX=(t-(shown-1)/2)*spacing;
+    const SS=22;
+    for(let i=0;i<SS;i++) for(let j=0;j<SS;j++){
+      allPts.push({p:proj(torusEmbed(i/SS,j/SS,Rmaj,rmin,offsetX)), color:PT_COLORS[t%PT_COLORS.length]});
+    }
+  }
+  allPts.sort((a,b)=>a.p.depth-b.p.depth);
+  allPts.forEach(({p,color})=>{
+    const shade=0.18+0.55*(p.depth+rmin)/(2*rmin);
+    genusCtx.beginPath(); genusCtx.arc(p.x,p.y,1.7,0,2*Math.PI);
+    genusCtx.fillStyle=color; genusCtx.globalAlpha=Math.max(0.1,Math.min(0.8,shade));
+    genusCtx.fill(); genusCtx.globalAlpha=1;
+  });
+
+  if(gX>MAX_TORI_SHOWN){
+    genusCtx.font='500 12px '+getComputedStyle(document.body).fontFamily;
+    genusCtx.fillStyle='#6b6659'; genusCtx.textAlign='center';
+    genusCtx.fillText(`(mostrando ${MAX_TORI_SHOWN} de g=${gX} asas)`, cx, h-14);
+    genusCtx.textAlign='left';
+  }
+}
+
+function renderFormula(){
+  const el=document.getElementById('formulaBox');
+  const active=activeBranchIndices();
+  const sumTex = active.length ? active.map(e=>`(${e}-1)`).join('+') : '0';
+  const tex=`2g_X-2 = ${state.n}\\,(2\\cdot ${state.baseGenus}-2) + \\big[${sumTex}\\big]`;
+  const plain=`2gX-2 = ${state.n}*(2*${state.baseGenus}-2) + [${active.map(e=>e-1).join('+')||0}]`;
+  if(typeof window.katex!=='undefined' && typeof window.katex.render==='function'){
+    try{ window.katex.render(tex, el, {throwOnError:false}); } catch(e){ el.textContent=plain; }
+  } else { el.textContent=plain; }
+}
+function updateSummary(){
+  const el=document.getElementById('summarySection');
+  el.innerHTML='';
+  const {gX,sum,valid}=computeGenus();
+  function card(lab,val,cls){
+    const d=document.createElement('div'); d.className='summary-card'+(cls?' '+cls:'');
+    d.innerHTML=`<div class="lab">${lab}</div><div class="val${(''+val).length>10?' small':''}">${val}</div>`;
+    el.appendChild(d);
+  }
+  card('Σ(e−1)', sum);
+  card('Grado n / género base g_Y', `n=${state.n}, g_Y=${state.baseGenus}`);
+  card('Género resultante g_X', valid?gX:'no entero — inválida', valid?'hi':'warn');
+}
+function renderAll(){ renderGenus(); updateSummary(); }
+
+function renderPoints(){
+  const el=document.getElementById('points');
+  el.innerHTML='';
+  state.branchPoints.forEach((e,i)=>{
+    const card=document.createElement('div');
+    card.className='pt-card';
+    card.innerHTML=`
+      <div class="pt-head"><span class="pt-dot" style="background:${PT_COLORS[i]}"></span>Punto ${i+1}</div>
+      <div class="stepper">
+        <button class="step-btn" data-pt="${i}" data-dir="-1">−</button>
+        <span class="step-val" id="ptVal${i}">${e===0?'inactivo':'e='+e}</span>
+        <button class="step-btn" data-pt="${i}" data-dir="1">+</button>
+      </div>`;
+    el.appendChild(card);
+  });
+}
+function syncPointVal(i){
+  document.getElementById('ptVal'+i).textContent = state.branchPoints[i]===0 ? 'inactivo' : 'e='+state.branchPoints[i];
+}
+document.getElementById('points').addEventListener('click',(e)=>{
+  const btn=e.target.closest('.step-btn'); if(!btn) return;
+  const i=parseInt(btn.dataset.pt,10), dir=parseInt(btn.dataset.dir,10);
+  let val=state.branchPoints[i];
+  if(dir>0){ val = val===0 ? 2 : Math.min(state.n, val+1); }
+  else { val = val<=2 ? 0 : val-1; }
+  state.branchPoints[i]=val;
+  syncPointVal(i);
+  renderFormula(); renderAll();
+});
+
+document.getElementById('nSlider').addEventListener('input',(e)=>{
+  state.n=parseInt(e.target.value,10);
+  document.getElementById('nVal').textContent=state.n;
+  state.branchPoints=state.branchPoints.map(v=>Math.min(v,state.n));
+  state.branchPoints.forEach((v,i)=>syncPointVal(i));
+  renderFormula(); renderAll();
+});
+document.getElementById('baseGenusSelect').addEventListener('click',(e)=>{
+  const btn=e.target.closest('[data-g]'); if(!btn) return;
+  state.baseGenus=parseInt(btn.dataset.g,10);
+  document.querySelectorAll('#baseGenusSelect .chip').forEach(c=>c.classList.toggle('active', c===btn));
+  renderFormula(); renderAll();
+});
+
+const PRESETS = {
+  root3: { n:3, baseGenus:0, branchPoints:[3,3,0,0,0,0] },
+  root5: { n:5, baseGenus:0, branchPoints:[5,5,0,0,0,0] },
+  sqrt2: { n:2, baseGenus:0, branchPoints:[2,2,0,0,0,0] },
+  sqrt3: { n:2, baseGenus:0, branchPoints:[2,2,2,2,0,0] },
+  sqrt5: { n:2, baseGenus:0, branchPoints:[2,2,2,2,2,2] },
+  unramified: { n:4, baseGenus:1, branchPoints:[0,0,0,0,0,0] },
+};
+document.querySelectorAll('[data-preset]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const p=PRESETS[btn.dataset.preset];
+    state.n=p.n; state.baseGenus=p.baseGenus; state.branchPoints=p.branchPoints.slice();
+    document.getElementById('nSlider').value=state.n;
+    document.getElementById('nVal').textContent=state.n;
+    document.querySelectorAll('#baseGenusSelect .chip').forEach(c=>c.classList.toggle('active', parseInt(c.dataset.g,10)===state.baseGenus));
+    state.branchPoints.forEach((v,i)=>syncPointVal(i));
+    renderFormula(); renderAll();
+  });
+});
+
+let dragging=false, lastX=0, lastY=0;
+genusCanvas.addEventListener('pointerdown',(e)=>{ dragging=true; lastX=e.clientX; lastY=e.clientY; genusCanvas.classList.add('dragging'); genusCanvas.setPointerCapture(e.pointerId); });
+genusCanvas.addEventListener('pointermove',(e)=>{
+  if(!dragging) return;
+  const dx=e.clientX-lastX, dy=e.clientY-lastY; lastX=e.clientX; lastY=e.clientY;
+  state.rotY += dx*0.008;
+  state.rotX = Math.max(-1.45, Math.min(1.45, state.rotX - dy*0.008));
+  renderGenus();
+});
+function release(){ dragging=false; genusCanvas.classList.remove('dragging'); }
+genusCanvas.addEventListener('pointerup',release);
+genusCanvas.addEventListener('pointercancel',release);
+
+function handleResize(){
+  const dims=fitCanvas(genusCanvas, genusCtx);
+  genusW=dims.w; genusH=dims.h;
+  renderAll();
+}
+window.addEventListener('resize', handleResize);
+
+renderPoints();
+renderFormula();
+handleResize();
+})();
+</script>
+</body>
+</html>

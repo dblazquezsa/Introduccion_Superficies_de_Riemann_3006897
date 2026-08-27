@@ -6,18 +6,18 @@
 <title>Transformaciones de Möbius sobre la esfera de Riemann</title>
 <style>
   :root{
-    --bg:#0a0d16;
-    --panel:#121729;
-    --panel-2:#0e1220;
-    --border:#232b45;
-    --grid:#2a3350;
-    --text:#eef1f8;
-    --text-dim:#8b93ab;
-    --p-color:#f0b23e;
-    --q-color:#47c9c2;
-    --accent:#ef8a6c;
-    --violet:#b98af0;
-    --warn:#ef6f6c;
+    --bg:#f7f6f2;
+    --panel:#ffffff;
+    --panel-2:#efeee7;
+    --border:#dbd7cc;
+    --grid:#e0dcd0;
+    --text:#232019;
+    --text-dim:#6b6659;
+    --p-color:#b5791a;
+    --q-color:#168079;
+    --accent:#bd5636;
+    --violet:#6c53b8;
+    --warn:#c13d38;
     --mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
     --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
     --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -35,8 +35,8 @@
   @media (max-width:780px){ .canvases{ grid-template-columns:1fr; } }
   .panel{ background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:14px; }
   .panel-label{ display:flex; justify-content:space-between; align-items:baseline; font-family:var(--mono); font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--text-dim); margin-bottom:9px; }
-  .panel-label .hint{ color:#59627e; text-transform:none; letter-spacing:0; }
-  canvas{ width:100%; aspect-ratio:1/1; display:block; border-radius:10px; background:#0a0d18; touch-action:none; cursor:grab; }
+  .panel-label .hint{ color:#8c8778; text-transform:none; letter-spacing:0; }
+  canvas{ width:100%; aspect-ratio:1/1; display:block; border-radius:10px; background:#fbfbf9; touch-action:none; cursor:grab; }
   canvas.dragging{ cursor:grabbing; }
 
   .controls{ margin-bottom:16px; }
@@ -44,7 +44,7 @@
 
   .tabbar{ display:flex; gap:6px; margin-bottom:16px; background:var(--panel-2); padding:5px; border-radius:12px; border:1px solid var(--border); }
   .tab-btn{ flex:1 1 auto; background:transparent; border:none; color:var(--text-dim); font-family:var(--sans); font-size:12.5px; padding:10px 8px; border-radius:8px; cursor:pointer; transition:background .15s,color .15s; }
-  .tab-btn.active{ background:#1b2340; color:var(--text); }
+  .tab-btn.active{ background:#ffffff; color:var(--text); box-shadow:0 1px 4px rgba(35,32,25,0.14); }
   .tab-btn:focus-visible{ outline:2px solid var(--q-color); outline-offset:2px; }
 
   .tab-panel{ display:none; }
@@ -57,7 +57,7 @@
 
   .mode-select{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:18px; background:var(--panel-2); padding:5px; border-radius:12px; border:1px solid var(--border); }
   .mode-btn{ flex:1 1 150px; background:transparent; border:none; color:var(--text-dim); font-family:var(--sans); font-size:12.5px; padding:9px 8px; border-radius:8px; cursor:pointer; transition:background .15s,color .15s; }
-  .mode-btn.active{ background:#1b2340; color:var(--text); }
+  .mode-btn.active{ background:#ffffff; color:var(--text); box-shadow:0 1px 4px rgba(35,32,25,0.14); }
   .mode-btn:focus-visible{ outline:2px solid var(--q-color); outline-offset:2px; }
 
   .sliders-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px 24px; }
@@ -67,12 +67,12 @@
   .slider-field label{ display:flex; justify-content:space-between; font-size:12.5px; color:var(--text-dim); margin-bottom:6px; }
   .slider-field label .val{ font-family:var(--mono); color:var(--text); }
   input[type=range]{ width:100%; -webkit-appearance:none; appearance:none; height:4px; border-radius:2px; background:var(--grid); outline:none; }
-  input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:var(--q-color); cursor:pointer; border:2px solid #0a0d18; }
-  input[type=range]::-moz-range-thumb{ width:14px; height:14px; border-radius:50%; background:var(--q-color); cursor:pointer; border:2px solid #0a0d18; }
+  input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:var(--q-color); cursor:pointer; border:2px solid #fbfbf9; }
+  input[type=range]::-moz-range-thumb{ width:14px; height:14px; border-radius:50%; background:var(--q-color); cursor:pointer; border:2px solid #fbfbf9; }
 
   .tau-row{ display:flex; align-items:center; gap:12px; margin-top:16px; padding-top:14px; border-top:1px solid var(--border); }
   .tau-row .slider-field{ flex:1; margin-bottom:0; }
-  #playBtn{ background:var(--q-color); color:#06111a; border:none; font-family:var(--sans); font-weight:600; font-size:12.5px; padding:10px 16px; border-radius:9px; cursor:pointer; white-space:nowrap; }
+  #playBtn{ background:var(--q-color); color:#1a1a1a; border:none; font-family:var(--sans); font-weight:600; font-size:12.5px; padding:10px 16px; border-radius:9px; cursor:pointer; white-space:nowrap; }
   #playBtn:disabled{ opacity:.55; cursor:default; }
 
   .pad-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:16px; max-width:420px; }
@@ -83,7 +83,7 @@
   .pad-top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:7px; font-size:12px; color:var(--text-dim); }
   .pad-value{ margin-top:7px; font-family:var(--mono); font-size:12px; text-align:center; color:var(--text); }
   .inf-btn{ background:transparent; border:1px solid var(--border); color:var(--text-dim); font-family:var(--mono); font-size:11px; padding:3px 8px; border-radius:6px; cursor:pointer; }
-  .inf-btn.active{ background:var(--violet); border-color:var(--violet); color:#0a0d18; }
+  .inf-btn.active{ background:var(--violet); border-color:var(--violet); color:#fbfbf9; }
 
   .det-note{ margin-top:12px; font-family:var(--mono); font-size:12.5px; color:var(--text-dim); }
   .det-note.warn{ color:var(--warn); }
@@ -99,7 +99,7 @@
   .info dd:last-child{ margin-bottom:0; }
   .dot-p{ color:var(--p-color); } .dot-q{ color:var(--q-color); }
 
-  footer{ margin-top:18px; color:#5c6684; font-size:12px; line-height:1.6; max-width:82ch; }
+  footer{ margin-top:18px; color:#8c8778; font-size:12px; line-height:1.6; max-width:82ch; }
   footer strong{ color:var(--text-dim); }
 </style>
 </head>
@@ -407,8 +407,8 @@ function traceSqOverDetNF(nf){
   return C.add(C.add(lambda, C.div(ONE,lambda)), {re:2,im:0});
 }
 const CLASS_COLOR = {
-  'Identidad':'#8b93ab', 'Elíptica':'#47c9c2', 'Hiperbólica':'#f0b23e',
-  'Loxodrómica':'#ef8a6c', 'Parabólica':'#b98af0', 'Degenerada':'#ef6f6c',
+  'Identidad':'#6b6659', 'Elíptica':'#168079', 'Hiperbólica':'#b5791a',
+  'Loxodrómica':'#bd5636', 'Parabólica':'#6c53b8', 'Degenerada':'#c13d38',
 };
 
 // ===================== Rejilla =====================
@@ -419,8 +419,8 @@ function buildGrid(){
   const NC=220, cpts=[]; for(let j=0;j<=NC;j++){ const a=-Math.PI+2*Math.PI*j/NC; cpts.push({re:Math.cos(a), im:Math.sin(a)}); }
   lines.push({pts:cpts, kind:'circle'});
   for(const line of lines){
-    if(line.kind==='axis'){ line.color='rgba(238,241,248,0.5)'; line.colorFull='rgba(238,241,248,0.92)'; }
-    else if(line.kind==='circle'){ line.color='rgba(239,138,108,0.5)'; line.colorFull='rgba(239,138,108,0.95)'; }
+    if(line.kind==='axis'){ line.color='rgba(35,32,25,0.5)'; line.colorFull='rgba(35,32,25,0.92)'; }
+    else if(line.kind==='circle'){ line.color='rgba(189,86,54,0.5)'; line.colorFull='rgba(189,86,54,0.95)'; }
     else {
       const mid=line.pts[Math.floor(line.pts.length/2)];
       const hue=((Math.atan2(mid.im,mid.re)+Math.PI)/(2*Math.PI))*360;
@@ -470,14 +470,14 @@ function renderPlane(nf){
     if(Math.abs(s.x)>size*3 || Math.abs(s.y)>size*3) return;
     planeCtx.beginPath(); planeCtx.arc(s.x,s.y,7,0,2*Math.PI);
     planeCtx.fillStyle=color; planeCtx.fill();
-    planeCtx.lineWidth=2; planeCtx.strokeStyle='#0a0d18'; planeCtx.stroke();
+    planeCtx.lineWidth=2; planeCtx.strokeStyle='#fbfbf9'; planeCtx.stroke();
     planeCtx.font='600 12px ' + getComputedStyle(document.body).fontFamily;
     planeCtx.fillStyle=color;
     planeCtx.fillText(label, s.x+11, s.y-9);
   };
-  if(nf.kind==='two-finite'){ drawHandle(nf.p,'#f0b23e','p'); drawHandle(nf.q,'#47c9c2','q'); }
-  else if(nf.kind==='one-infinite'){ drawHandle(nf.p,'#f0b23e','p'); }
-  else if(nf.kind==='parabolic-finite'){ drawHandle(nf.p,'#b98af0','p'); }
+  if(nf.kind==='two-finite'){ drawHandle(nf.p,'#b5791a','p'); drawHandle(nf.q,'#168079','q'); }
+  else if(nf.kind==='one-infinite'){ drawHandle(nf.p,'#b5791a','p'); }
+  else if(nf.kind==='parabolic-finite'){ drawHandle(nf.p,'#6c53b8','p'); }
 }
 function stereographic(z){ const r2=z.re*z.re+z.im*z.im, den=1+r2; return {X:2*z.re/den, Y:2*z.im/den, Z:(r2-1)/den}; }
 function rotatePoint(X,Y,Z,rx,ry){
@@ -489,9 +489,9 @@ function renderSphere(){
   const size=sphereSize, cx=size/2, cy=size/2, R=size*0.42;
   sphereCtx.clearRect(0,0,size,size);
   const grad = sphereCtx.createRadialGradient(cx-R*0.35,cy-R*0.4,R*0.12, cx,cy,R*1.05);
-  grad.addColorStop(0,'#242e50'); grad.addColorStop(0.62,'#141a30'); grad.addColorStop(1,'#090c16');
+  grad.addColorStop(0,'#ffffff'); grad.addColorStop(0.62,'#eeece3'); grad.addColorStop(1,'#d9d5c8');
   sphereCtx.beginPath(); sphereCtx.arc(cx,cy,R,0,2*Math.PI); sphereCtx.fillStyle=grad; sphereCtx.fill();
-  sphereCtx.lineWidth=1; sphereCtx.strokeStyle='rgba(147,158,196,0.35)'; sphereCtx.stroke();
+  sphereCtx.lineWidth=1; sphereCtx.strokeStyle='rgba(130,124,108,0.35)'; sphereCtx.stroke();
 
   const project=(z)=>{ const st=stereographic(z); const r=rotatePoint(st.X,st.Y,st.Z,state.rotX,state.rotY); return {x:cx+r.x*R, y:cy-r.y*R, front:r.z>-0.01}; };
   const drawSpherePath=(pts,color,width)=>{
@@ -510,8 +510,8 @@ function renderSphere(){
   const drawPole=(pt,label)=>{
     if(!pt.front) return;
     sphereCtx.beginPath(); sphereCtx.arc(pt.x,pt.y,3.2,0,2*Math.PI);
-    sphereCtx.fillStyle='rgba(238,241,248,0.92)'; sphereCtx.fill();
-    sphereCtx.fillStyle='rgba(238,241,248,0.85)';
+    sphereCtx.fillStyle='rgba(35,32,25,0.92)'; sphereCtx.fill();
+    sphereCtx.fillStyle='rgba(35,32,25,0.85)';
     sphereCtx.fillText(label, pt.x+7, pt.y+4);
   };
   drawPole(south,'0'); drawPole(north,'∞');
@@ -692,7 +692,7 @@ function makePad(canvas, opts){
   function draw(){
     if(size<=0) return;
     ctx.clearRect(0,0,size,size);
-    ctx.strokeStyle='rgba(147,158,196,0.18)'; ctx.lineWidth=1;
+    ctx.strokeStyle='rgba(130,124,108,0.18)'; ctx.lineWidth=1;
     const rr=Math.ceil(opts.range);
     for(let i=-rr;i<=rr;i++){
       const s1=toScreen({re:i,im:0});
@@ -700,11 +700,11 @@ function makePad(canvas, opts){
       const s2=toScreen({re:0,im:i});
       ctx.beginPath(); ctx.moveTo(0,s2.y); ctx.lineTo(size,s2.y); ctx.stroke();
     }
-    ctx.strokeStyle='rgba(238,241,248,0.35)'; ctx.lineWidth=1.2;
+    ctx.strokeStyle='rgba(35,32,25,0.35)'; ctx.lineWidth=1.2;
     ctx.beginPath(); ctx.moveTo(size/2,0); ctx.lineTo(size/2,size); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(0,size/2); ctx.lineTo(size,size/2); ctx.stroke();
     const unitR=(size/2)/(opts.range*1.15);
-    ctx.strokeStyle='rgba(239,138,108,0.35)';
+    ctx.strokeStyle='rgba(189,86,54,0.35)';
     ctx.beginPath(); ctx.arc(size/2,size/2,unitR,0,2*Math.PI); ctx.stroke();
 
     if(opts.isInfinity && opts.isInfinity()){
@@ -718,7 +718,7 @@ function makePad(canvas, opts){
       const s=toScreen(z);
       ctx.beginPath(); ctx.arc(s.x,s.y,7,0,2*Math.PI);
       ctx.fillStyle=opts.color; ctx.fill();
-      ctx.lineWidth=2; ctx.strokeStyle='#0a0d18'; ctx.stroke();
+      ctx.lineWidth=2; ctx.strokeStyle='#fbfbf9'; ctx.stroke();
     }
   }
   let dragging=false;
@@ -741,10 +741,10 @@ function makePad(canvas, opts){
 }
 
 const matrixPads = {
-  a: makePad(document.getElementById('padA'), { range:2.2, color:'#f0b23e', getValue:()=>state.mA, setValue:(z)=>{state.mA=z;}, onChange:renderAll }),
-  b: makePad(document.getElementById('padB'), { range:2.2, color:'#47c9c2', getValue:()=>state.mB, setValue:(z)=>{state.mB=z;}, onChange:renderAll }),
-  c: makePad(document.getElementById('padC'), { range:2.2, color:'#ef8a6c', getValue:()=>state.mC, setValue:(z)=>{state.mC=z;}, onChange:renderAll }),
-  d: makePad(document.getElementById('padD'), { range:2.2, color:'#b98af0', getValue:()=>state.mD, setValue:(z)=>{state.mD=z;}, onChange:renderAll }),
+  a: makePad(document.getElementById('padA'), { range:2.2, color:'#b5791a', getValue:()=>state.mA, setValue:(z)=>{state.mA=z;}, onChange:renderAll }),
+  b: makePad(document.getElementById('padB'), { range:2.2, color:'#168079', getValue:()=>state.mB, setValue:(z)=>{state.mB=z;}, onChange:renderAll }),
+  c: makePad(document.getElementById('padC'), { range:2.2, color:'#bd5636', getValue:()=>state.mC, setValue:(z)=>{state.mC=z;}, onChange:renderAll }),
+  d: makePad(document.getElementById('padD'), { range:2.2, color:'#6c53b8', getValue:()=>state.mD, setValue:(z)=>{state.mD=z;}, onChange:renderAll }),
 };
 function drawMatrixPads(){
   matrixPads.a.draw(); matrixPads.b.draw(); matrixPads.c.draw(); matrixPads.d.draw();
@@ -761,9 +761,9 @@ function drawMatrixPads(){
 
 // ===================== Pestaña 3: pads de razón cruzada =====================
 const crPads = {
-  w0: makePad(document.getElementById('padW0'), { range:2.4, color:'#f0b23e', getValue:()=>state.w0, setValue:(z)=>{state.w0=z;}, isInfinity:()=>state.infTarget==='w0', onChange:renderAll }),
-  w1: makePad(document.getElementById('padW1'), { range:2.4, color:'#47c9c2', getValue:()=>state.w1, setValue:(z)=>{state.w1=z;}, isInfinity:()=>state.infTarget==='w1', onChange:renderAll }),
-  wInf: makePad(document.getElementById('padWInf'), { range:2.4, color:'#ef8a6c', getValue:()=>state.wInf, setValue:(z)=>{state.wInf=z;}, isInfinity:()=>state.infTarget==='wInf', onChange:renderAll }),
+  w0: makePad(document.getElementById('padW0'), { range:2.4, color:'#b5791a', getValue:()=>state.w0, setValue:(z)=>{state.w0=z;}, isInfinity:()=>state.infTarget==='w0', onChange:renderAll }),
+  w1: makePad(document.getElementById('padW1'), { range:2.4, color:'#168079', getValue:()=>state.w1, setValue:(z)=>{state.w1=z;}, isInfinity:()=>state.infTarget==='w1', onChange:renderAll }),
+  wInf: makePad(document.getElementById('padWInf'), { range:2.4, color:'#bd5636', getValue:()=>state.wInf, setValue:(z)=>{state.wInf=z;}, isInfinity:()=>state.infTarget==='wInf', onChange:renderAll }),
 };
 function drawCRPads(){
   crPads.w0.draw(); crPads.w1.draw(); crPads.wInf.draw();

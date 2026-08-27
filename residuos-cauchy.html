@@ -7,18 +7,18 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.18.4/dist/katex.min.css" integrity="sha384-u1zONI5gPXUx0UKI62c75/zww972y0v2rSK5ZYlVdS6xEuWDeZWUI66v6t1gvlXJ" crossorigin="anonymous">
 <style>
   :root{
-    --bg:#0a0d16;
-    --panel:#121729;
-    --panel-2:#0e1220;
-    --border:#232b45;
-    --grid:#2a3350;
-    --text:#eef1f8;
-    --text-dim:#8b93ab;
-    --p-color:#f0b23e;
-    --q-color:#47c9c2;
-    --accent:#ef8a6c;
-    --violet:#b98af0;
-    --warn:#ef6f6c;
+    --bg:#f7f6f2;
+    --panel:#ffffff;
+    --panel-2:#efeee7;
+    --border:#dbd7cc;
+    --grid:#e0dcd0;
+    --text:#232019;
+    --text-dim:#6b6659;
+    --p-color:#b5791a;
+    --q-color:#168079;
+    --accent:#bd5636;
+    --violet:#6c53b8;
+    --warn:#c13d38;
     --mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
     --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
     --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -39,8 +39,8 @@
   .formula-box{ padding:10px 4px 4px; font-size:1.35em; color:var(--text); overflow-x:auto; }
   .formula-box .katex{ color:var(--text); }
   .panel-label{ display:flex; justify-content:space-between; align-items:baseline; font-family:var(--mono); font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--text-dim); margin-bottom:9px; }
-  .panel-label .hint{ color:#59627e; text-transform:none; letter-spacing:0; }
-  canvas{ width:100%; aspect-ratio:1/1; display:block; border-radius:10px; background:#0a0d18; touch-action:none; cursor:grab; }
+  .panel-label .hint{ color:#8c8778; text-transform:none; letter-spacing:0; }
+  canvas{ width:100%; aspect-ratio:1/1; display:block; border-radius:10px; background:#fbfbf9; touch-action:none; cursor:grab; }
   canvas.dragging{ cursor:grabbing; }
 
   .controls{ margin-bottom:16px; }
@@ -50,9 +50,9 @@
   .slider-field label{ display:flex; justify-content:space-between; font-size:12.5px; color:var(--text-dim); margin-bottom:6px; }
   .slider-field label .val{ font-family:var(--mono); color:var(--text); }
   input[type=range]{ width:100%; -webkit-appearance:none; appearance:none; height:4px; border-radius:2px; background:var(--grid); outline:none; }
-  input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:var(--q-color); cursor:pointer; border:2px solid #0a0d18; }
-  input[type=range]::-moz-range-thumb{ width:14px; height:14px; border-radius:50%; background:var(--q-color); cursor:pointer; border:2px solid #0a0d18; }
-  #playBtn{ background:var(--q-color); color:#06111a; border:none; font-family:var(--sans); font-weight:600; font-size:12.5px; padding:11px 18px; border-radius:9px; cursor:pointer; white-space:nowrap; }
+  input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:var(--q-color); cursor:pointer; border:2px solid #fbfbf9; }
+  input[type=range]::-moz-range-thumb{ width:14px; height:14px; border-radius:50%; background:var(--q-color); cursor:pointer; border:2px solid #fbfbf9; }
+  #playBtn{ background:var(--q-color); color:#1a1a1a; border:none; font-family:var(--sans); font-weight:600; font-size:12.5px; padding:11px 18px; border-radius:9px; cursor:pointer; white-space:nowrap; }
   #playBtn:disabled{ opacity:.55; cursor:default; }
 
   .poles{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
@@ -85,13 +85,13 @@
   .bd-card{ background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:14px 16px; }
   .bd-head{ display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--text-dim); margin-bottom:8px; }
   .bd-status{ margin-left:auto; font-family:var(--mono); font-size:11px; padding:2px 9px; border-radius:999px; }
-  .bd-status.in{ background:rgba(71,201,194,0.14); color:var(--q-color); }
-  .bd-status.out{ background:rgba(139,147,171,0.12); color:var(--text-dim); }
-  .bd-status.warn{ background:rgba(239,111,108,0.16); color:var(--warn); }
+  .bd-status.in{ background:rgba(22,128,121,0.14); color:var(--q-color); }
+  .bd-status.out{ background:rgba(107,102,89,0.12); color:var(--text-dim); }
+  .bd-status.warn{ background:rgba(193,61,56,0.16); color:var(--warn); }
   .bd-eq{ font-family:var(--mono); font-size:13px; color:var(--text); line-height:1.7; }
   .bd-eq .dim{ color:var(--text-dim); }
 
-  footer{ margin-top:18px; color:#5c6684; font-size:12px; line-height:1.65; max-width:86ch; }
+  footer{ margin-top:18px; color:#8c8778; font-size:12px; line-height:1.65; max-width:86ch; }
 </style>
 </head>
 <body>
@@ -135,7 +135,7 @@
       <p class="row-label">Polos y residuos — f(z) = Σ aₖ/(z − zₖ)</p>
       <div class="poles" id="poles">
         <div class="pole-card" data-pole="0">
-          <div class="pole-head"><span class="pole-dot" style="background:#f0b23e"></span>
+          <div class="pole-head"><span class="pole-dot" style="background:#b5791a"></span>
             <label><input type="checkbox" data-pole-active="0" checked> Polo 1 activo</label>
           </div>
           <div class="pole-body">
@@ -152,7 +152,7 @@
           </div>
         </div>
         <div class="pole-card inactive" data-pole="1">
-          <div class="pole-head"><span class="pole-dot" style="background:#47c9c2"></span>
+          <div class="pole-head"><span class="pole-dot" style="background:#168079"></span>
             <label><input type="checkbox" data-pole-active="1"> Polo 2 activo</label>
           </div>
           <div class="pole-body">
@@ -169,7 +169,7 @@
           </div>
         </div>
         <div class="pole-card inactive" data-pole="2">
-          <div class="pole-head"><span class="pole-dot" style="background:#ef8a6c"></span>
+          <div class="pole-head"><span class="pole-dot" style="background:#bd5636"></span>
             <label><input type="checkbox" data-pole-active="2"> Polo 3 activo</label>
           </div>
           <div class="pole-body">
@@ -234,7 +234,7 @@ const state = {
   ],
   s:1,
 };
-const POLE_COLORS = ['#f0b23e','#47c9c2','#ef8a6c'];
+const POLE_COLORS = ['#b5791a','#168079','#bd5636'];
 
 function contourPoint(t){
   const ang=2*Math.PI*t;
@@ -327,10 +327,10 @@ function renderPlane(){
   const idx=currentIndex();
 
   const circPts=[]; for(let i=0;i<=200;i++){ const t=i/200; circPts.push(planeToScreen(contourPoint(t))); }
-  drawPath(planeCtx, circPts, 'rgba(185,138,240,0.85)', 1.8, true);
+  drawPath(planeCtx, circPts, 'rgba(108,83,184,0.85)', 1.8, true);
 
   const centerS=planeToScreen(state.center);
-  planeCtx.strokeStyle='rgba(185,138,240,0.85)'; planeCtx.lineWidth=1.6;
+  planeCtx.strokeStyle='rgba(108,83,184,0.85)'; planeCtx.lineWidth=1.6;
   planeCtx.beginPath(); planeCtx.moveTo(centerS.x-7,centerS.y); planeCtx.lineTo(centerS.x+7,centerS.y); planeCtx.stroke();
   planeCtx.beginPath(); planeCtx.moveTo(centerS.x,centerS.y-7); planeCtx.lineTo(centerS.x,centerS.y+7); planeCtx.stroke();
 
@@ -354,8 +354,8 @@ function renderPlane(){
     const dist=C.abs(C.sub(p.z, state.center));
     const nearBoundary = Math.abs(dist-state.radius) < 0.08;
     planeCtx.beginPath(); planeCtx.arc(pS.x,pS.y,7,0,2*Math.PI);
-    planeCtx.fillStyle= nearBoundary ? '#ef6f6c' : color; planeCtx.fill();
-    planeCtx.lineWidth=2; planeCtx.strokeStyle='#0a0d18'; planeCtx.stroke();
+    planeCtx.fillStyle= nearBoundary ? '#c13d38' : color; planeCtx.fill();
+    planeCtx.lineWidth=2; planeCtx.strokeStyle='#fbfbf9'; planeCtx.stroke();
     planeCtx.font='600 12px ' + getComputedStyle(document.body).fontFamily;
     planeCtx.fillStyle=color;
     planeCtx.fillText('z'+(i+1), pS.x+10, pS.y-9);
@@ -363,10 +363,10 @@ function renderPlane(){
 
   const zS=planeToScreen(zt);
   planeCtx.beginPath(); planeCtx.arc(zS.x,zS.y,6,0,2*Math.PI);
-  planeCtx.fillStyle='#eef1f8'; planeCtx.fill();
-  planeCtx.lineWidth=2; planeCtx.strokeStyle='#0a0d18'; planeCtx.stroke();
+  planeCtx.fillStyle='#232019'; planeCtx.fill();
+  planeCtx.lineWidth=2; planeCtx.strokeStyle='#fbfbf9'; planeCtx.stroke();
   planeCtx.font='600 12px ' + getComputedStyle(document.body).fontFamily;
-  planeCtx.fillStyle='#eef1f8';
+  planeCtx.fillStyle='#232019';
   planeCtx.fillText('z(s)', zS.x+9, zS.y-9);
 }
 
@@ -381,25 +381,25 @@ function renderTrace(){
   maxMag=Math.max(maxMag, C.abs(predicted), 2*Math.PI)*1.25;
   const scale=(size/2*0.82)/maxMag;
 
-  traceCtx.strokeStyle='rgba(147,158,196,0.35)'; traceCtx.lineWidth=1;
+  traceCtx.strokeStyle='rgba(130,124,108,0.35)'; traceCtx.lineWidth=1;
   traceCtx.beginPath(); traceCtx.moveTo(0,cy); traceCtx.lineTo(size,cy); traceCtx.stroke();
   traceCtx.beginPath(); traceCtx.moveTo(cx,0); traceCtx.lineTo(cx,size); traceCtx.stroke();
 
   const twoPiS={x:cx, y:cy-2*Math.PI*scale};
-  traceCtx.strokeStyle='rgba(185,138,240,0.9)'; traceCtx.lineWidth=1.4;
+  traceCtx.strokeStyle='rgba(108,83,184,0.9)'; traceCtx.lineWidth=1.4;
   traceCtx.beginPath(); traceCtx.moveTo(twoPiS.x-8,twoPiS.y); traceCtx.lineTo(twoPiS.x+8,twoPiS.y); traceCtx.stroke();
   traceCtx.beginPath(); traceCtx.moveTo(twoPiS.x,twoPiS.y-8); traceCtx.lineTo(twoPiS.x,twoPiS.y+8); traceCtx.stroke();
   traceCtx.font='600 11px ' + getComputedStyle(document.body).fontFamily;
-  traceCtx.fillStyle='rgba(185,138,240,0.9)';
+  traceCtx.fillStyle='rgba(108,83,184,0.9)';
   traceCtx.fillText('2πi', twoPiS.x+10, twoPiS.y+4);
 
   const pts=[]; for(let i=0;i<=idx;i++){ pts.push({x:cx+traceArray[i].re*scale, y:cy-traceArray[i].im*scale}); }
-  drawPath(traceCtx, pts, '#ef8a6c', 2.4, false);
+  drawPath(traceCtx, pts, '#bd5636', 2.4, false);
 
-  traceCtx.beginPath(); traceCtx.arc(cx,cy,4,0,2*Math.PI); traceCtx.fillStyle='rgba(238,241,248,0.6)'; traceCtx.fill();
+  traceCtx.beginPath(); traceCtx.arc(cx,cy,4,0,2*Math.PI); traceCtx.fillStyle='rgba(35,32,25,0.6)'; traceCtx.fill();
 
   const predS={x:cx+predicted.re*scale, y:cy-predicted.im*scale};
-  traceCtx.strokeStyle='#47c9c2'; traceCtx.lineWidth=1.6;
+  traceCtx.strokeStyle='#168079'; traceCtx.lineWidth=1.6;
   traceCtx.beginPath(); traceCtx.arc(predS.x,predS.y,7,0,2*Math.PI); traceCtx.stroke();
   traceCtx.beginPath(); traceCtx.moveTo(predS.x-10,predS.y); traceCtx.lineTo(predS.x+10,predS.y); traceCtx.stroke();
   traceCtx.beginPath(); traceCtx.moveTo(predS.x,predS.y-10); traceCtx.lineTo(predS.x,predS.y+10); traceCtx.stroke();
@@ -407,8 +407,8 @@ function renderTrace(){
   if(pts.length){
     const cur=pts[pts.length-1];
     traceCtx.beginPath(); traceCtx.arc(cur.x,cur.y,5,0,2*Math.PI);
-    traceCtx.fillStyle='#ef8a6c'; traceCtx.fill();
-    traceCtx.lineWidth=2; traceCtx.strokeStyle='#0a0d18'; traceCtx.stroke();
+    traceCtx.fillStyle='#bd5636'; traceCtx.fill();
+    traceCtx.lineWidth=2; traceCtx.strokeStyle='#fbfbf9'; traceCtx.stroke();
   }
 }
 
@@ -558,19 +558,19 @@ function makePad(canvas, opts){
   function draw(){
     if(size<=0) return;
     ctx.clearRect(0,0,size,size);
-    ctx.strokeStyle='rgba(147,158,196,0.18)'; ctx.lineWidth=1;
+    ctx.strokeStyle='rgba(130,124,108,0.18)'; ctx.lineWidth=1;
     const rr=Math.ceil(opts.range);
     for(let i=-rr;i<=rr;i++){
       const s1=toScreen({re:i,im:0}); ctx.beginPath(); ctx.moveTo(s1.x,0); ctx.lineTo(s1.x,size); ctx.stroke();
       const s2=toScreen({re:0,im:i}); ctx.beginPath(); ctx.moveTo(0,s2.y); ctx.lineTo(size,s2.y); ctx.stroke();
     }
-    ctx.strokeStyle='rgba(238,241,248,0.35)'; ctx.lineWidth=1.1;
+    ctx.strokeStyle='rgba(35,32,25,0.35)'; ctx.lineWidth=1.1;
     ctx.beginPath(); ctx.moveTo(size/2,0); ctx.lineTo(size/2,size); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(0,size/2); ctx.lineTo(size,size/2); ctx.stroke();
     const z=opts.getValue(); const s=toScreen(z);
     ctx.beginPath(); ctx.arc(s.x,s.y,6,0,2*Math.PI);
     ctx.fillStyle=opts.color; ctx.fill();
-    ctx.lineWidth=1.6; ctx.strokeStyle='#0a0d18'; ctx.stroke();
+    ctx.lineWidth=1.6; ctx.strokeStyle='#fbfbf9'; ctx.stroke();
   }
   let dragging=false;
   function handleMove(e){
