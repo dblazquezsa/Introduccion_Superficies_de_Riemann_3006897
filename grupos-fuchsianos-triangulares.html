@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Grupos triangulares de Fuchs Δ(m,n,k)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.18.4/dist/katex.min.css" integrity="sha384-u1zONI5gPXUx0UKI62c75/zww972y0v2rSK5ZYlVdS6xEuWDeZWUI66v6t1gvlXJ" crossorigin="anonymous">
+<style>
+  :root{
+    --bg:#f7f6f2; --panel:#ffffff; --panel-2:#efeee7; --border:#dbd7cc; --grid:#e0dcd0;
+    --text:#232019; --text-dim:#6b6659;
+    --p-color:#b5791a; --q-color:#168079; --accent:#bd5636; --violet:#6c53b8; --warn:#c13d38;
+    --mono: ui-monospace,"SF Mono","Cascadia Code",Menlo,Consolas,monospace;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{ background:var(--bg); color:var(--text); font-family:var(--sans); padding:22px 18px 40px; }
+  .app{ max-width:1180px; margin:0 auto; }
+  header{ margin-bottom:20px; }
+  header .eyebrow{ font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--q-color); margin-bottom:8px; }
+  header h1{ font-family:var(--serif); font-weight:600; font-size:clamp(20px,3vw,30px); margin:0 0 8px; letter-spacing:.2px; }
+  header p.subtitle{ color:var(--text-dim); font-size:14px; max-width:none; line-height:1.6; margin:0; }
+
+  .panel{ background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:14px; }
+  .controls{ margin-bottom:16px; }
+  .row-label{ font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-dim); margin:0 0 10px; }
+  .sliders-grid{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px 20px; margin-bottom:14px; }
+  @media (max-width:700px){ .sliders-grid{ grid-template-columns:1fr; } }
+  .slider-field label{ display:flex; justify-content:space-between; font-size:12.5px; color:var(--text-dim); margin-bottom:6px; }
+  .slider-field label .val{ font-family:var(--mono); color:var(--text); }
+  input[type=range]{ width:100%; -webkit-appearance:none; appearance:none; height:4px; border-radius:2px; background:var(--grid); outline:none; }
+  input[type=range]:disabled{ opacity:.35; }
+  input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:var(--q-color); cursor:pointer; border:2px solid #fbfbf9; }
+  input[type=range]::-moz-range-thumb{ width:14px; height:14px; border-radius:50%; background:var(--q-color); cursor:pointer; border:2px solid #fbfbf9; }
+  .inf-toggle{ display:flex; align-items:center; gap:6px; margin-top:6px; font-family:var(--mono); font-size:11.5px; color:var(--text-dim); }
+  .inf-toggle input{ accent-color:var(--q-color); }
+  .preset-row{ display:flex; gap:8px; flex-wrap:wrap; }
+  .preset-btn{ background:var(--panel-2); border:1px solid var(--border); color:var(--text); font-family:var(--sans); font-size:12px; padding:7px 12px; border-radius:8px; cursor:pointer; }
+  .preset-btn:hover{ border-color:var(--q-color); }
+  .invalid-note{ font-family:var(--mono); font-size:12px; color:var(--warn); margin-top:10px; }
+
+  .formula-panel{ margin-bottom:16px; }
+  .formula-box{ padding:8px 4px 2px; font-size:1.1em; color:var(--text); overflow-x:auto; line-height:1.9; }
+  .formula-box .katex{ color:var(--text); }
+
+  .canvases{ display:grid; grid-template-columns:1fr; gap:16px; margin-bottom:16px; }
+  .panel-label{ display:flex; justify-content:space-between; align-items:baseline; font-family:var(--mono); font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--text-dim); margin-bottom:9px; }
+  .panel-label .hint{ color:#8c8778; text-transform:none; letter-spacing:0; }
+  canvas{ width:100%; aspect-ratio:1.6/1; display:block; border-radius:10px; background:#fbfbf9; touch-action:none; cursor:grab; }
+  canvas.dragging{ cursor:grabbing; }
+
+  .summary{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:16px; }
+  @media (max-width:760px){ .summary{ grid-template-columns:1fr; } }
+  .summary-card{ background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:16px 18px; }
+  .summary-card.hi{ border-color:var(--q-color); }
+  .summary-card.warn{ border-color:var(--warn); }
+  .summary-card .lab{ font-family:var(--mono); font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--text-dim); margin-bottom:8px; }
+  .summary-card .val{ font-family:var(--mono); font-size:13.5px; color:var(--text); line-height:1.7; }
+  .summary-card .val.big{ font-size:16px; }
+
+  .matrix-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px; }
+  @media (max-width:700px){ .matrix-grid{ grid-template-columns:1fr; } }
+  .matrix-box{ font-size:1.05em; }
+
+  footer{ margin-top:18px; color:#8c8778; font-size:12px; line-height:1.65; max-width:86ch; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="eyebrow">Material adicional · Grupos Fuchsianos</div>
+    <h1>Grupos triangulares de Fuchs Δ(m,n,k)</h1>
+    <p class="subtitle">Un triángulo hiperbólico de ángulos π/m, π/n, π/k, reflejado sucesivamente sobre sus lados, tesela el semiplano ℍ. El subgrupo de las rotaciones (índice 2 en el grupo completo de reflexiones) es el grupo Δ(m,n,k). PSL(2,ℤ)=Δ(2,3,∞) es el caso que ya viste en los artefactos de λ y j — este generaliza a cualquier terna hiperbólica.</p>
+  </header>
+
+  <main>
+    <section class="panel controls">
+      <p class="row-label">Parámetros del triángulo — 1/m + 1/n + 1/k debe ser &lt; 1</p>
+      <div class="sliders-grid">
+        <div class="slider-field">
+          <label for="mSlider">m <span class="val" id="mVal">2</span></label>
+          <input type="range" id="mSlider" min="2" max="20" step="1" value="2">
+        </div>
+        <div class="slider-field">
+          <label for="nSlider">n <span class="val" id="nVal">3</span></label>
+          <input type="range" id="nSlider" min="2" max="20" step="1" value="3">
+        </div>
+        <div class="slider-field">
+          <label for="kSlider">k <span class="val" id="kVal">7</span></label>
+          <input type="range" id="kSlider" min="2" max="20" step="1" value="7">
+          <div class="inf-toggle"><input type="checkbox" id="kInf"><label for="kInf">k = ∞ (vértice ideal)</label></div>
+        </div>
+      </div>
+      <p class="row-label">Ejemplos</p>
+      <div class="preset-row">
+        <button class="preset-btn" data-m="2" data-n="3" data-k="7">(2,3,7) — Hurwitz</button>
+        <button class="preset-btn" data-m="2" data-n="3" data-k="0">(2,3,∞) — PSL(2,ℤ)</button>
+        <button class="preset-btn" data-m="2" data-n="4" data-k="0">(2,4,∞)</button>
+        <button class="preset-btn" data-m="3" data-n="3" data-k="4">(3,3,4)</button>
+        <button class="preset-btn" data-m="2" data-n="3" data-k="8">(2,3,8)</button>
+        <button class="preset-btn" data-m="7" data-n="7" data-k="7">(7,7,7)</button>
+        <button class="preset-btn" data-m="2" data-n="3" data-k="6">(2,3,6) — no hiperbólico</button>
+      </div>
+      <p class="invalid-note" id="invalidNote" style="display:none;"></p>
+    </section>
+
+    <section class="panel formula-panel">
+      <div class="panel-label"><span>Presentación del grupo</span></div>
+      <div id="formulaBox" class="formula-box">—</div>
+    </section>
+
+    <div class="canvases">
+      <section class="panel">
+        <div class="panel-label"><span>Teselación</span><span class="hint">arrastra para desplazar, rueda para acercar</span></div>
+        <div class="preset-row" style="margin-bottom:10px;">
+          <button class="preset-btn" id="viewH" style="border-color:var(--q-color); background:#e3ede9; color:var(--q-color);">Semiplano ℍ</button>
+          <button class="preset-btn" id="viewDisk">Disco de Poincaré</button>
+        </div>
+        <canvas id="tauCanvas" aria-label="Teselacion del triangulo (m,n,k)"></canvas>
+      </section>
+    </div>
+
+    <section class="summary" id="summarySection"></section>
+
+    <section class="panel">
+      <p class="row-label">Matrices generadoras en SL(2,ℝ)</p>
+      <div class="matrix-grid">
+        <div>
+          <div class="panel-label"><span>Rotación de orden m en A</span></div>
+          <div id="genABox" class="formula-box matrix-box">—</div>
+        </div>
+        <div>
+          <div class="panel-label"><span>Rotación de orden n en B</span></div>
+          <div id="genBBox" class="formula-box matrix-box">—</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <strong>Cómo leerlo:</strong> el triángulo central (vértices A, B, C con ángulos π/m, π/n, π/k) se refleja sucesivamente sobre cada uno de sus lados — el color se invierte en cada reflexión, igual que en los artefactos de λ y j. El botón "Disco de Poincaré" aplica τ↦(τ−a)/(τ−ā), donde a es el <em>incentro hiperbólico</em> del triángulo (la intersección de sus bisectrices) — a diferencia de (2,3,∞), un triángulo genérico no tiene la simetría de orden 3 que permitía usar directamente un vértice, así que aquí sí hace falta calcular el punto realmente central. Los generadores mostrados son rotaciones hiperbólicas puras (elementos de SL(2,ℝ) con traza 2cos(π/m) y 2cos(π/n)); el producto de las dos genera una rotación de orden k que fija C. La clasificación de aritmeticidad usa la lista completa de Takeuchi (1977) — 85 ternas exactas en 19 clases de conmensurabilidad, verificada aquí contra la fuente antes de codificarla. La maximalidad (si Δ(m,n,k) está o no contenido propiamente en otro grupo Fuchsiano discreto) es una pregunta más fina, estudiada por Singerman y otros; este applet solo señala los casos mejor documentados y no intenta responderla en general.
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.18.4/dist/katex.min.js" integrity="sha384-ykMNcWQhhTUb0YV9SPpPUFURHZ+tWmubkakGBP+OgNK/UXdO2gtzglWx0Rj9hnO3" crossorigin="anonymous"></script>
+<script>
+(function(){
+"use strict";
+
+const C = {
+  add:(a,b)=>({re:a.re+b.re, im:a.im+b.im}),
+  sub:(a,b)=>({re:a.re-b.re, im:a.im-b.im}),
+  mul:(a,b)=>({re:a.re*b.re-a.im*b.im, im:a.re*b.im+a.im*b.re}),
+  div:(a,b)=>{ const d=b.re*b.re+b.im*b.im; return {re:(a.re*b.re+a.im*b.im)/d, im:(a.im*b.re-a.re*b.im)/d}; },
+  abs:(a)=>Math.hypot(a.re,a.im),
+};
+
+const state = { m:2, n:3, k:7, kInf:false, panX:0, panY:0, zoom:1, viewMode:'H' };
+
+// ===== geometria del triangulo (m,n,k): verificado numericamente antes de implementar =====
+function reflectAcrossCircle(z,c,R){
+  const diffRe=z.re-c, diffIm=-z.im;
+  const d2=diffRe*diffRe+diffIm*diffIm;
+  return { re:c+R*R*diffRe/d2, im:R*R*(-diffIm)/d2 };
+}
+function reflectAcrossLine(z,c){ return { re:2*c-z.re, im:z.im }; }
+function geodesicOf(p1,p2){
+  if(p1===null) return {vertical:true, re:p2.re};
+  if(p2===null) return {vertical:true, re:p1.re};
+  if(Math.abs(p1.re-p2.re)<1e-9) return {vertical:true, re:p1.re};
+  const c=((p1.re*p1.re+p1.im*p1.im)-(p2.re*p2.re+p2.im*p2.im))/(2*(p1.re-p2.re));
+  const R=Math.hypot(c-p1.re,p1.im);
+  return {vertical:false,c,R};
+}
+function reflectAcross(z,geo){
+  if(z===null) return geo.vertical ? null : {re:geo.c, im:0};
+  if(geo.vertical) return reflectAcrossLine(z,geo.re);
+  const dRe=z.re-geo.c, dIm=z.im;
+  if(dRe*dRe+dIm*dIm < 1e-18) return null;
+  return reflectAcrossCircle(z,geo.c,geo.R);
+}
+function rotMatrix(theta){ return [[Math.cos(theta/2),Math.sin(theta/2)],[-Math.sin(theta/2),Math.cos(theta/2)]]; }
+function scaleMatrix(s){ return [[Math.sqrt(s),0],[0,1/Math.sqrt(s)]]; }
+function matMul(M1,M2){
+  return [
+    [M1[0][0]*M2[0][0]+M1[0][1]*M2[1][0], M1[0][0]*M2[0][1]+M1[0][1]*M2[1][1]],
+    [M1[1][0]*M2[0][0]+M1[1][1]*M2[1][0], M1[1][0]*M2[0][1]+M1[1][1]*M2[1][1]],
+  ];
+}
+function matInv(M){ return [[M[1][1],-M[0][1]],[-M[1][0],M[0][0]]]; }
+function applyMatrix(M,z){
+  const num=C.add(C.mul({re:M[0][0],im:0},z),{re:M[0][1],im:0});
+  const den=C.add(C.mul({re:M[1][0],im:0},z),{re:M[1][1],im:0});
+  return C.div(num,den);
+}
+
+// triangulo con vertice ideal en C (k=infinito): formula directa, verificada exactamente
+// contra (m,n)=(2,3) dando i y rho.
+function idealTriangle(m,n){
+  const A={re:-Math.cos(Math.PI/m), im:Math.sin(Math.PI/m)}; // angulo pi/m
+  const B={re:Math.cos(Math.PI/n), im:Math.sin(Math.PI/n)};  // angulo pi/n
+  return {A, B, C:null};
+}
+// triangulo compacto (m,n,k todos finitos): ley de cosenos hiperbolica + rotacion,
+// verificado exactamente contra (2,3,7),(3,3,4),(2,4,5),(7,7,7),(2,3,8).
+function compactTriangle(m,n,k){
+  const alpha=Math.PI/m, beta=Math.PI/n, gamma=Math.PI/k;
+  const coshC=(Math.cos(alpha)*Math.cos(beta)+Math.cos(gamma))/(Math.sin(alpha)*Math.sin(beta));
+  const coshB=(Math.cos(gamma)*Math.cos(alpha)+Math.cos(beta))/(Math.sin(gamma)*Math.sin(alpha));
+  const cLen=Math.acosh(coshC), bLen=Math.acosh(coshB);
+  const A={re:0,im:1};
+  const B={re:0,im:Math.exp(cLen)};
+  const Cpt=applyMatrix(rotMatrix(alpha), {re:0,im:Math.exp(bLen)});
+  return {A,B,C:Cpt};
+}
+function intersectGeodesics(g1,g2){
+  if(g1.vertical && g2.vertical) return null;
+  if(g1.vertical){ const y2=g2.R*g2.R-(g1.re-g2.c)*(g1.re-g2.c); if(y2<0) return null; return {re:g1.re, im:Math.sqrt(y2)}; }
+  if(g2.vertical){ const y2=g1.R*g1.R-(g2.re-g1.c)*(g2.re-g1.c); if(y2<0) return null; return {re:g2.re, im:Math.sqrt(y2)}; }
+  const x = ((g1.R*g1.R - g2.R*g2.R) - (g1.c*g1.c - g2.c*g2.c)) / (2*(g2.c-g1.c));
+  const y2 = g1.R*g1.R - (x-g1.c)*(x-g1.c);
+  if(y2<0) return null;
+  return {re:x, im:Math.sqrt(y2)};
+}
+// incentro hiperbolico: interseccion de las bisectrices desde A y desde B (no hace falta la de
+// C: dos bisectrices ya determinan el punto). Signos (+alpha/2 en A, -beta/2 en B) verificados
+// numericamente contra 7 triangulos compactos antes de implementar: el incentro cae siempre del
+// mismo lado que el vertice opuesto en cada uno de los 3 lados.
+function findConjToI(P){ const M=[[1,-P.re],[0,P.im]]; const d=Math.sqrt(M[0][0]*M[1][1]-M[0][1]*M[1][0]); return [[M[0][0]/d,M[0][1]/d],[M[1][0]/d,M[1][1]/d]]; }
+function incenter(tri){
+  const {A,B,C,alpha,beta}=tri;
+  const gA = findConjToI(A);
+  const rotA = matMul(matMul(matInv(gA), rotMatrix(alpha/2)), gA);
+  const gBisA = geodesicOf(A, applyMatrix(rotA, B));
+  const gB = findConjToI(B);
+  const rotB = matMul(matMul(matInv(gB), rotMatrix(-beta/2)), gB);
+  const gBisB = geodesicOf(B, applyMatrix(rotB, A));
+  return intersectGeodesics(gBisA, gBisB);
+}
+function buildTriangle(){
+  const {m,n,k,kInf}=state;
+  const tri = kInf ? idealTriangle(m,n) : compactTriangle(m,n,k);
+  tri.alpha=Math.PI/m; tri.beta=Math.PI/n;
+  return tri;
+}
+function isHyperbolic(m,n,k,kInf){
+  const sum = 1/m+1/n+(kInf?0:1/k);
+  return sum < 0.999999;
+}
+
+// ===== arbol de teselas por reflexion (colores alternados por paridad de profundidad) =====
+const TARGET_TILES=2200; // presupuesto por CANTIDAD, no por profundidad — el numero de reflexiones
+// para dar la vuelta a un vertice depende de m,n,k, y con profundidad fija algunos triangulos
+// (ej. (7,7,7)) generaban millones de teselas mientras otros (ej. (2,3,7)) apenas unos miles.
+const SAFETY_MAX_DEPTH=60;
+function keyOfTile(t){
+  const f=p=> p===null?'inf':p.re.toFixed(5)+','+p.im.toFixed(5);
+  return f(t.A)+'|'+f(t.B)+'|'+f(t.C);
+}
+function buildTree(tri, targetCount){
+  // deduplicacion global: al reflejar repetidamente alrededor de un vertice de orden finito
+  // (m, n o k), se vuelve a una tesela YA VISITADA tras 2*orden reflexiones — sin excluirla se
+  // pintaba de nuevo encima con relleno semitransparente, oscureciendo esa zona cada vez mas.
+  const root={A:tri.A,B:tri.B,C:tri.C, depth:0, cameFrom:null};
+  const all=[root]; const seen=new Set([keyOfTile(root)]);
+  let frontier=[root];
+  for(let d=0; d<SAFETY_MAX_DEPTH && all.length<targetCount; d++){
+    const next=[];
+    outer:
+    for(const tile of frontier){
+      const {A,B,C}=tile;
+      const geoAB=geodesicOf(A,B), geoBC=geodesicOf(B,C), geoCA=geodesicOf(C,A);
+      const cands=[
+        {edge:'AB', A, B, C:reflectAcross(C,geoAB)},
+        {edge:'BC', A:reflectAcross(A,geoBC), B, C},
+        {edge:'CA', A, B:reflectAcross(B,geoCA), C},
+      ];
+      for(const o of cands){
+        if(o.edge===tile.cameFrom) continue;
+        const child={A:o.A,B:o.B,C:o.C, depth:d+1, cameFrom:o.edge};
+        const key=keyOfTile(child);
+        if(seen.has(key)) continue; // ya visitada por otra rama de la reflexion: descartar
+        seen.add(key);
+        next.push(child); all.push(child);
+        if(all.length>=targetCount) break outer; // cortar dentro del nivel, no solo entre niveles
+      }
+    }
+    frontier=next;
+    if(frontier.length===0) break;
+  }
+  return all;
+}
+
+// ===== Canvas =====
+const tauCanvas=document.getElementById('tauCanvas'), tauCtx=tauCanvas.getContext('2d');
+let tauSize=0, tauSizeY=0;
+function fitCanvas(canvas, ctx){
+  const cssW=canvas.clientWidth, cssH=Math.round(cssW/1.6), dpr=window.devicePixelRatio||1;
+  canvas.width=Math.round(cssW*dpr); canvas.height=Math.round(cssH*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  return {w:cssW,h:cssH};
+}
+const BASE_RANGE=2.2;
+function tauToScreen(t){
+  const scale=(tauSize/(2*BASE_RANGE))*state.zoom;
+  return {x:tauSize/2 + (t.re+state.panX)*scale, y:tauSizeY - (t.im)*scale + state.panY};
+}
+function screenToTau(px,py){
+  const scale=(tauSize/(2*BASE_RANGE))*state.zoom;
+  return {re:(px-tauSize/2)/scale - state.panX, im:(tauSizeY-py+state.panY)/scale};
+}
+// disco de Poincare: M(tau)=(tau-a)/(tau-conj(a)), a = incentro del triangulo actual
+let diskCenter = {re:0, im:1};
+function diskMap(t){
+  if(t===null) return {re:1, im:0}; // el infinito va al punto (1,0) del borde del disco
+  const abar={re:diskCenter.re, im:-diskCenter.im};
+  return C.div(C.sub(t,diskCenter), C.sub(t,abar));
+}
+const DISK_R_FRAC=0.42;
+function diskWToScreen(w){ const cx=tauSize/2, cy=tauSizeY/2, R=Math.min(tauSize,tauSizeY)*DISK_R_FRAC*state.zoom; return {x:cx+w.re*R, y:cy-w.im*R}; }
+function activeToScreen(t){ return state.viewMode==='disk' ? diskWToScreen(diskMap(t)) : tauToScreen(t); }
+const NA_BASE=30, NV_BASE=44, THETA_EPS=0.0006;
+function naFor(depth){ return Math.max(6, NA_BASE - depth*3); }
+function nvFor(depth){ return Math.max(8, NV_BASE - depth*4); }
+function vertRayFromHeight(re, fromHeight, ascending, depth){
+  const NV=nvFor(depth||0);
+  const thetaMin=Math.atan(Math.max(fromHeight,1e-6)), thetaMax=Math.PI/2-THETA_EPS;
+  const pts=[];
+  for(let i=0;i<=NV;i++){
+    const frac=ascending?i/NV:1-i/NV;
+    const theta=thetaMin+(thetaMax-thetaMin)*frac;
+    pts.push({re, im:Math.tan(theta)});
+  }
+  return pts;
+}
+function edgePts(p1,p2,depth){
+  const NA=naFor(depth||0);
+  if(p1===null) return vertRayFromHeight(p2.re,p2.im,false,depth);
+  if(p2===null) return vertRayFromHeight(p1.re,p1.im,true,depth);
+  const geo=geodesicOf(p1,p2);
+  if(geo.vertical){
+    const pts=[]; for(let i=0;i<=NA;i++){ const t=i/NA; pts.push({re:p1.re, im:p1.im+(p2.im-p1.im)*t}); } return pts;
+  }
+  const ang1=Math.atan2(p1.im,p1.re-geo.c), ang2=Math.atan2(p2.im,p2.re-geo.c);
+  const pts=[]; for(let i=0;i<=NA;i++){ const ang=ang1+(ang2-ang1)*(i/NA); pts.push({re:geo.c+geo.R*Math.cos(ang), im:geo.R*Math.sin(ang)}); }
+  return pts;
+}
+function fillTile(tile){
+  const teal=(tile.depth%2===0);
+  const rgb=teal?'22,128,121':'108,83,184';
+  const hasInf=tile.A===null||tile.B===null||tile.C===null;
+  const pts=edgePts(tile.A,tile.B,tile.depth).concat(edgePts(tile.B,tile.C,tile.depth).slice(1)).concat(edgePts(tile.C,tile.A,tile.depth).slice(1));
+  const scr=pts.map(activeToScreen);
+  tauCtx.beginPath(); tauCtx.moveTo(scr[0].x,scr[0].y);
+  for(let i=1;i<scr.length;i++) tauCtx.lineTo(scr[i].x,scr[i].y);
+  if(hasInf && state.viewMode!=='disk'){
+    const grad=tauCtx.createLinearGradient(0,tauSizeY,0,0);
+    grad.addColorStop(0, `rgba(${rgb},0.16)`); grad.addColorStop(0.6, `rgba(${rgb},0.16)`); grad.addColorStop(1, `rgba(${rgb},0)`);
+    tauCtx.fillStyle=grad;
+  } else {
+    tauCtx.fillStyle=`rgba(${rgb},0.16)`;
+  }
+  tauCtx.fill();
+  tauCtx.strokeStyle=`rgba(${rgb},0.55)`; tauCtx.lineWidth=1.1; tauCtx.stroke();
+}
+function drawMarker(s, color, label){
+  tauCtx.beginPath(); tauCtx.arc(s.x,s.y,4,0,2*Math.PI);
+  tauCtx.fillStyle=color; tauCtx.fill();
+  tauCtx.lineWidth=1.3; tauCtx.strokeStyle='#fbfbf9'; tauCtx.stroke();
+  if(label){ tauCtx.font='600 11px '+getComputedStyle(document.body).fontFamily; tauCtx.fillStyle=color; tauCtx.fillText(label, s.x+7, s.y-7); }
+}
+
+let currentTree=[];
+function rebuildTree(){
+  const tri=buildTriangle();
+  const valid = isHyperbolic(state.m,state.n,state.kInf?Infinity:state.k, state.kInf);
+  currentTree = valid ? buildTree(tri, TARGET_TILES) : [];
+  if(valid){
+    // caso especial (2,3,infinito): centrar en B=rho (vertice de orden n=3, con 2n=6 teselas
+    // finas reunidas a su alrededor) en vez del incentro general — por compatibilidad estetica
+    // con el artefacto de lambda, donde rho es tambien el centro del disco.
+    if(state.m===2 && state.n===3 && state.kInf){
+      diskCenter = tri.B;
+    } else {
+      const inc = incenter(tri);
+      if(inc) diskCenter = inc;
+    }
+  }
+  return tri;
+}
+function renderTau(){
+  tauCtx.clearRect(0,0,tauSize,tauSizeY);
+  const valid = isHyperbolic(state.m,state.n,state.kInf?Infinity:state.k, state.kInf);
+  document.getElementById('invalidNote').style.display = valid?'none':'block';
+  if(!valid){
+    document.getElementById('invalidNote').textContent = '1/m + 1/n + 1/k = '+(1/state.m+1/state.n+(state.kInf?0:1/state.k)).toFixed(3)+' ≥ 1 — el triángulo no es hiperbólico (es euclídeo o esférico). Ajusta m, n o k.';
+    return;
+  }
+  if(state.viewMode==='disk'){
+    const cx=tauSize/2, cy=tauSizeY/2, R=Math.min(tauSize,tauSizeY)*DISK_R_FRAC*state.zoom;
+    tauCtx.beginPath(); tauCtx.arc(cx,cy,R,0,2*Math.PI);
+    tauCtx.strokeStyle='rgba(35,32,25,0.3)'; tauCtx.lineWidth=1.3; tauCtx.stroke();
+  } else {
+    const o=tauToScreen({re:0,im:0});
+    tauCtx.strokeStyle='rgba(35,32,25,0.3)'; tauCtx.lineWidth=1.2;
+    tauCtx.beginPath(); tauCtx.moveTo(0,o.y); tauCtx.lineTo(tauSize,o.y); tauCtx.stroke();
+  }
+
+  currentTree.forEach(fillTile);
+  const root=currentTree[0];
+  if(root){
+    if(root.A!==null) drawMarker(activeToScreen(root.A), 'rgba(181,121,26,0.85)', 'A');
+    else if(state.viewMode==='disk') drawMarker(activeToScreen(null), 'rgba(181,121,26,0.85)', 'A');
+    drawMarker(activeToScreen(root.B), 'rgba(189,86,54,0.85)', 'B');
+    if(root.C!==null) drawMarker(activeToScreen(root.C), 'rgba(108,83,184,0.85)', 'C');
+    else if(state.viewMode==='disk') drawMarker(activeToScreen(null), 'rgba(108,83,184,0.85)', 'C');
+  }
+}
+
+// ===== Info: formula, matrices, resumen =====
+function fmtNum(x){ return (Math.abs(x)<1e-9?0:x).toFixed(4); }
+function fmtC(z){ return `${fmtNum(z.re)} ${z.im<0?'-':'+'} ${fmtNum(Math.abs(z.im))}i`; }
+function fmtMatrix(M){
+  return `\\begin{pmatrix}${M[0][0].toFixed(4)} & ${M[0][1].toFixed(4)}\\\\ ${M[1][0].toFixed(4)} & ${M[1][1].toFixed(4)}\\end{pmatrix}`;
+}
+function katexOrPlain(el, tex, plain){
+  if(typeof window.katex!=='undefined' && typeof window.katex.render==='function'){
+    try{ window.katex.render(tex, el, {throwOnError:false}); } catch(e){ el.textContent=plain; }
+  } else { el.textContent=plain; }
+}
+function renderFormula(){
+  const {m,n,k,kInf}=state;
+  const kStr = kInf ? '\\infty' : k;
+  const tex = `\\Delta(${m},${n},${kStr}) = \\langle\\, g_A, g_B \\mid g_A^{${m}} = g_B^{${n}} = (g_A g_B)^{${kInf?'\\infty':k}} = \\pm I \\,\\rangle`;
+  katexOrPlain(document.getElementById('formulaBox'), tex, `Delta(${m},${n},${kInf?'inf':k}) = <gA,gB | gA^${m}=gB^${n}=(gA gB)^${kInf?'inf':k}=+-I>`);
+}
+
+// tabla completa de Takeuchi (1977): 85 ternas aritmeticas, 19 clases de conmensurabilidad
+// (verificada contra la fuente primaria antes de codificarla: arXiv:1511.02941, Table App.1)
+const TAKEUCHI = [
+  ['I',['2,3,inf','2,4,inf','2,6,inf','2,inf,inf','3,3,inf','3,inf,inf','4,4,inf','6,6,inf','inf,inf,inf'],'ℚ'],
+  ['II',['2,4,6','2,6,6','3,4,4','3,6,6'],'ℚ'],
+  ['III',['2,3,8','2,4,8','2,6,8','2,8,8','3,3,4','3,8,8','4,4,4','4,6,6','4,8,8'],'ℚ(√2)'],
+  ['IV',['2,3,12','2,6,12','3,3,6','3,4,12','3,12,12','6,6,6'],'ℚ(√3)'],
+  ['V',['2,4,12','2,12,12','4,4,6','6,12,12'],'ℚ(√3)'],
+  ['VI',['2,4,5','2,4,10','2,5,5','2,10,10','4,4,5','5,10,10'],'ℚ(√5)'],
+  ['VII',['2,5,6','3,5,5'],'ℚ(√5)'],
+  ['VIII',['2,3,10','2,5,10','3,3,5','5,5,5'],'ℚ(√5)'],
+  ['IX',['3,4,6'],'ℚ(√6)'],
+  ['X',['2,3,7','2,3,14','2,4,7','2,7,7','2,7,14','3,3,7','7,7,7'],'ℚ(cos π/7)'],
+  ['XI',['2,3,9','2,3,18','2,9,18','3,3,9','3,6,18','9,9,9'],'ℚ(cos π/9)'],
+  ['XII',['2,4,18','2,18,18','4,4,9','9,18,18'],'ℚ(cos π/9)'],
+  ['XIII',['2,3,16','2,8,16','3,3,8','4,16,16','8,8,8'],'ℚ(cos π/8)'],
+  ['XIV',['2,5,20','5,5,10'],'ℚ(cos π/10)'],
+  ['XV',['2,3,24','2,12,24','3,3,12','3,8,24','6,24,24','12,12,12'],'ℚ(cos π/12)'],
+  ['XVI',['2,5,30','5,5,15'],'ℚ(cos π/15)'],
+  ['XVII',['2,3,30','2,15,30','3,3,15','3,10,30','15,15,15'],'ℚ(cos π/15)'],
+  ['XVIII',['2,5,8','4,5,5'],'ℚ(√2,√5)'],
+  ['XIX',['2,3,11'],'ℚ(cos π/11)'],
+];
+function checkArithmetic(m,n,k,kInf){
+  const parts=[m,n,kInf?'inf':k].map(String).sort((a,b)=>{
+    if(a==='inf') return 1; if(b==='inf') return -1; return (+a)-(+b);
+  });
+  const key=parts.join(',');
+  for(const [cls,list,field] of TAKEUCHI){
+    for(const triple of list){
+      const tParts=triple.split(',').sort((a,b)=>{ if(a==='inf')return 1; if(b==='inf')return -1; return (+a)-(+b); });
+      if(tParts.join(',')===key) return {arithmetic:true, cls, field};
+    }
+  }
+  return {arithmetic:false};
+}
+// unos pocos casos de maximalidad bien documentados (no exhaustivo — ver pie de pagina)
+const KNOWN_MAXIMAL = {
+  '2,3,7': {maximal:true, note:'el grupo (2,3,7) de menor área hiperbólica entre todos los Fuchsianos cocompactos — maximal (cota de Hurwitz).'},
+  '2,3,inf': {maximal:true, note:'PSL(2,ℤ) es maximal entre los grupos Fuchsianos con cúspide.'},
+};
+function checkMaximal(m,n,k,kInf){
+  const parts=[m,n,kInf?'inf':k].map(String).sort((a,b)=>{ if(a==='inf')return 1; if(b==='inf')return -1; return (+a)-(+b); });
+  return KNOWN_MAXIMAL[parts.join(',')] || null;
+}
+
+function updateSummary(){
+  const {m,n,k,kInf}=state;
+  const el=document.getElementById('summarySection');
+  el.innerHTML='';
+  const valid=isHyperbolic(m,n,kInf?Infinity:k,kInf);
+  function card(lab,val,cls){
+    const d=document.createElement('div'); d.className='summary-card'+(cls?' '+cls:'');
+    d.innerHTML=`<div class="lab">${lab}</div><div class="val big">${val}</div>`;
+    el.appendChild(d);
+  }
+  if(!valid){ card('Estado','No hiperbólico','warn'); return; }
+  const area = Math.PI*(1 - 1/m - 1/n - (kInf?0:1/k));
+  card('Área del triángulo', area.toFixed(4)+' (Gauss–Bonnet)');
+  const ar = checkArithmetic(m,n,k,kInf);
+  card('¿Aritmético?', ar.arithmetic ? `Sí — clase ${ar.cls}, cuerpo ${ar.field}` : 'No está en la lista de Takeuchi (85 casos)', ar.arithmetic?'hi':'');
+  const mx = checkMaximal(m,n,k,kInf);
+  card('¿Maximal?', mx ? mx.note : 'No determinado en este applet — ver pie de página', mx?'hi':'');
+}
+function updateMatrices(){
+  const {m,n,k,kInf}=state;
+  const valid=isHyperbolic(m,n,kInf?Infinity:k,kInf);
+  if(!valid){
+    document.getElementById('genABox').textContent='—';
+    document.getElementById('genBBox').textContent='—';
+    return;
+  }
+  const tri=buildTriangle();
+  const genA=rotMatrix(2*Math.PI/m);
+  let genB;
+  if(kInf){
+    const Bx=tri.B.re, By=tri.B.im;
+    const gB=[[Math.sqrt(By), Bx/Math.sqrt(By)],[0, 1/Math.sqrt(By)]];
+    genB = matMul(matMul(gB, rotMatrix(2*Math.PI/n)), matInv(gB));
+  } else {
+    const alpha=Math.PI/m, beta=Math.PI/n, gamma=Math.PI/k;
+    const coshC=(Math.cos(alpha)*Math.cos(beta)+Math.cos(gamma))/(Math.sin(alpha)*Math.sin(beta));
+    const cLen=Math.acosh(coshC);
+    const gB=scaleMatrix(Math.exp(cLen));
+    genB = matMul(matMul(gB, rotMatrix(2*Math.PI/n)), matInv(gB));
+  }
+  katexOrPlain(document.getElementById('genABox'), `g_A = ${fmtMatrix(genA)}`, 'gA = matriz de rotacion orden '+m);
+  katexOrPlain(document.getElementById('genBBox'), `g_B = ${fmtMatrix(genB)}`, 'gB = matriz de rotacion orden '+n);
+}
+
+function renderAll(){
+  rebuildTree();
+  renderTau();
+  updateSummary();
+  updateMatrices();
+}
+
+// ===== Controles =====
+document.getElementById('mSlider').addEventListener('input',(e)=>{
+  state.m=parseInt(e.target.value,10); document.getElementById('mVal').textContent=state.m;
+  renderFormula(); renderAll();
+});
+document.getElementById('nSlider').addEventListener('input',(e)=>{
+  state.n=parseInt(e.target.value,10); document.getElementById('nVal').textContent=state.n;
+  renderFormula(); renderAll();
+});
+document.getElementById('kSlider').addEventListener('input',(e)=>{
+  state.k=parseInt(e.target.value,10); document.getElementById('kVal').textContent=state.k;
+  renderFormula(); renderAll();
+});
+document.getElementById('kInf').addEventListener('change',(e)=>{
+  state.kInf=e.target.checked;
+  document.getElementById('kSlider').disabled=state.kInf;
+  renderFormula(); renderAll();
+});
+document.querySelectorAll('[data-m]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    state.m=parseInt(btn.dataset.m,10); state.n=parseInt(btn.dataset.n,10);
+    const kv=parseInt(btn.dataset.k,10);
+    state.kInf = (kv===0); state.k = state.kInf ? state.k : kv;
+    document.getElementById('mSlider').value=state.m; document.getElementById('mVal').textContent=state.m;
+    document.getElementById('nSlider').value=state.n; document.getElementById('nVal').textContent=state.n;
+    if(!state.kInf){ document.getElementById('kSlider').value=state.k; document.getElementById('kVal').textContent=state.k; }
+    document.getElementById('kInf').checked=state.kInf;
+    document.getElementById('kSlider').disabled=state.kInf;
+    renderFormula(); renderAll();
+  });
+});
+
+document.getElementById('viewH').addEventListener('click',()=>{
+  state.viewMode='H'; state.panX=0; state.panY=0; state.zoom=1;
+  document.getElementById('viewH').style.cssText='border-color:var(--q-color); background:#e3ede9; color:var(--q-color);';
+  document.getElementById('viewDisk').style.cssText='';
+  renderTau();
+});
+document.getElementById('viewDisk').addEventListener('click',()=>{
+  state.viewMode='disk'; state.zoom=1;
+  document.getElementById('viewDisk').style.cssText='border-color:var(--q-color); background:#e3ede9; color:var(--q-color);';
+  document.getElementById('viewH').style.cssText='';
+  renderTau();
+});
+
+// ===== Arrastre (pan) y rueda (zoom) =====
+let dragging=false, lastX=0, lastY=0;
+tauCanvas.addEventListener('pointerdown',(e)=>{ dragging=true; lastX=e.clientX; lastY=e.clientY; tauCanvas.classList.add('dragging'); tauCanvas.setPointerCapture(e.pointerId); });
+tauCanvas.addEventListener('pointermove',(e)=>{
+  if(!dragging) return;
+  const dx=e.clientX-lastX, dy=e.clientY-lastY; lastX=e.clientX; lastY=e.clientY;
+  const scale=(tauSize/(2*BASE_RANGE))*state.zoom;
+  state.panX += dx/scale; state.panY -= dy;
+  renderTau();
+});
+function releaseDrag(){ dragging=false; tauCanvas.classList.remove('dragging'); }
+tauCanvas.addEventListener('pointerup',releaseDrag);
+tauCanvas.addEventListener('pointercancel',releaseDrag);
+tauCanvas.addEventListener('wheel',(e)=>{
+  e.preventDefault();
+  state.zoom = Math.max(0.3, Math.min(6, state.zoom * (e.deltaY<0?1.1:0.9)));
+  renderTau();
+}, {passive:false});
+
+// ===== Resize =====
+function handleResize(){
+  const dims=fitCanvas(tauCanvas, tauCtx);
+  tauSize=dims.w; tauSizeY=dims.h;
+  renderAll();
+}
+window.addEventListener('resize', handleResize);
+
+renderFormula();
+handleResize();
+})();
+</script>
+</body>
+</html>
