@@ -68,6 +68,7 @@
       <div class="btn-row">
         <button class="action-btn accent" id="reduceBtn">↓ Reducir τ al dominio fundamental</button>
         <button class="action-btn" id="resetTau">↺ Reiniciar τ</button>
+        <button class="action-btn" id="toggleSubdiv">Subdivisión (2,3,∞)</button>
       </div>
       <p class="row-label" style="margin-top:14px;">Valores especiales</p>
       <div class="btn-row">
@@ -98,7 +99,7 @@
   </main>
 
   <footer>
-    <strong>Cómo leerlo:</strong> el dominio fundamental F (−1/2≤Re τ≤1/2, |τ|≥1, a opacidad plena) es solo una de infinitas copias que tesela ℍ bajo PSL(2,ℤ). A los lados se ven T(F) y T⁻¹(F) — las mismas copias trasladadas por τ↦τ±1 — y justo debajo de cada una, un triángulo acotado más pequeño (vértices en un entero k y en los dos puntos ρ-tipo de la tesela de arriba): esa es la tesela que se obtiene aplicando S a cada copia, y su existencia es la razón por la que la vista arranca en Im τ=0 en vez de en la altura del arco. g₂ y g₃ son las mismas series de Eisenstein del artefacto de Weierstrass-℘, y Δ=g₂³−27g₃² es el discriminante — nunca se anula para τ∈ℍ, porque eso significaría un retículo degenerado. La relación j=256(1−λ+λ²)³/(λ²(1−λ)²) conecta este artefacto con el de la función λ: los 6 valores anarmónicos de λ dan, los seis, el mismo j — por eso j sí es invariante bajo el grupo modular completo aunque λ no lo sea.
+    <strong>Cómo leerlo:</strong> el dominio fundamental F (−1/2≤Re τ≤1/2, |τ|≥1, a opacidad plena) es solo una de infinitas copias que tesela ℍ bajo PSL(2,ℤ). A los lados se ven T(F) y T⁻¹(F) — las mismas copias trasladadas por τ↦τ±1. Debajo de cada una hay ahora tres niveles anidados de teselas "herradura" acotadas, cada vez más tenues: el nivel 1 se obtiene aplicando S a la tesela de arriba, y los niveles 2 y 3 se obtienen reflejando cada herradura sobre sus propios dos lados exteriores (no el que la conecta con la tesela de la que vino). El botón "Subdivisión (2,3,∞)" no añade teselas nuevas: parte cada una de esas mismas 24 teselas fusionadas por su propio eje de simetría en dos triángulos hiperbólicos de ángulos (0, π/2, π/3), alternando ámbar y coral. g₂ y g₃ son las mismas series de Eisenstein del artefacto de Weierstrass-℘, y Δ=g₂³−27g₃² es el discriminante — nunca se anula para τ∈ℍ, porque eso significaría un retículo degenerado. La relación j=256(1−λ+λ²)³/(λ²(1−λ)²) conecta este artefacto con el de la función λ: los 6 valores anarmónicos de λ dan, los seis, el mismo j — por eso j sí es invariante bajo el grupo modular completo aunque λ no lo sea.
   </footer>
 </div>
 
@@ -142,7 +143,7 @@ function jAndDisc(tau){
   return {g2,g3,disc,j};
 }
 
-const state = { tau:{re:0.2,im:1.3} };
+const state = { tau:{re:0.2,im:1.3}, showSubdiv:false };
 
 const tauCanvas=document.getElementById('tauCanvas'), tauCtx=tauCanvas.getContext('2d');
 const jCanvas=document.getElementById('jCanvas'), jCtx=jCanvas.getContext('2d');
@@ -166,69 +167,161 @@ function drawMarker(ctx, s, color, label, r){
 
 // alto de rho=e^{i pi/3} (los dos vertices finitos del dominio F estan a esta altura)
 const RHO_H=Math.sqrt(3)/2;
-const NA=40;
-// puntos a lo largo de la recta vertical Re(tau)=re, desde la altura RHO_H hasta i*infinito
+const NA=40, NV=50;
+// version general: recta vertical desde una altura finita cualquiera hasta (o desde) i*infinito
 // (usando im=tan(theta), theta->pi/2, en vez de truncar a una altura fija: asi el relleno
 // se desvanece de verdad en vez de cortarse con un borde recto).
-const THETA_MIN=Math.atan(RHO_H), THETA_MAX=Math.PI/2-0.0005, NV=50;
-function vertRayPts(re, ascending){
+function vertRayFromHeight(re, fromHeight, ascending){
+  const thetaMin=Math.atan(fromHeight), thetaMax=Math.PI/2-0.0005;
   const pts=[];
   for(let i=0;i<=NV;i++){
     const frac = ascending ? i/NV : 1-i/NV;
-    const theta = THETA_MIN + (THETA_MAX-THETA_MIN)*frac;
+    const theta = thetaMin+(thetaMax-thetaMin)*frac;
     pts.push({re, im:Math.tan(theta)});
   }
   return pts;
 }
-// arco de radio 1 centrado en "center", entre los angulos dados (todas las aristas de este
-// dominio son arcos de circulos de radio 1 centrados en enteros: |tau-k|=1)
-function arcPtsGen(center, fromAng, toAng){
-  const pts=[];
-  for(let i=0;i<=NA;i++){
-    const ang=fromAng+(toAng-fromAng)*(i/NA);
-    pts.push({re:center+Math.cos(ang), im:Math.sin(ang)});
+// ===== reflexiones hiperbolicas generales (para el arbol de teselas (2,3,infinito)) =====
+// null representa el punto en el infinito.
+function reflectAcrossCircle(z,c,R){
+  const diffRe=z.re-c, diffIm=-z.im;
+  const d2=diffRe*diffRe+diffIm*diffIm;
+  return { re:c+R*R*diffRe/d2, im:R*R*(-diffIm)/d2 };
+}
+function reflectAcrossLine(z,c){ return { re:2*c-z.re, im:z.im }; }
+function geodesicOf(p1,p2){
+  if(p1===null) return {vertical:true, re:p2.re};
+  if(p2===null) return {vertical:true, re:p1.re};
+  if(Math.abs(p1.re-p2.re)<1e-9) return {vertical:true, re:p1.re};
+  const c=((p1.re*p1.re+p1.im*p1.im)-(p2.re*p2.re+p2.im*p2.im))/(2*(p1.re-p2.re));
+  const R=Math.hypot(c-p1.re,p1.im);
+  return {vertical:false,c,R};
+}
+function reflectAcross(z,geo){
+  if(z===null) return geo.vertical ? null : {re:geo.c, im:0};
+  if(geo.vertical) return reflectAcrossLine(z,geo.re);
+  const dRe=z.re-geo.c, dIm=z.im;
+  if(dRe*dRe+dIm*dIm < 1e-18) return null; // z es el centro del circulo -> se refleja al infinito
+  return reflectAcrossCircle(z,geo.c,geo.R);
+}
+// arbol de teselas (2,3,infinito) por reflexiones sucesivas, partiendo de la mitad derecha
+// de F (infinito, i, rho). Verificado numericamente: sin degeneraciones ni NaN hasta
+// profundidad 8, y cubre bastante mas que la ventana visible ya en profundidad 5.
+// ===== teselas fusionadas (keyhole nivel 0 + herradura niveles 1,2,3) =====
+// Cada tesela fusionada tiene 3 vertices: A (cuspide, angulo 0 — infinito para keyhole,
+// un real finito para herradura) y P,Q (los dos puntos tipo-rho, angulo pi/3 cada uno).
+// Sus hijos se obtienen reflejando la tesela ENTERA a traves de una de sus 3 aristas,
+// excluyendo SIEMPRE la arista concreta por la que se llego a ella (no solo "PQ" de forma
+// fija: verificado numericamente que para nivel>=2 el borde de vuelta puede ser AP o AQ,
+// y si no se excluye el correcto, la reflexion deshace el paso anterior en vez de avanzar).
+const MERGED_MAX_LEVEL=3;
+function childViaPQ(t){ const geo=geodesicOf(t.P,t.Q); return {A:reflectAcross(t.A,geo), P:t.P, Q:t.Q}; }
+function childViaAP(t){ const geo=geodesicOf(t.A,t.P); return {A:t.A, P:t.P, Q:reflectAcross(t.Q,geo)}; }
+function childViaAQ(t){ const geo=geodesicOf(t.A,t.Q); return {A:t.A, Q:t.Q, P:reflectAcross(t.P,geo)}; }
+function buildMergedTiles(maxLevel){
+  const tiles=[];
+  [-1,0,1].forEach(k=>{
+    const keyhole={A:null, P:{re:k-0.5,im:RHO_H}, Q:{re:k+0.5,im:RHO_H}, level:0, k, parentEdge:null};
+    tiles.push(keyhole);
+    const hs1=childViaPQ(keyhole); hs1.level=1; hs1.k=k; hs1.parentEdge='PQ';
+    tiles.push(hs1);
+    let frontier=[hs1];
+    for(let lvl=2; lvl<=maxLevel; lvl++){
+      const next=[];
+      frontier.forEach(t=>{
+        const cands=[];
+        if(t.parentEdge!=='AP') cands.push({...childViaAP(t), parentEdge:'AP'});
+        if(t.parentEdge!=='AQ') cands.push({...childViaAQ(t), parentEdge:'AQ'});
+        if(t.parentEdge!=='PQ') cands.push({...childViaPQ(t), parentEdge:'PQ'});
+        cands.forEach(c=>{ c.level=lvl; c.k=k; next.push(c); tiles.push(c); });
+      });
+      frontier=next;
+    }
+  });
+  return tiles;
+}
+const MERGED_TILES = buildMergedTiles(MERGED_MAX_LEVEL); // fijo: 3 keyhole + 3+6+12 herradura = 24 teselas
+function edgePtsGeneral(p1,p2){
+  if(p1===null) return vertRayFromHeight(p2.re, p2.im, false);
+  if(p2===null) return vertRayFromHeight(p1.re, p1.im, true);
+  const geo=geodesicOf(p1,p2);
+  if(geo.vertical){
+    const pts=[]; for(let i=0;i<=NA;i++){ const t=i/NA; pts.push({re:p1.re, im:p1.im+(p2.im-p1.im)*t}); } return pts;
   }
+  const ang1=Math.atan2(p1.im, p1.re-geo.c), ang2=Math.atan2(p2.im, p2.re-geo.c);
+  const pts=[]; for(let i=0;i<=NA;i++){ const ang=ang1+(ang2-ang1)*(i/NA); pts.push({re:geo.c+geo.R*Math.cos(ang), im:geo.R*Math.sin(ang)}); }
   return pts;
 }
-// tesela "ojo de cerradura" centrada en el entero k: F trasladada por T^k
-function unboundedTilePath(k){
-  return vertRayPts(k-0.5, false)
-    .concat(arcPtsGen(k, 2*Math.PI/3, Math.PI/3).slice(1))
-    .concat(vertRayPts(k+0.5, true).slice(1));
+function trianglePtsGeneral(A,P,Q){
+  return edgePtsGeneral(A,P).concat(edgePtsGeneral(P,Q).slice(1)).concat(edgePtsGeneral(Q,A).slice(1));
 }
-// triangulo acotado justo debajo de la tesela k: vertices k, RHO_L+k, RHO_R+k
-// (arcos |tau-(k-1)|=1 y |tau-(k+1)|=1 — verificado numericamente antes de implementar)
-function boundedTilePath(k){
-  return arcPtsGen(k-1, 0, Math.PI/3)
-    .concat(arcPtsGen(k, 2*Math.PI/3, Math.PI/3).slice(1))
-    .concat(arcPtsGen(k+1, 2*Math.PI/3, Math.PI).slice(1));
-}
-function fillPath(pts, opacityScale, bounded){
+function fillMergedTile(tile, opacityScale){
+  const hasInfinity = tile.A===null;
+  const pts=trianglePtsGeneral(tile.A,tile.P,tile.Q);
   const scr=pts.map(tauToScreen);
   tauCtx.beginPath();
   tauCtx.moveTo(scr[0].x,scr[0].y);
   for(let i=1;i<scr.length;i++) tauCtx.lineTo(scr[i].x,scr[i].y);
-  if(bounded){
-    tauCtx.fillStyle=`rgba(22,128,121,${(0.11*opacityScale).toFixed(3)})`;
-  } else {
+  if(hasInfinity){
     const grad=tauCtx.createLinearGradient(0,tauSize,0,0);
     grad.addColorStop(0, `rgba(22,128,121,${(0.11*opacityScale).toFixed(3)})`);
     grad.addColorStop(0.55, `rgba(22,128,121,${(0.11*opacityScale).toFixed(3)})`);
     grad.addColorStop(1, 'rgba(22,128,121,0)');
     tauCtx.fillStyle=grad;
+  } else {
+    tauCtx.fillStyle=`rgba(22,128,121,${(0.11*opacityScale).toFixed(3)})`;
   }
   tauCtx.fill();
-  tauCtx.strokeStyle=`rgba(22,128,121,${(0.6*opacityScale).toFixed(3)})`; tauCtx.lineWidth=1.6; tauCtx.stroke();
+  tauCtx.strokeStyle=`rgba(22,128,121,${(0.6*opacityScale).toFixed(3)})`; tauCtx.lineWidth=1.3; tauCtx.stroke();
 }
-
+// punto medio angular de la arista PQ: es el punto donde el eje de simetria (desde A) corta
+// PQ en angulo recto, partiendo la tesela fusionada en sus dos mitades (2,pi/2,pi/3).
+// Verificado: para keyhole(k) da exactamente k+i.
+function splitPoint(P,Q){
+  const geo=geodesicOf(P,Q);
+  if(geo.vertical) return {re:P.re, im:(P.im+Q.im)/2};
+  const ang1=Math.atan2(P.im,P.re-geo.c), ang2=Math.atan2(Q.im,Q.re-geo.c);
+  const mid=(ang1+ang2)/2;
+  return {re:geo.c+geo.R*Math.cos(mid), im:geo.R*Math.sin(mid)};
+}
+function fillSubdividedTile(tile, colorsArr){
+  const S=splitPoint(tile.P,tile.Q);
+  const opacityScale=Math.pow(0.8, tile.level);
+  [[tile.A,tile.P,S,colorsArr[0]],[tile.A,S,tile.Q,colorsArr[1]]].forEach(([A,X,Y,colorRGB])=>{
+    const hasInfinity=(A===null);
+    const pts=trianglePtsGeneral(A,X,Y);
+    const scr=pts.map(tauToScreen);
+    tauCtx.beginPath();
+    tauCtx.moveTo(scr[0].x,scr[0].y);
+    for(let i=1;i<scr.length;i++) tauCtx.lineTo(scr[i].x,scr[i].y);
+    if(hasInfinity){
+      const grad=tauCtx.createLinearGradient(0,tauSize,0,0);
+      grad.addColorStop(0, `rgba(${colorRGB},${(0.16*opacityScale).toFixed(3)})`);
+      grad.addColorStop(0.55, `rgba(${colorRGB},${(0.16*opacityScale).toFixed(3)})`);
+      grad.addColorStop(1, `rgba(${colorRGB},0)`);
+      tauCtx.fillStyle=grad;
+    } else {
+      tauCtx.fillStyle=`rgba(${colorRGB},${(0.16*opacityScale).toFixed(3)})`;
+    }
+    tauCtx.fill();
+    tauCtx.strokeStyle=`rgba(${colorRGB},${(0.6*opacityScale).toFixed(3)})`; tauCtx.lineWidth=1.2; tauCtx.stroke();
+  });
+}
 function renderTau(){
   const size=tauSize;
   tauCtx.clearRect(0,0,size,size);
 
-  // 3 teselas "ojo de cerradura" (F y sus vecinas T(F), T^{-1}(F)) + 3 triangulos acotados debajo
-  const KS=[-1,0,1];
-  KS.forEach(k=>fillPath(unboundedTilePath(k), k===0?1:0.5, false));
-  KS.forEach(k=>fillPath(boundedTilePath(k), k===0?0.4:0.24, true));
+  // keyhole (nivel 0) + herradura (niveles 1,2,3): las mismas 24 teselas fusionadas en ambos
+  // modos — la subdivision solo cambia COMO se dibuja cada una (fusionada, o partida en dos).
+  const SUBDIV_COLORS=['181,121,26','189,86,54']; // ambar / coral, alternados
+  MERGED_TILES.forEach(tile=>{
+    const opacityScale = tile.level===0 ? (tile.k===0?1:0.5) : Math.pow(0.55, tile.level) * (tile.k===0?1:0.7);
+    if(state.showSubdiv){
+      fillSubdividedTile(tile, SUBDIV_COLORS);
+    } else {
+      fillMergedTile(tile, opacityScale);
+    }
+  });
 
   drawMarker(tauCtx, tauToScreen({re:0,im:1}), 'rgba(181,121,26,0.8)', 'i', 4);
   [-1,0,1].forEach(k=>{
@@ -310,6 +403,11 @@ document.getElementById('reduceBtn').addEventListener('click',()=>{
 });
 document.getElementById('resetTau').addEventListener('click',()=>{
   state.tau={re:0.2,im:1.3}; renderAll();
+});
+document.getElementById('toggleSubdiv').addEventListener('click',()=>{
+  state.showSubdiv=!state.showSubdiv;
+  document.getElementById('toggleSubdiv').className = state.showSubdiv ? 'action-btn accent' : 'action-btn';
+  renderTau();
 });
 const TAU_PRESETS = {
   'i': {re:0,im:1},
