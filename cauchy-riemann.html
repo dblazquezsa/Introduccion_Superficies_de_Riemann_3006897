@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Las ecuaciones de Cauchy-Riemann</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.18.4/dist/katex.min.css" integrity="sha384-u1zONI5gPXUx0UKI62c75/zww972y0v2rSK5ZYlVdS6xEuWDeZWUI66v6t1gvlXJ" crossorigin="anonymous">
+<style>
+  :root{
+    --bg:#f7f6f2; --panel:#ffffff; --panel-2:#efeee7; --border:#dbd7cc; --grid:#e0dcd0;
+    --text:#232019; --text-dim:#6b6659;
+    --p-color:#b5791a; --q-color:#168079; --accent:#bd5636; --violet:#6c53b8; --warn:#c13d38; --good:#2f7a4f;
+    --mono: ui-monospace,"SF Mono","Cascadia Code",Menlo,Consolas,monospace;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{ background:var(--bg); color:var(--text); font-family:var(--sans); padding:22px 18px 40px; }
+  .app{ max-width:1180px; margin:0 auto; }
+  header{ margin-bottom:20px; }
+  header .eyebrow{ font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--q-color); margin-bottom:8px; }
+  header h1{ font-family:var(--serif); font-weight:600; font-size:clamp(20px,3vw,30px); margin:0 0 8px; letter-spacing:.2px; }
+  header p.subtitle{ color:var(--text-dim); font-size:14px; max-width:none; line-height:1.6; margin:0; }
+
+  .panel{ background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:14px; }
+  .controls{ margin-bottom:16px; }
+  .row-label{ font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-dim); margin:0 0 10px; }
+  .sliders-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px 22px; margin-bottom:14px; }
+  @media (max-width:640px){ .sliders-grid{ grid-template-columns:1fr; } }
+  .slider-field label{ display:flex; justify-content:space-between; font-size:12.5px; color:var(--text-dim); margin-bottom:6px; }
+  .slider-field label .val{ font-family:var(--mono); color:var(--text); }
+  input[type=range]{ width:100%; -webkit-appearance:none; appearance:none; height:4px; border-radius:2px; background:var(--grid); outline:none; }
+  input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:16px; height:16px; border-radius:50%; cursor:pointer; border:2px solid #fbfbf9; }
+  input[type=range]::-moz-range-thumb{ width:14px; height:14px; border-radius:50%; cursor:pointer; border:2px solid #fbfbf9; }
+  #p1Slider::-webkit-slider-thumb, #p2Slider::-webkit-slider-thumb{ background:var(--p-color); }
+  #q1Slider::-webkit-slider-thumb, #q2Slider::-webkit-slider-thumb{ background:var(--accent); }
+  #p1Slider::-moz-range-thumb, #p2Slider::-moz-range-thumb{ background:var(--p-color); }
+  #q1Slider::-moz-range-thumb, #q2Slider::-moz-range-thumb{ background:var(--accent); }
+  .preset-row{ display:flex; gap:8px; flex-wrap:wrap; }
+  .preset-btn{ background:var(--panel-2); border:1px solid var(--border); color:var(--text); font-family:var(--sans); font-size:12px; padding:7px 12px; border-radius:8px; cursor:pointer; }
+  .preset-btn:hover{ border-color:var(--q-color); }
+  .view-toggle{ display:flex; gap:8px; margin-bottom:14px; }
+
+  .formula-panel{ margin-bottom:16px; }
+  .formula-box{ padding:8px 4px 2px; font-size:1.05em; color:var(--text); overflow-x:auto; line-height:2.0; }
+  .cr-line{ display:flex; align-items:center; gap:10px; margin:4px 0; flex-wrap:wrap; }
+  .cr-badge{ font-family:var(--mono); font-size:11px; padding:3px 9px; border-radius:20px; white-space:nowrap; }
+  .cr-badge.ok{ background:#e3f0e7; color:var(--good); border:1px solid #b9dcc3; }
+  .cr-badge.bad{ background:#fbe9e7; color:var(--warn); border:1px solid #f3c6c0; }
+
+  .panel-label{ display:flex; justify-content:space-between; align-items:baseline; font-family:var(--mono); font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--text-dim); margin-bottom:9px; }
+  .panel-label .hint{ color:#8c8778; text-transform:none; letter-spacing:0; }
+  canvas{ width:100%; aspect-ratio:2.2/1; display:block; border-radius:10px; background:#fbfbf9; touch-action:none; }
+  .canvas-wrap{ margin-bottom:16px; }
+
+  .picker-row{ display:flex; gap:22px; flex-wrap:wrap; margin-bottom:6px; }
+  .picker-field{ display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .picker-field .picker-title{ font-family:var(--mono); font-size:11px; color:var(--text-dim); }
+  .picker-field canvas{ width:128px; height:128px; aspect-ratio:1/1; border-radius:10px; background:#fbfbf9; border:1px solid var(--border); touch-action:none; }
+  .picker-field .picker-val{ font-family:var(--mono); font-size:12px; color:var(--text); }
+
+  .summary{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:16px; }
+  @media (max-width:760px){ .summary{ grid-template-columns:1fr; } }
+  .summary-card{ background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:16px 18px; }
+  .summary-card.hi{ border-color:var(--good); }
+  .summary-card.warn{ border-color:var(--warn); }
+  .summary-card .lab{ font-family:var(--mono); font-size:10.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--text-dim); margin-bottom:8px; }
+  .summary-card .val{ font-family:var(--mono); font-size:13.5px; color:var(--text); line-height:1.7; }
+  .summary-card .val.big{ font-size:16px; }
+
+  footer{ margin-top:18px; color:#8c8778; font-size:12px; line-height:1.65; max-width:88ch; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="eyebrow">Prerrequisitos · Análisis complejo</div>
+    <h1>Las ecuaciones de Cauchy-Riemann</h1>
+    <p class="subtitle">f(z) = z + p·z² + q·z̄, con z=x+iy. El término p·z² es holomorfo — no importa cuánto valga p, nunca rompe Cauchy-Riemann. El término q·z̄ es puramente anti-holomorfo — cualquier q≠0 lo rompe, de manera exactamente uniforme en todo el plano. Arrastra el punto marcado y compara la malla transformada con la imagen del círculo en el espacio tangente ahí.</p>
+  </header>
+
+  <main>
+    <section class="panel controls">
+      <p class="row-label">Coeficientes — arrastra cada punto en su plano complejo. p: parte holomorfa (nunca rompe C-R) · q: parte anti-holomorfa (mide la violación)</p>
+      <div class="picker-row">
+        <div class="picker-field">
+          <span class="picker-title">p (holomorfo)</span>
+          <canvas id="pPicker" aria-label="Selector del coeficiente p"></canvas>
+          <span class="picker-val" id="pVal">0.00 + 0.00i</span>
+        </div>
+        <div class="picker-field">
+          <span class="picker-title">q (anti-holomorfo)</span>
+          <canvas id="qPicker" aria-label="Selector del coeficiente q"></canvas>
+          <span class="picker-val" id="qVal">0.00 + 0.00i</span>
+        </div>
+      </div>
+      <p class="row-label">Ejemplos</p>
+      <div class="preset-row">
+        <button class="preset-btn" data-p1="0" data-p2="0" data-q1="0" data-q2="0">Identidad</button>
+        <button class="preset-btn" data-p1="0.6" data-p2="0" data-q1="0" data-q2="0">z + 0.6z² (conforme)</button>
+        <button class="preset-btn" data-p1="0" data-p2="0.6" data-q1="0" data-q2="0">z + 0.6i·z² (conforme)</button>
+        <button class="preset-btn" data-p1="0" data-p2="0" data-q1="0.35" data-q2="0.35">z + (0.35+0.35i)z̄ (no conforme)</button>
+        <button class="preset-btn" data-p1="0" data-p2="0" data-q1="0" data-q2="0.5">z + 0.5i·z̄ (no conforme)</button>
+        <button class="preset-btn" data-p1="0.4" data-p2="-0.2" data-q1="0.3" data-q2="0.15">mixto</button>
+      </div>
+    </section>
+
+    <section class="panel formula-panel">
+      <div class="panel-label"><span>El mapa y la condición de Cauchy-Riemann</span></div>
+      <div id="formulaBox" class="formula-box">—</div>
+      <div class="cr-line">
+        <span id="crBadge1" class="cr-badge ok">∂u/∂x − ∂v/∂y = 0</span>
+        <span id="crBadge2" class="cr-badge ok">∂u/∂y + ∂v/∂x = 0</span>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="view-toggle">
+        <button class="preset-btn" id="toggleTangent">Mostrar círculo tangente en z y su elipse imagen</button>
+      </div>
+      <div class="canvas-wrap">
+        <div class="panel-label"><span id="canvasLabel">Dominio y transformación, simultáneos</span><span class="hint">arrastra el punto z en el panel izquierdo</span></div>
+        <canvas id="mainCanvas" aria-label="Transformacion del mapa"></canvas>
+      </div>
+    </section>
+
+    <section class="summary" id="summarySection"></section>
+  </main>
+
+  <footer>
+    <strong>Cómo leerlo:</strong> f=u+iv es holomorfa en un punto exactamente cuando ∂f/∂z̄=0 ahí — y para este mapa, ∂f/∂z̄=q en todo el plano (constante: por eso la violación de Cauchy-Riemann no depende del punto que arrastres, solo de q). En la vista de malla, cada línea de la cuadrícula (x=cte o y=cte) se dibuja transformada por f; en un punto conforme las dos líneas transformadas se cruzan a 90°, exactamente como en la cuadrícula original — esa es la definición geométrica de "conforme". (El indicador de ángulo compara específicamente las direcciones x,y; con q puramente real y p=0 ese par concreto puede quedar ortogonal por coincidencia — un escalamiento anisótropo diagonal — aunque el mapa no sea conforme, como delatan los semiejes σ₁≠σ₂.) En la vista de círculo, la imagen de la circunferencia unidad en el espacio tangente es la curva f_z·e^{iθ}+f_z̄·e^{−iθ} (θ∈[0,2π]) — una elipse de semiejes |f_z|+|f_z̄| y |f_z|−|f_z̄|. Cuando f_z̄=q=0, ambos semiejes valen |f_z| y la elipse degenera en un círculo: esta es la razón geométrica profunda por la que las funciones holomorfas preservan círculos infinitesimales (y ángulos), mientras que las que no cumplen Cauchy-Riemann los deforman en elipses genuinas.
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.18.4/dist/katex.min.js" integrity="sha384-ykMNcWQhhTUb0YV9SPpPUFURHZ+tWmubkakGBP+OgNK/UXdO2gtzglWx0Rj9hnO3" crossorigin="anonymous"></script>
+<script>
+(function(){
+"use strict";
+
+const state = { p1:0, p2:0, q1:0, q2:0, px:0.5, py:0.4, showTangent:false };
+
+// ===== el mapa f(z) = z + p*z^2 + q*zbar, verificado numericamente antes de implementar:
+// du/dx - dv/dy = 2*Re(q), du/dy + dv/dx = 2*Im(q), en TODO punto (no depende de x,y). =====
+function uv(x,y){
+  const {p1,p2,q1,q2}=state;
+  const u = x*(1+q1) + y*q2 + p1*(x*x-y*y) - 2*p2*x*y;
+  const v = x*q2 + y*(1-q1) + p2*(x*x-y*y) + 2*p1*x*y;
+  return {u,v};
+}
+function jacobianAt(x,y){
+  const {p1,p2,q1,q2}=state;
+  return {
+    dudx: (1+q1) + 2*p1*x - 2*p2*y,
+    dudy: q2 - 2*p1*y - 2*p2*x,
+    dvdx: q2 + 2*p2*x + 2*p1*y,
+    dvdy: (1-q1) - 2*p2*y + 2*p1*x,
+  };
+}
+// f_z = 1 + 2p*z (derivada holomorfa), f_zbar = q (constante) — verificado que coincide
+// exactamente con el jacobiano real numerico antes de implementar.
+function fzAt(x,y){
+  const {p1,p2}=state;
+  return { re: 1+2*p1*x-2*p2*y, im: 2*p2*x+2*p1*y };
+}
+function fzbar(){ return {re:state.q1, im:state.q2}; }
+
+// ===== Canvas =====
+const canvas=document.getElementById('mainCanvas'), ctx=canvas.getContext('2d');
+let W=0,H=0;
+function fitCanvas(){
+  const cssW=canvas.clientWidth, cssH=canvas.clientHeight, dpr=window.devicePixelRatio||1;
+  canvas.width=Math.round(cssW*dpr); canvas.height=Math.round(cssH*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  W=cssW; H=cssH;
+}
+
+const DOMAIN_RANGE=1.5, GRID_STEP=0.25, GRID_SAMPLES=40;
+
+function computeGridImageBounds(){
+  let maxAbs=0;
+  for(let gx=-DOMAIN_RANGE; gx<=DOMAIN_RANGE+1e-9; gx+=GRID_STEP){
+    for(let i=0;i<=GRID_SAMPLES;i++){
+      const y=-DOMAIN_RANGE+(2*DOMAIN_RANGE)*(i/GRID_SAMPLES);
+      const {u,v}=uv(gx,y);
+      maxAbs=Math.max(maxAbs, Math.abs(u), Math.abs(v));
+    }
+  }
+  return Math.max(maxAbs, DOMAIN_RANGE*0.6);
+}
+
+const TANGENT_RADIUS=0.28; // radio del "circulo tangente" alrededor de z, en unidades del dominio (x2)
+const PANEL_GAP=18, PANEL_MARGIN=10, PANEL_TOP=30;
+function panelGeomGrid(){
+  const panelW=(W-PANEL_GAP-2*PANEL_MARGIN)/2, panelH=H-PANEL_TOP-PANEL_MARGIN;
+  const leftCenterX=PANEL_MARGIN+panelW/2, rightCenterX=PANEL_MARGIN+panelW+PANEL_GAP+panelW/2;
+  const cy=PANEL_TOP+panelH/2;
+  const leftScale=Math.min(panelW,panelH)/(2*DOMAIN_RANGE*1.15);
+  const bound=computeGridImageBounds();
+  const rightScale=Math.min(panelW,panelH)/(2*bound*1.15);
+  return {panelW,panelH,leftCenterX,rightCenterX,cy,leftScale,rightScale};
+}
+function drawPanelLabel(cx,text){
+  ctx.font='600 12px '+getComputedStyle(document.body).fontFamily;
+  ctx.fillStyle='rgba(35,32,25,0.6)'; ctx.textAlign='center';
+  ctx.fillText(text, cx, 18);
+}
+function drawMarker(s,color,r){
+  ctx.beginPath(); ctx.arc(s.x,s.y,r,0,2*Math.PI);
+  ctx.fillStyle=color; ctx.fill();
+  ctx.lineWidth=1.5; ctx.strokeStyle='#fbfbf9'; ctx.stroke();
+}
+function angleBetween(vx,vy){
+  const dot=vx.x*vy.x+vx.y*vy.y, magx=Math.hypot(vx.x,vx.y), magy=Math.hypot(vy.x,vy.y);
+  return Math.acos(Math.max(-1,Math.min(1,dot/(magx*magy))))*180/Math.PI;
+}
+function crossingAngleAtPoint(){
+  const J=jacobianAt(state.px,state.py);
+  return angleBetween({x:J.dudx,y:J.dvdx}, {x:J.dudy,y:J.dvdy});
+}
+
+function renderGridView(){
+  ctx.clearRect(0,0,W,H);
+  const g=panelGeomGrid(); state.panelGeom={mode:'grid', ...g};
+  function toL(x,y){ return {x:g.leftCenterX+x*g.leftScale, y:g.cy-y*g.leftScale}; }
+  function toR(u,v){ return {x:g.rightCenterX+u*g.rightScale, y:g.cy-v*g.rightScale}; }
+  drawPanelLabel(g.leftCenterX, 'plano z');
+  drawPanelLabel(g.rightCenterX, 'plano f(z)');
+
+  // ejes en cada panel
+  ctx.strokeStyle='rgba(35,32,25,0.25)'; ctx.lineWidth=1;
+  [ [g.leftCenterX,toL(0,0)], [g.rightCenterX,toR(0,0)] ].forEach(([cx,o])=>{
+    ctx.beginPath(); ctx.moveTo(cx-g.panelW/2,o.y); ctx.lineTo(cx+g.panelW/2,o.y);
+    ctx.moveTo(o.x,PANEL_TOP); ctx.lineTo(o.x,PANEL_TOP+g.panelH); ctx.stroke();
+  });
+
+  // malla recta (izquierda) y su imagen (derecha)
+  function drawGridLine(fixed, isXConst){
+    const domPts=[], imgPts=[];
+    for(let i=0;i<=GRID_SAMPLES;i++){
+      const t=-DOMAIN_RANGE+(2*DOMAIN_RANGE)*(i/GRID_SAMPLES);
+      const x=isXConst?fixed:t, y=isXConst?t:fixed;
+      domPts.push(toL(x,y));
+      const {u,v}=uv(x,y); imgPts.push(toR(u,v));
+    }
+    return {domPts,imgPts};
+  }
+  function strokePoly(pts,color){
+    ctx.beginPath(); ctx.moveTo(pts[0].x,pts[0].y);
+    for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i].x,pts[i].y);
+    ctx.strokeStyle=color; ctx.lineWidth=1.3; ctx.stroke();
+  }
+  for(let gx=-DOMAIN_RANGE; gx<=DOMAIN_RANGE+1e-9; gx+=GRID_STEP){
+    const {domPts,imgPts}=drawGridLine(gx,true);
+    strokePoly(domPts,'rgba(181,121,26,0.45)'); strokePoly(imgPts,'rgba(181,121,26,0.45)');
+  }
+  for(let gy=-DOMAIN_RANGE; gy<=DOMAIN_RANGE+1e-9; gy+=GRID_STEP){
+    const {domPts,imgPts}=drawGridLine(gy,false);
+    strokePoly(domPts,'rgba(22,128,121,0.45)'); strokePoly(imgPts,'rgba(22,128,121,0.45)');
+  }
+
+  if(state.showTangent) drawTangentOverlay(g);
+
+  // punto z (izquierda) y su imagen f(z) (derecha)
+  const zs=toL(state.px,state.py);
+  drawMarker(zs,'#232019',6);
+  const {u:pu,v:pv}=uv(state.px,state.py);
+  const fs=toR(pu,pv);
+  drawMarker(fs,'#232019',6);
+
+  // indicador de angulo de cruce en f(z)
+  const J=jacobianAt(state.px,state.py);
+  const vx={x:J.dudx,y:J.dvdx}, vy={x:J.dudy,y:J.dvdy};
+  const nvx=Math.hypot(vx.x,vx.y), nvy=Math.hypot(vy.x,vy.y);
+  const len=24;
+  function seg(v,n,color){
+    const ex=fs.x+v.x/n*len, ey=fs.y-v.y/n*len;
+    ctx.beginPath(); ctx.moveTo(fs.x,fs.y); ctx.lineTo(ex,ey);
+    ctx.strokeStyle=color; ctx.lineWidth=2.4; ctx.stroke();
+  }
+  seg(vx,nvx,'rgba(181,121,26,0.95)'); seg(vy,nvy,'rgba(22,128,121,0.95)');
+  const ang1=Math.atan2(-vx.y,vx.x), ang2=Math.atan2(-vy.y,vy.x);
+  ctx.beginPath(); ctx.arc(fs.x,fs.y,14,-ang1,-ang2, ang2>ang1);
+  ctx.strokeStyle='rgba(189,86,54,0.8)'; ctx.lineWidth=1.4; ctx.stroke();
+}
+
+// superposicion opcional: circulo de radio pequeno alrededor de z (panel izquierdo) y su
+// imagen linealizada (elipse) alrededor de f(z) (panel derecho) — usa la MISMA escala que
+// ya tiene cada panel de la malla, para mostrar el tamano real relativo del circulo tangente.
+function drawTangentOverlay(g){
+  function toL(x,y){ return {x:g.leftCenterX+x*g.leftScale, y:g.cy-y*g.leftScale}; }
+  function toR(u,v){ return {x:g.rightCenterX+u*g.rightScale, y:g.cy-v*g.rightScale}; }
+
+  const circPts=[];
+  for(let i=0;i<=80;i++){ const th=2*Math.PI*i/80; circPts.push(toL(state.px+Math.cos(th)*TANGENT_RADIUS, state.py+Math.sin(th)*TANGENT_RADIUS)); }
+  ctx.beginPath(); ctx.moveTo(circPts[0].x,circPts[0].y);
+  for(let i=1;i<circPts.length;i++) ctx.lineTo(circPts[i].x,circPts[i].y);
+  ctx.closePath();
+  ctx.strokeStyle='rgba(108,83,184,0.9)'; ctx.lineWidth=1.8; ctx.stroke();
+  ctx.fillStyle='rgba(108,83,184,0.12)'; ctx.fill();
+
+  // elipse imagen: f(z) + TANGENT_RADIUS*(f_z*e^{i theta} + f_zbar*e^{-i theta})
+  const fz=fzAt(state.px,state.py), fzb=fzbar();
+  const {u:fu,v:fv}=uv(state.px,state.py);
+  const ellPts=[];
+  for(let i=0;i<=100;i++){
+    const th=2*Math.PI*i/100, c=Math.cos(th), s=Math.sin(th);
+    const t1={re:fz.re*c-fz.im*s, im:fz.re*s+fz.im*c};
+    const t2={re:fzb.re*c+fzb.im*s, im:-fzb.re*s+fzb.im*c};
+    ellPts.push(toR(fu+(t1.re+t2.re)*TANGENT_RADIUS, fv+(t1.im+t2.im)*TANGENT_RADIUS));
+  }
+  ctx.beginPath(); ctx.moveTo(ellPts[0].x,ellPts[0].y);
+  for(let i=1;i<ellPts.length;i++) ctx.lineTo(ellPts[i].x,ellPts[i].y);
+  ctx.closePath();
+  const conforme=Math.hypot(fzb.re,fzb.im)<1e-6;
+  ctx.strokeStyle = conforme ? 'rgba(47,122,79,0.95)' : 'rgba(189,86,54,0.95)';
+  ctx.lineWidth=1.8; ctx.stroke();
+  ctx.fillStyle = conforme ? 'rgba(47,122,79,0.12)' : 'rgba(189,86,54,0.12)';
+  ctx.fill();
+}
+
+function renderAll(){
+  fitCanvas();
+  const {p1,p2,q1,q2}=state;
+  const eq1=2*q1, eq2=2*q2;
+  const b1=document.getElementById('crBadge1'), b2=document.getElementById('crBadge2');
+  const ok1=Math.abs(eq1)<1e-6, ok2=Math.abs(eq2)<1e-6;
+  b1.className='cr-badge '+(ok1?'ok':'bad'); b1.textContent='∂u/∂x − ∂v/∂y = '+eq1.toFixed(3)+(ok1?' ✓':' ≠ 0');
+  b2.className='cr-badge '+(ok2?'ok':'bad'); b2.textContent='∂u/∂y + ∂v/∂x = '+eq2.toFixed(3)+(ok2?' ✓':' ≠ 0');
+
+  katexOrPlain(document.getElementById('formulaBox'),
+    `f(z) = z + (${fmt(p1)}${fmt(p2,true)}i)\\,z^2 + (${fmt(q1)}${fmt(q2,true)}i)\\,\\bar z \\qquad\\Rightarrow\\qquad \\dfrac{\\partial f}{\\partial \\bar z} = ${fmt(q1)}${fmt(q2,true)}i`,
+    `f(z) = z + (${fmt(p1)}${fmt(p2,true)}i)z^2 + (${fmt(q1)}${fmt(q2,true)}i)zbar`);
+
+  const angle=crossingAngleAtPoint();
+  renderGridView();
+
+  const fz=fzAt(state.px,state.py), fzb=fzbar();
+  const sig1=Math.hypot(fz.re,fz.im)+Math.hypot(fzb.re,fzb.im);
+  const sig2=Math.hypot(fz.re,fz.im)-Math.hypot(fzb.re,fzb.im);
+
+  const el=document.getElementById('summarySection'); el.innerHTML='';
+  function card(lab,val,cls){ const d=document.createElement('div'); d.className='summary-card'+(cls?' '+cls:''); d.innerHTML=`<div class="lab">${lab}</div><div class="val big">${val}</div>`; el.appendChild(d); }
+  const conforme = Math.abs(q1)<1e-6 && Math.abs(q2)<1e-6;
+  card('¿Conforme?', conforme?'Sí — en todo el plano':'No — ∂f/∂z̄=q≠0 en todo el plano', conforme?'hi':'warn');
+  card('Ángulo de cruce en el punto', angle.toFixed(2)+'° '+(Math.abs(angle-90)<0.05?'(= 90°)':'(≠ 90°)'));
+  const orientInv = sig2<0;
+  card('Semiejes de la elipse tangente', 'σ₁='+sig1.toFixed(3)+'  σ₂='+Math.abs(sig2).toFixed(3)+(Math.abs(sig1-sig2)<1e-4?' (círculo)':'')+(orientInv?' (invierte orientación)':''));
+}
+function fmt(x, forceSign){
+  const s = x>=0 ? (forceSign?' + '+x.toFixed(2):x.toFixed(2)) : (forceSign?' − '+Math.abs(x).toFixed(2):x.toFixed(2));
+  return s;
+}
+function katexOrPlain(el,tex,plain){
+  if(typeof window.katex!=='undefined' && typeof window.katex.render==='function'){
+    try{ window.katex.render(tex, el, {throwOnError:false}); } catch(e){ el.textContent=plain; }
+  } else el.textContent=plain;
+}
+
+// ===== mini-selectores de p y q como puntos arrastrables en su propio plano complejo =====
+const PICKER_VIEW=1.15, PICKER_CLAMP=1.0;
+function setupPicker(canvasId, valId, key1, key2){
+  const c=document.getElementById(canvasId), pctx=c.getContext('2d');
+  let cw=0;
+  function fit(){
+    const dpr=window.devicePixelRatio||1; cw=c.clientWidth;
+    c.width=Math.round(cw*dpr); c.height=Math.round(cw*dpr);
+    pctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  function scaleOf(){ return (cw/2)/PICKER_VIEW; }
+  function toScreen(a,b){ const s=scaleOf(); return {x:cw/2+a*s, y:cw/2-b*s}; }
+  function toValue(px,py){ const s=scaleOf(); return {a:(px-cw/2)/s, b:-(py-cw/2)/s}; }
+  function draw(){
+    fit();
+    pctx.clearRect(0,0,cw,cw);
+    const s=scaleOf();
+    pctx.strokeStyle='rgba(35,32,25,0.15)'; pctx.lineWidth=1;
+    pctx.beginPath(); pctx.arc(cw/2,cw/2,s,0,2*Math.PI); pctx.stroke();
+    pctx.strokeStyle='rgba(35,32,25,0.22)';
+    pctx.beginPath(); pctx.moveTo(0,cw/2); pctx.lineTo(cw,cw/2); pctx.moveTo(cw/2,0); pctx.lineTo(cw/2,cw); pctx.stroke();
+    const p=toScreen(state[key1], state[key2]);
+    const color = key1==='p1' ? 'var(--p-color)'.replace('var(--p-color)','#b5791a') : '#bd5636';
+    pctx.beginPath(); pctx.arc(p.x,p.y,6,0,2*Math.PI);
+    pctx.fillStyle=color; pctx.fill();
+    pctx.lineWidth=1.5; pctx.strokeStyle='#fbfbf9'; pctx.stroke();
+    document.getElementById(valId).textContent = state[key1].toFixed(2)+(state[key2]>=0?' + ':' − ')+Math.abs(state[key2]).toFixed(2)+'i';
+  }
+  let dragging=false;
+  function update(px,py){
+    const v=toValue(px,py);
+    state[key1]=clamp(v.a,-PICKER_CLAMP,PICKER_CLAMP);
+    state[key2]=clamp(v.b,-PICKER_CLAMP,PICKER_CLAMP);
+    draw(); renderAll();
+  }
+  c.addEventListener('pointerdown',(e)=>{ dragging=true; c.setPointerCapture(e.pointerId); const r=c.getBoundingClientRect(); update(e.clientX-r.left,e.clientY-r.top); });
+  c.addEventListener('pointermove',(e)=>{ if(!dragging) return; const r=c.getBoundingClientRect(); update(e.clientX-r.left,e.clientY-r.top); });
+  c.addEventListener('pointerup',()=>{ dragging=false; });
+  c.addEventListener('pointercancel',()=>{ dragging=false; });
+  window.addEventListener('resize', draw);
+  return draw;
+}
+const drawPPicker = setupPicker('pPicker','pVal','p1','p2');
+const drawQPicker = setupPicker('qPicker','qVal','q1','q2');
+
+document.querySelectorAll('[data-p1]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    ['p1','p2','q1','q2'].forEach(k=>{ state[k]=parseFloat(btn.dataset[k]); });
+    drawPPicker(); drawQPicker();
+    renderAll();
+  });
+});
+
+document.getElementById('toggleTangent').addEventListener('click', ()=>{
+  state.showTangent=!state.showTangent;
+  document.getElementById('toggleTangent').style.cssText = state.showTangent ? 'border-color:var(--q-color); background:#e3ede9; color:var(--q-color);' : '';
+  renderAll();
+});
+
+// ===== arrastrar el punto z directamente con el puntero (siempre en el panel izquierdo) =====
+let draggingZ=false;
+canvas.addEventListener('pointerdown', (e)=>{
+  const rect=canvas.getBoundingClientRect();
+  const px=e.clientX-rect.left, py=e.clientY-rect.top;
+  const g=state.panelGeom;
+  if(!g || px>g.leftCenterX+g.panelW/2 || px<g.leftCenterX-g.panelW/2) return; // solo panel izquierdo
+  draggingZ=true; canvas.setPointerCapture(e.pointerId);
+  updateZDrag(px,py);
+});
+canvas.addEventListener('pointermove', (e)=>{
+  if(!draggingZ) return;
+  const rect=canvas.getBoundingClientRect();
+  updateZDrag(e.clientX-rect.left, e.clientY-rect.top);
+});
+canvas.addEventListener('pointerup', ()=>{ draggingZ=false; });
+canvas.addEventListener('pointercancel', ()=>{ draggingZ=false; });
+function updateZDrag(px,py){
+  const g=state.panelGeom;
+  if(!g) return;
+  state.px = clamp((px-g.leftCenterX)/g.leftScale, -DOMAIN_RANGE, DOMAIN_RANGE);
+  state.py = clamp(-(py-g.cy)/g.leftScale, -DOMAIN_RANGE, DOMAIN_RANGE);
+  renderAll();
+}
+function clamp(v,lo,hi){ return Math.max(lo,Math.min(hi,v)); }
+
+window.addEventListener('resize', renderAll);
+drawPPicker(); drawQPicker();
+renderAll();
+})();
+</script>
+</body>
+</html>
