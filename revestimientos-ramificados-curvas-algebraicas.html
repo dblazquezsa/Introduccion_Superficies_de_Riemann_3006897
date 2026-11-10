@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Revestimientos ramificados y curvas algebraicas</title>
+<style>
+:root{
+  /* Misma paleta y tipografías que el sitio del curso: papel cálido, paneles blancos, verde azulado como acento, serif en títulos, mono en rótulos */
+  --bg:#efeee7; --paper:#f7f6f2; --panel:#ffffff; --ink:#232019; --muted:#6b6659; --faint:#8c8778; --accent:#168079; --soft:#e3ede9; --line:#dbd7cc;
+  --amber:#b5791a; --terra:#bd5636; --violet:#6c53b8; --ram:#c13d38; --ok:#168079;
+  --mono:ui-monospace,"SF Mono","Cascadia Code",Menlo,Consolas,monospace;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --display:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; --body:var(--display);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);overflow:hidden;font-family:var(--body)}
+#stage{position:absolute;left:0;top:0;width:1280px;height:720px;background:var(--paper);transform-origin:0 0;box-shadow:0 1px 18px rgba(35,32,25,.10);overflow:hidden}
+#top{position:absolute;left:0;right:0;top:0;height:40px;padding:0 48px;display:flex;align-items:center;justify-content:space-between;font:500 11px var(--mono);color:var(--faint);letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid var(--line)}
+#bar{position:absolute;left:0;right:0;bottom:0;height:44px;padding:0 48px;display:flex;align-items:center;gap:10px;border-top:1px solid var(--line);font:500 13.5px var(--display)}
+#chips{display:flex;gap:6px;margin:0 auto}
+button{font-family:var(--display)}
+.chip,.nav{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;height:28px;min-width:30px;padding:0 9px;font-weight:600;font-size:13px;cursor:pointer}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.nav:disabled{opacity:.35;cursor:default}
+.chip:hover,.nav:not(:disabled):hover{border-color:var(--accent);color:var(--accent)} .chip.on:hover{color:#fff}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.slide{position:absolute;left:0;right:0;top:40px;bottom:44px;padding:16px 48px 10px;display:none;flex-direction:column;gap:11px;overflow:auto;font-size:18.5px;line-height:1.42}
+.slide.on{display:flex}
+.slide.dense{font-size:16.8px}
+h1,h2,h3{font-family:var(--serif);margin:0;text-wrap:balance}
+h2{font-size:30px;font-weight:600;letter-spacing:.2px;line-height:1.15}
+h2 small{display:block;font:500 11px var(--mono);color:var(--accent);letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px}
+p{margin:0} ul,ol{margin:0;padding-left:1.15em} li{margin:2px 0}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px 22px;align-items:start}
+.cols.a{grid-template-columns:1.35fr 1fr} .cols.b{grid-template-columns:1fr 1.35fr}
+.stack{display:flex;flex-direction:column;gap:10px}
+.box{border:1px solid var(--line);border-left:4px solid var(--accent);background:var(--panel);padding:9px 16px 10px;border-radius:10px}
+.box.thm{border-left-color:var(--ink)}
+.box.ex{border-left-color:var(--amber)}
+.box.pf{border-color:transparent;border-left-color:var(--line);border-radius:0;background:transparent;padding-top:2px;padding-bottom:2px}
+.box.warn{border-left-color:var(--terra)}
+.tag{font:600 10.5px var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--accent);margin-right:6px}
+.thm .tag{color:var(--ink)} .ex .tag{color:var(--amber)} .pf .tag{color:var(--muted)} .warn .tag{color:var(--terra)}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.5}
+.tag mjx-container{font-size:135%!important}
+h2 mjx-container{font-size:92%!important}
+.sm{font-size:15.5px}
+table.tb{border-collapse:collapse;width:100%;font-size:16.5px;background:var(--panel);border:1px solid var(--line);border-radius:10px;border-collapse:separate;border-spacing:0;overflow:hidden}
+.tb th{font:500 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left;border-bottom:1px solid var(--line);background:var(--bg);padding:7px 12px}
+.tb td{border-bottom:1px solid var(--line);padding:6px 12px;vertical-align:top} .tb tr:last-child td{border-bottom:none}
+.ok{color:var(--ok);font-weight:600} .no{color:var(--ram);font-weight:600}
+mjx-container{font-size:103%!important} mjx-container[display="true"]{margin:.35em 0!important}
+/* portada */
+#cover{justify-content:center;gap:20px;padding-top:26px}
+#cover h1{font-size:44px;font-weight:600;line-height:1.15;letter-spacing:.2px;max-width:900px}
+#cover .kick{font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.toc{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.toc button{all:unset;box-sizing:border-box;cursor:pointer;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 12px 11px;display:flex;flex-direction:column;gap:3px;min-height:92px}
+.toc button:hover,.toc button:focus-visible{border-color:var(--accent);background:#f2f0e6}
+.toc b{font:400 20px var(--serif);color:var(--faint)}
+.toc span{font:600 16px/1.3 var(--serif)}
+.toc .how{border:1px dashed var(--line);border-radius:14px;padding:10px 12px;color:var(--muted);font:500 13.5px/1.35 var(--display);display:flex;align-items:center}
+/* artefactos */
+.lab,.ggraph{display:flex;gap:14px;align-items:flex-start}
+.lab-panels{display:flex;align-items:center;gap:4px}
+.lab figure,.ggraph figure{margin:0;display:flex;flex-direction:column;gap:4px}
+.lab figcaption{font:500 10.5px var(--mono);color:var(--muted);letter-spacing:.09em;text-transform:uppercase}
+.cv{width:440px;height:440px;border:1px solid var(--line);border-radius:10px;display:block;touch-action:none;background:#fbfbf9}
+.lab-arrow{width:26px;text-align:center;font:italic 17px var(--serif);color:var(--muted);display:flex;flex-direction:column;align-items:center;line-height:1}
+.lab-arrow i{font-style:normal;font-size:20px}
+.lab-side{flex:1;min-width:0;max-height:466px;overflow:auto;display:flex;flex-direction:column;gap:7px;font:500 14px/1.4 var(--display);padding-top:20px}
+.fld{display:flex;flex-direction:column;gap:3px} .fld span{font:500 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+select,input[type=number],input[type=text]{font:500 14px var(--display);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:5px 7px;background:var(--panel);width:100%}
+.btn{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:5px 12px;font:500 12.5px var(--display);cursor:pointer}
+.btn:hover{border-color:var(--accent);color:var(--accent)} .btn.on{border-color:var(--accent);background:var(--soft);color:var(--accent)} .btn.sm{padding:3px 8px;font-size:12.5px}
+.modes,.gens{display:flex;flex-wrap:wrap;gap:5px;align-items:center} .gl{font-size:12px;color:var(--muted);width:100%}
+.lab-info{display:flex;flex-direction:column;gap:5px;border-top:1px solid var(--line);padding-top:8px}
+.lab-out{border-top:1px solid var(--line);padding-top:8px;min-height:24px;font-variant-numeric:tabular-nums}
+.lab-out .sg{margin-top:6px;color:var(--muted)}
+.clear{align-self:flex-start}
+.rht{border-collapse:collapse;font-variant-numeric:tabular-nums;margin-top:2px} .rht th,.rht td{padding:2px 9px;border-bottom:1px solid var(--line);text-align:right} .rht td:first-child{text-align:left;color:var(--muted)}
+.gg-main{width:880px;flex:none;border:1px solid var(--line);border-radius:10px;background:#fbfbf9} .gg-main svg{display:block;width:100%}
+.sw{display:inline-block;width:18px;height:4px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.rhcalc{font:500 14px/1.4 var(--display);display:flex;flex-direction:column;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.rh-row{display:flex;gap:14px;align-items:center} .rh-row label{display:flex;align-items:center;gap:6px} .rh-row input{width:64px}
+.rh-list{display:flex;flex-direction:column;gap:4px} .rh-item{display:flex;gap:8px;align-items:center} .rh-item input{width:110px} .rh-e{color:var(--muted);font-size:12.5px}
+.rh-pre{display:flex;flex-wrap:wrap;gap:5px;align-items:center;color:var(--muted);font-size:12.5px}
+.rh-out{border-top:1px solid var(--line);padding-top:8px;font-size:15px} .rh-out small{color:var(--muted);font-size:12.5px}
+.wedge{display:flex;flex-direction:column;align-items:center;gap:4px;font:500 14px var(--display)} .wg-fig{width:100%} .wg-fig svg{width:100%;display:block}
+.wedge input{vertical-align:middle;width:150px}
+@media (prefers-reduced-motion:no-preference){.slide.on{animation:in .18s ease-out}} @keyframes in{from{opacity:.4}to{opacity:1}}
+.lab-side{font-weight:400} .lab-out{font-family:var(--mono);font-size:12.5px} .rht{font-family:var(--mono);font-size:12.5px}
+</style>
+<script>
+window.MathJax={tex:{inlineMath:[['$','$']],displayMath:[['$$','$$']],macros:{C:'\\mathbb{C}',Cb:'\\overline{\\mathbb{C}}',Z:'\\mathbb{Z}',M:'\\mathcal{M}',Aut:'\\operatorname{Aut}',Gal:'\\operatorname{Gal}',Mon:'\\operatorname{Mon}',mult:'\\operatorname{mult}',Biy:'\\operatorname{Biy}',ord:'\\operatorname{ord}'}},
+  svg:{fontCache:'global'},startup:{typeset:false,ready(){MathJax.startup.defaultReady();MathJax.startup.promise.then(()=>Deck.typesetCurrent());}}};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg-full.js"></script>
+</head>
+<body>
+<div id="stage">
+<div id="top"><span id="crumb"></span><span id="count"></span></div>
+
+<!-- ================= PORTADA ================= -->
+<section class="slide" id="cover" data-sec="0">
+  <div class="kick">Introducción a las Superficies de Riemann · 3006897 · Capítulo 3 de las notas</div>
+  <h1>Revestimientos ramificados, monodromía y curvas algebraicas</h1>
+  <p class="lead" style="max-width:860px">De la topología de los revestimientos a la teoría de Galois de $\C(z)$: toda superficie de Riemann compacta con una función meromorfa no constante es una curva algebraica.</p>
+  <div class="toc">
+    <button type="button" data-go="1"><b>1.</b><span>Revestimientos y revestimientos ramificados</span></button>
+    <button type="button" data-go="2"><b>2.</b><span>Mapas holomorfos entre superficies compactas</span></button>
+    <button type="button" data-go="3"><b>3.</b><span>Fórmula de Riemann–Hurwitz</span></button>
+    <button type="button" data-go="4"><b>4.</b><span>Grupo fundamental y transformaciones de deck</span></button>
+    <button type="button" data-go="5"><b>5.</b><span>Recubridores de Galois y envolvente de Galois</span></button>
+    <button type="button" data-go="6"><b>6.</b><span>Extensiones algebraicas de ℂ(z)</span></button>
+    <button type="button" data-go="7"><b>7.</b><span>Superficies compactas y curvas algebraicas</span></button>
+    <div class="how">Avance con ← → o con los botones de abajo. Los números 1–7 saltan a cada sección. En los artefactos se dibuja con el ratón o el dedo.</div>
+  </div>
+</section>
+
+<!-- ===== 1 ===== -->
+<section class="slide" data-sec="1">
+  <h2><small>1. Revestimientos</small>Revestimientos (espacios recubridores)</h2>
+  <div class="box def"><span class="tag">Definición 62</span>Sea $S$ conexo. Un mapa continuo $\pi\colon X\to S$ es un <b>revestimiento</b> si todo $s\in S$ tiene un entorno abierto $U$ con un isomorfismo sobre $U$
+    $$\pi^{-1}(U)\;\simeq\;U\times F,\qquad F\ \text{discreto}.$$
+    $F$ es la <b>fibra</b> y $|F|$ el número de hojas (el grado). Los abiertos $U$ se llaman trivializantes.</div>
+  <div class="cols a">
+    <ul>
+      <li>Todo revestimiento es étale (homeomorfismo local). El recíproco es falso: la inclusión $D\hookrightarrow\C$.</li>
+      <li>$\pi$ es un revestimiento finito si y solo si es étale y propio.</li>
+      <li>Si $S$ es una superficie de Riemann, $X$ tiene una única estructura compleja que hace $\pi$ holomorfo (Prop. 60).</li>
+      <li>El cambio de base de un revestimiento es un revestimiento (Prop. 63).</li>
+    </ul>
+    <table class="tb">
+      <tr><th>Revestimiento</th><th>Hojas</th></tr>
+      <tr><td>$\C^*\to\C^*,\ z\mapsto z^n$</td><td>$n$</td></tr>
+      <tr><td>$\exp\colon\C\to\C^*$</td><td>$\infty$</td></tr>
+      <tr><td>$\C\to\C/\Lambda$</td><td>$\infty$</td></tr>
+      <tr><td>$\C\setminus\{0,\pm1\}\to\C\setminus\{\pm1\},\ z\mapsto\tfrac12\big(z+\tfrac1z\big)$</td><td>$2$</td></tr>
+    </table>
+  </div>
+</section>
+
+<section class="slide" data-sec="1">
+  <h2><small>1. Revestimientos</small>Levantamiento de curvas</h2>
+  <div class="cols a">
+    <div class="stack">
+      <p>Sea $\pi\colon X\to S$ un revestimiento y $\gamma\colon[0,1]\to S$ una curva. Un <b>levantamiento</b> de $\gamma$ es una curva $\tilde\gamma\colon[0,1]\to X$ con $\pi\circ\tilde\gamma=\gamma$.</p>
+      <div class="box thm"><span class="tag">Lema 65 · unicidad</span>Si $Z$ es conexo y dos levantamientos de $f\colon Z\to S$ coinciden en un punto, entonces coinciden en todo $Z$.</div>
+      <div class="box thm"><span class="tag">Existencia</span>Para cada $x\in\pi^{-1}(\gamma(0))$ existe un único levantamiento $\tilde\gamma_x$ con $\tilde\gamma_x(0)=x$.</div>
+      <div class="box pf"><span class="tag">Idea</span>Por el lema de Lebesgue hay una partición $0=t_0\lt t_1\lt\dots\lt t_N=1$ con $\gamma([t_i,t_{i+1}])$ dentro de un abierto trivializante $U_i$. Sobre $U_i$ el revestimiento es $U_i\times F$: se levanta cada tramo por la hoja que contiene el extremo del tramo anterior.</div>
+    </div>
+    <div class="stack">
+      <div style="text-align:center">$$\begin{CD} [0,1] @>{\tilde\gamma}>> X\\ @| @VV{\pi}V\\ [0,1] @>>{\gamma}> S\end{CD}$$</div>
+      <div class="box def"><span class="tag">Homotopías</span>El cuadrado $[0,1]^2$ también es simplemente conexo. Si $\gamma\sim\tau$ con extremos fijos y $\tilde\gamma(0)=\tilde\tau(0)$, entonces $\tilde\gamma(1)=\tilde\tau(1)$.</div>
+      <p class="sm">Una curva con $n$ puntos sobre su origen tiene $n$ levantamientos, y dos de ellos nunca se cortan.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="1">
+  <h2><small>1. Revestimientos</small>El revestimiento universal</h2>
+  <div class="cols a">
+    <div class="stack">
+      <div class="box def"><span class="tag">Definiciones 66 y 68</span>Un espacio conexo $Z$ es <b>simplemente conexo</b> si no admite revestimientos conexos no triviales. Un <b>revestimiento universal</b> de $S$ es un revestimiento $\tilde\pi\colon\tilde S\to S$ con $\tilde S$ simplemente conexo.</div>
+      <div class="box thm"><span class="tag">Proposición 67</span>Sea $Z$ simplemente conexo, $f\colon Z\to S$ continuo y $\pi\colon X\to S$ un revestimiento. Para cada $x_0\in\pi^{-1}(f(z_0))$ hay un único levantamiento $\tilde f\colon Z\to X$ con $\tilde f(z_0)=x_0$.</div>
+      <ul>
+        <li>$\tilde\pi$ se levanta a cualquier revestimiento conexo $X\to S$: todo revestimiento conexo de $S$ es un cociente $\tilde S/H$.</li>
+        <li>Es único salvo isomorfismo sobre $S$.</li>
+        <li>Es de Galois (Teorema 70): $S\simeq\tilde S/\Aut_S(\tilde S)$.</li>
+        <li>Existe si $S$ es conexo, localmente arcoconexo y localmente contráctil (Teorema 79). En particular, para toda superficie.</li>
+      </ul>
+    </div>
+    <div class="stack">
+      <table class="tb">
+        <tr><th>$S$</th><th>$\tilde S\to S$</th><th>$\Aut_S(\tilde S)$</th></tr>
+        <tr><td>$\C^*$</td><td>$\C,\ z\mapsto e^z$</td><td>$\Z$</td></tr>
+        <tr><td>$D^*$</td><td>$\mathbb H,\ z\mapsto e^{iz}$</td><td>$\Z$</td></tr>
+        <tr><td>$\C/\Lambda$</td><td>$\C$, cociente</td><td>$\Lambda$</td></tr>
+        <tr><td>$\C\setminus\{0,1\}$</td><td>$\mathbb H,\ z\mapsto\lambda(z)$</td><td>$\Gamma(2)/\{\pm1\}$</td></tr>
+        <tr><td>$\Cb$, $\C$, $D$</td><td>identidad</td><td>trivial</td></tr>
+      </table>
+      <div class="box ex"><span class="tag">Superficies de Riemann</span>$\tilde S$ es una superficie de Riemann y $\Aut_S(\tilde S)$ actúa por biholomorfismos. Si $\tilde S\simeq\C$, entonces $S$ es $\C$, $\C^*$ o un toro (Corolario 74). Si $\tilde S\simeq\Cb$, entonces $S\simeq\Cb$ (Proposición 75).</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="1">
+  <h2><small>1. Revestimientos · Artefacto</small>Dibuje una curva y observe sus levantamientos</h2>
+  <p class="lead">Dibuje a la derecha. A la izquierda aparecen los levantamientos, uno por cada punto de la fibra inicial. Las cruces rojas son los valores de ramificación (abajo) y los puntos de ramificación (arriba). ¿Cuándo un lazo se levanta a lazos? ¿Qué cambia al rodear una cruz?</p>
+  <div class="lab" data-cfg='{"id":"L1","ex":["cube","sq","four","jouk","cheb","quart","s4","exp"],"modes":["draw"]}'></div>
+</section>
+
+<section class="slide" data-sec="1">
+  <h2><small>1. Revestimientos</small>Revestimientos del disco punteado</h2>
+  <div class="cols a">
+    <div class="stack">
+      <div class="box thm"><span class="tag">Teorema 97</span>Sea $D^*=D\setminus\{0\}$. Todo revestimiento conexo de $D^*$ es isomorfo a uno de estos:
+        $$\pi_n\colon D^*\to D^*,\ z\mapsto z^n\qquad\quad \pi_\infty\colon \mathbb{H}\to D^*,\ z\mapsto e^{iz}.$$</div>
+      <div class="box pf"><span class="tag">Demostración</span>$\pi_\infty$ es el revestimiento universal, con automorfismos $z\mapsto z+2\pi k$, $k\in\Z$. Todo revestimiento conexo es un cociente $\mathbb{H}/H$ con $H\subseteq\Z$ un subgrupo. Si $H=n\Z$, la función $z\mapsto e^{iz/n}$ identifica $\mathbb{H}/2\pi n\Z$ con $D^*$ y el mapa inducido es $\pi_n$. $\qquad\blacksquare$</div>
+      <p>Consecuencia: cerca de un pinchazo, cada componente de un revestimiento finito es un disco punteado enrollado $n$ veces. Se le puede añadir exactamente un punto, el centro.</p>
+    </div>
+    <div class="wedge"></div>
+  </div>
+</section>
+
+<section class="slide" data-sec="1">
+  <h2><small>1. Revestimientos</small>Revestimientos ramificados</h2>
+  <div class="box def"><span class="tag">Definición 98 · caso finito</span>Un mapa $\pi\colon R\to S$ entre superficies es un <b>revestimiento ramificado finito</b> si hay un conjunto discreto $Z\subset S$ tal que
+    <ol type="a" style="margin-top:4px">
+      <li>$\pi\colon R\setminus\pi^{-1}(Z)\to S\setminus Z$ es un revestimiento finito;</li>
+      <li>cada $q\in Z$ tiene un entorno $U$ homeomorfo a un disco tal que cada componente conexa $V_j$ de $\pi^{-1}(U)$ contiene un único punto $\tilde q_j$ sobre $q$, y $\pi\colon V_j\setminus\{\tilde q_j\}\to U\setminus\{q\}$ es conjugado a $\pi_{n_j}$.</li>
+    </ol></div>
+  <div class="cols">
+    <ul>
+      <li>$Z$: <b>valores de ramificación</b>. $n_j=\mult_{\tilde q_j}(\pi)$: multiplicidad. Si $n_j\gt1$, $\tilde q_j$ es un <b>punto de ramificación</b>.</li>
+      <li>Para todo $q$: $\ \sum_j n_j=d$, el grado. La partición $(n_1,\dots,n_k)$ de $d$ es el <b>perfil</b> de $q$.</li>
+    </ul>
+    <div class="box thm"><span class="tag">Teorema 101 · tapar agujeros</span>Sea $S'=S\setminus Z$ y $\pi\colon R'\to S'$ un revestimiento finito. Hay una única manera de añadir a $R'$ un conjunto discreto de puntos para obtener un revestimiento ramificado $\bar\pi\colon\bar R\to S$. Si $S$ es de Riemann, $\bar R$ también y $\bar\pi$ es holomorfo (Prop. 99). Si $S$ es compacta, $\bar R$ es compacta.</div>
+  </div>
+  <p class="sm">Así, un revestimiento ramificado finito de $S$ con ramificación sobre $Z$ es lo mismo que un revestimiento finito de $S\setminus Z$.</p>
+</section>
+
+<section class="slide" data-sec="1">
+  <h2><small>1. Revestimientos</small>Ejemplos de revestimientos ramificados</h2>
+  <table class="tb">
+    <tr><th>Mapa</th><th>Grado</th><th>Valores de ramificación</th><th>Perfiles</th></tr>
+    <tr><td>$\Cb\to\Cb,\ z\mapsto z^n$</td><td>$n$</td><td>$0,\ \infty$</td><td>$(n),\ (n)$</td></tr>
+    <tr><td>$\Cb\to\Cb,\ z\mapsto \tfrac12\big(z+\tfrac1z\big)$</td><td>$2$</td><td>$-1,\ 1$</td><td>$(2),\ (2)$</td></tr>
+    <tr><td>$\Cb\to\Cb,\ z\mapsto z^3-3z$</td><td>$3$</td><td>$-2,\ 2,\ \infty$</td><td>$(2,1),\ (2,1),\ (3)$</td></tr>
+    <tr><td>$\Cb\to\Cb,\ z\mapsto z^4-2z^2$</td><td>$4$</td><td>$-1,\ 0,\ \infty$</td><td>$(2,2),\ (2,1,1),\ (4)$</td></tr>
+    <tr><td>$\wp\colon\C/\Lambda\to\Cb$</td><td>$2$</td><td>$e_1,\ e_2,\ e_3,\ \infty$</td><td>$(2)$ en los cuatro</td></tr>
+  </table>
+  <div class="cols">
+    <div class="box ex"><span class="tag">Cálculo</span>Para $f(z)=z^3-3z$: $f'(z)=3(z^2-1)$, puntos críticos $z=\pm1$, valores $f(\pm1)=\mp2$. Además
+      $$f(z)-2=(z+1)^2(z-2),\qquad f(z)+2=(z-1)^2(z+2).$$
+      Sobre $w=2$ hay un punto doble y uno simple: perfil $(2,1)$.</div>
+    <div class="box warn"><span class="tag">Contraste</span>$\exp\colon\C\to\Cb$ no es un revestimiento ramificado finito: sobre un disco punteado en $0$ o en $\infty$ aparece el modelo $\pi_\infty$ (ramificación logarítmica) y no hay punto que añadir.</div>
+  </div>
+</section>
+
+<!-- ===== 2 ===== -->
+<section class="slide" data-sec="2">
+  <h2><small>2. Mapas holomorfos</small>Forma normal local de un mapa holomorfo</h2>
+  <div class="box thm"><span class="tag">Proposición</span>Sea $f\colon S\to T$ holomorfo y no constante, con $S$ conexa, y $p\in S$. Existen coordenadas $z$ centrada en $p$ y $w$ centrada en $f(p)$ en las que
+    $$w\circ f=z^k,\qquad k=\mult_p(f)\ge1.$$</div>
+  <div class="box pf"><span class="tag">Demostración</span>En coordenadas centradas cualesquiera, $f(z)=z^k h(z)$ con $h(0)\neq0$. Cerca de $0$ hay una raíz $k$-ésima holomorfa $g$ de $h$. Entonces $\zeta=z\,g(z)$ cumple $\zeta'(0)\neq0$, es una coordenada, y $f=\zeta^k$. El entero $k$ no depende de las coordenadas: es el número de preimágenes cercanas a $p$ de un punto cercano a $f(p)$. $\qquad\blacksquare$</div>
+  <div class="cols">
+    <ul>
+      <li>$f$ es un mapa abierto.</li>
+      <li>$\mult_p(f)\gt1$ si y solo si $df_p=0$. Los puntos críticos forman un conjunto discreto.</li>
+    </ul>
+    <ul>
+      <li>Las fibras $f^{-1}(q)$ son discretas.</li>
+      <li>Fuera de los puntos críticos, $f$ es étale.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="slide dense" data-sec="2">
+  <h2><small>2. Mapas holomorfos</small>Todo mapa holomorfo entre compactas es un revestimiento ramificado</h2>
+  <div class="box thm"><span class="tag">Teorema · Prop. 100</span>Sean $S$ y $T$ superficies de Riemann compactas y conexas. Todo mapa holomorfo no constante $f\colon S\to T$ es un revestimiento ramificado finito.</div>
+  <div class="box pf"><span class="tag">Demostración</span>
+    <ol style="margin-top:2px">
+      <li><b>Sobreyectivo.</b> $f(S)$ es abierto (forma normal) y compacto, luego cerrado. Como $T$ es conexa, $f(S)=T$.</li>
+      <li><b>Finitud.</b> El conjunto $C$ de puntos críticos es discreto en un compacto, luego finito. Sea $Z=f(C)$. Las fibras son discretas y compactas, luego finitas.</li>
+      <li><b>Fuera de $Z$.</b> Sean $T'=T\setminus Z$, $S'=f^{-1}(T')$. El mapa $f\colon S'\to T'$ es étale y propio: si $K\subset T'$ es compacto, $f^{-1}(K)$ es cerrado en $S$, luego compacto. Veamos que es un revestimiento. Dado $q\in T'$ con fibra $\{p_1,\dots,p_d\}$, tomamos entornos disjuntos $V_i\ni p_i$ que $f$ lleva homeomórficamente a abiertos. Como $f$ es cerrado,
+        $$U=\bigcap_i f(V_i)\ \setminus\ f\big(S\setminus\textstyle\bigcup_i V_i\big)$$
+        es un entorno abierto de $q$ y $f^{-1}(U)$ es la unión disjunta de $d$ copias de $U$.</li>
+      <li><b>Cerca de $q\in Z$.</b> Con fibra $\{p_1,\dots,p_k\}$, elegimos discos coordenados $V_j\ni p_j$ donde $f=z^{n_j}$. El mismo argumento da un disco $U\ni q$ con $f^{-1}(U)=\bigsqcup_j V_j'$ y $f|_{V_j'}$ conjugado a $z\mapsto z^{n_j}$: el modelo $\pi_{n_j}$ más su centro. $\qquad\blacksquare$</li>
+    </ol></div>
+</section>
+
+<section class="slide" data-sec="2">
+  <h2><small>2. Mapas holomorfos · Artefacto</small>El grado: las fibras siempre suman lo mismo</h2>
+  <p class="lead"><b>Corolario.</b> $\ d=\sum_{p\in f^{-1}(q)}\mult_p(f)$ no depende de $q$. En particular, una función meromorfa tiene tantos ceros como polos. Arrastre $w$ a la derecha (se pega a las cruces) o cambie de modo y arrastre $z$ a la izquierda.</p>
+  <div class="lab" data-cfg='{"id":"L2","ex":["cheb","quart","jouk","cube","s4","s5"],"modes":["point","up"]}'></div>
+</section>
+
+<section class="slide dense" data-sec="2">
+  <h2><small>2. Mapas holomorfos</small>Ejemplos y contraejemplos</h2>
+  <div class="cols">
+    <div class="stack">
+      <div class="box ex"><span class="tag">Funciones racionales</span>Todo mapa holomorfo $\Cb\to\Cb$ es $f=p/q$ con $p,q$ coprimos, y su grado es $\max(\deg p,\deg q)$. Un polinomio de grado $n$ tiene perfil $(n)$ sobre $\infty$.</div>
+      <div class="box ex"><span class="tag">Función ℘</span>$\wp\colon\C/\Lambda\to\Cb$ tiene un único polo, doble: es de grado $2$.</div>
+      <div class="box ex"><span class="tag">Curvas algebraicas</span>Si $P(x,y)$ es irreducible de grado $n$ en $y$, la proyección $(x,y)\mapsto x$ en su superficie de Riemann es de grado $n$ (sección 6).</div>
+      <div class="box warn"><span class="tag">La compacidad es necesaria</span>
+        <ul>
+          <li>$\exp\colon\C\to\C$ no es sobreyectivo y sus fibras son infinitas.</li>
+          <li>$D\hookrightarrow\C$ es holomorfo y étale, pero no es un revestimiento.</li>
+          <li>$\C\setminus\{1\}\to\C$, $z\mapsto z^2$: la fibra de $1$ tiene un solo punto. No es propio.</li>
+        </ul>
+        Lo que se usa es que $f$ sea <b>propio</b>: el teorema vale para mapas holomorfos propios, como $z\mapsto z^n$ en el disco.</div>
+    </div>
+    <div class="stack">
+      <div class="box def"><span class="tag">Funciones modulares · partida no compacta</span>Con $\mathbb H$ en lugar de una superficie compacta, un mapa holomorfo puede seguir siendo un revestimiento, pero de infinitas hojas.
+        <ul style="margin-top:4px">
+          <li><b>Sin ramificación.</b> $\lambda\colon\mathbb H\to\C\setminus\{0,1\}$ es un revestimiento: el universal. Es de Galois con grupo $\Gamma(2)/\{\pm1\}$.</li>
+          <li><b>Con ramificación.</b> $j\colon\mathbb H\to\C$ es un revestimiento ramificado, de Galois con grupo $PSL_2(\Z)$. Ramifica sobre $j=0$, con multiplicidad $3$ en la órbita de $e^{2\pi i/3}$, y sobre $j=1728$, con multiplicidad $2$ en la órbita de $i$.</li>
+          <li><b>Entre ambas.</b> $j$ factoriza por $\lambda$:
+            $$j=256\,\frac{(\lambda^2-\lambda+1)^3}{\lambda^2(\lambda-1)^2},$$
+            un mapa $\C\setminus\{0,1\}\to\C$ de grado $6$, de Galois con grupo $PSL_2(\Z)/\bar\Gamma(2)\simeq S_3$ y perfiles $(3,3)$ sobre $0$ y $(2,2,2)$ sobre $1728$.</li>
+        </ul></div>
+      <p class="sm">Ni $\lambda$ ni $j$ se extienden a una compactificación de $\mathbb H$ como superficie: en las cúspides aparece el modelo $\pi_\infty$.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 3 ===== -->
+<section class="slide" data-sec="3">
+  <h2><small>3. Riemann–Hurwitz</small>Característica de Euler</h2>
+  <div class="cols a">
+    <div class="stack">
+      <div class="box def"><span class="tag">Definición</span>Para una superficie compacta orientable de género $g$,
+        $$\chi(S)=2-2g=v-a+c$$
+        donde $v$, $a$, $c$ son los números de vértices, aristas y caras de cualquier triangulación de $S$.</div>
+      <div class="box thm"><span class="tag">Revestimientos sin ramificación</span>Si $\pi\colon T\to S$ es un revestimiento de grado $d$ entre superficies compactas, entonces $\ \chi(T)=d\,\chi(S)$.</div>
+      <div class="box pf"><span class="tag">Demostración</span>Cada vértice, arista y cara de una triangulación es simplemente conexo, luego está en un abierto trivializante y su preimagen son $d$ copias. La triangulación levantada tiene $dv$ vértices, $da$ aristas y $dc$ caras. $\qquad\blacksquare$</div>
+    </div>
+    <div class="stack">
+      <table class="tb">
+        <tr><th>Superficie</th><th>$v-a+c$</th><th>$\chi$</th></tr>
+        <tr><td>Esfera (tetraedro)</td><td>$4-6+4$</td><td>$2$</td></tr>
+        <tr><td>Toro (cuadrado con una diagonal)</td><td>$1-3+2$</td><td>$0$</td></tr>
+        <tr><td>$\Sigma_g$</td><td></td><td>$2-2g$</td></tr>
+      </table>
+      <div class="box thm"><span class="tag">Teorema 113</span>Si $\alpha$ es una $1$-forma meromorfa no nula en $S$ compacta,
+        $$\chi(S)=-\sum_{p\in S}\ord_p(\alpha).$$</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="3">
+  <h2><small>3. Riemann–Hurwitz</small>Fórmula de Riemann–Hurwitz</h2>
+  <div class="box thm"><span class="tag">Teorema 114</span>Sea $\pi\colon T\to S$ un mapa holomorfo de grado $d$ entre superficies de Riemann compactas conexas. Entonces
+    $$\chi(T)=d\,\chi(S)-\sum_{p\in T}\big(\mult_p(\pi)-1\big),\qquad\text{es decir}\qquad 2g_T-2=d\,(2g_S-2)+\sum_{p\in T}\big(\mult_p(\pi)-1\big).$$</div>
+  <div class="cols">
+    <div class="box pf"><span class="tag">Heurística · triangulaciones</span>Se triangula $S$ con los valores de ramificación entre los vértices y se levanta. Las caras y las aristas no tocan ramificación: $c'=dc$, $a'=da$. Sobre un vértice $q$ hay
+      $$\#\pi^{-1}(q)=d-\sum_{p\mapsto q}\big(\mult_p(\pi)-1\big)$$
+      puntos, así que $v'=dv-\sum_p(\mult_p(\pi)-1)$.</div>
+    <div class="box pf"><span class="tag">Otra prueba · 1-formas</span>Sea $\alpha$ meromorfa en $S$. Si cerca de $p$ es $\pi=z^k$ y $\alpha=w^m u(w)\,dw$ con $u(0)\ne0$, entonces $\pi^*\alpha=k\,z^{km+k-1}u(z^k)\,dz$:
+      $$\ord_p(\pi^*\alpha)=k\,\ord_{\pi(p)}(\alpha)+k-1.$$
+      Sumando en $p$ y usando el teorema 113 sale la fórmula. $\ \blacksquare$</div>
+  </div>
+</section>
+
+<section class="slide" data-sec="3">
+  <h2><small>3. Riemann–Hurwitz · Artefacto</small>Levantar una descomposición celular de la esfera</h2>
+  <p class="lead">Abajo, la esfera está cortada por la recta real en dos caras (semiplanos), con vértices en los valores de ramificación y en $\infty$. Arriba se ve su preimagen: cada cara se levanta a $d$ caras, cada arista a $d$ aristas, pero los vértices no se multiplican por $d$. La tabla hace la cuenta.</p>
+  <div class="lab" data-cfg='{"id":"L3","ex":["cheb","quart","jouk","cube","four","sq"],"modes":["draw"],"tiling":true,"rh":true,"demo":false}'></div>
+</section>
+
+<section class="slide" data-sec="3">
+  <h2><small>3. Riemann–Hurwitz</small>Ejemplos y calculadora</h2>
+  <div class="cols">
+    <div class="stack">
+      <div class="box ex"><span class="tag">$z\mapsto z^n$</span>$\ 2=2n-2(n-1)$. $\ \checkmark$</div>
+      <div class="box ex"><span class="tag">Hiperelípticas</span>$y^2=P(x)$ con $P$ de raíces simples y grado $2g+1$ o $2g+2$. La proyección $x$ tiene grado $2$ y $2g+2$ valores de ramificación:
+        $$2g_T-2=2(-2)+(2g+2)\ \Longrightarrow\ g_T=g.$$</div>
+      <div class="box ex"><span class="tag">Curva de Fermat</span>$x^n+y^n=1$. La proyección $x$ tiene grado $n$, ramifica sobre $x^n=1$ con perfil $(n)$ y no ramifica en $\infty$:
+        $$2g-2=-2n+n(n-1)\ \Longrightarrow\ g=\tfrac12(n-1)(n-2).$$</div>
+      <p class="sm">Coincide con la fórmula del género de las curvas planas regulares (Teorema 116).</p>
+    </div>
+    <div class="rhcalc"></div>
+  </div>
+</section>
+
+<section class="slide" data-sec="3">
+  <h2><small>3. Riemann–Hurwitz</small>Consecuencias de Riemann–Hurwitz</h2>
+  <div class="cols">
+    <div class="stack">
+      <div class="box thm"><span class="tag">Corolario 115</span>Si $f\colon T\to S$ es holomorfo no constante entre compactas, $g_T\ge g_S$.</div>
+      <div class="box pf"><span class="tag">Demostración</span>Si $g_S=0$ no hay nada que probar. Si $g_S\ge1$, entonces $2g_T-2\ge d(2g_S-2)\ge 2g_S-2$. $\ \blacksquare$</div>
+      <ul>
+        <li>Desde $\Cb$ solo hay mapas no constantes hacia $\Cb$.</li>
+        <li>Un revestimiento no ramificado de $\Cb$ tiene $2g-2=-2d$: obliga a $d=1$.</li>
+        <li>$\sum_p(\mult_p-1)$ es siempre par.</li>
+      </ul>
+    </div>
+    <div class="stack">
+      <ul>
+        <li>Si $g_T=g_S\ge2$, entonces $d=1$: todo mapa holomorfo no constante de $S$ en sí misma es un automorfismo.</li>
+        <li>Si $g_T=g_S=1$, el mapa no ramifica: toro sobre toro (Taller 3, ejercicio 4).</li>
+        <li>Un polinomio de grado $n$: $-2=-2n+(n-1)+\sum_{\text{finitos}}(\mult_p-1)$, luego hay $n-1$ puntos críticos finitos.</li>
+      </ul>
+      <div class="box ex"><span class="tag">Taller 3 · ejercicio 5</span>Si $\pi$ es de Galois de grado primo $p$, todos sus puntos de ramificación tienen multiplicidad $p$. Con $r$ valores de ramificación: $2g_T-2=p(2g_S-2)+r(p-1)$.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 4 ===== -->
+<section class="slide" data-sec="4">
+  <h2><small>4. Grupo fundamental y deck</small>El grupoide fundamental</h2>
+  <div class="cols a">
+    <div class="stack">
+      <div class="box def"><span class="tag">Definición</span>$\Pi(S)$ es el conjunto de clases de homotopía, con extremos fijos, de curvas en $S$. Si $\gamma$ va de $a$ a $b$ y $\tau$ de $b$ a $c$,
+        $$[\gamma]\cdot[\tau]=[\text{primero }\gamma,\ \text{después }\tau]\in\Pi(S)_{a,c}.$$
+        El <b>grupo fundamental</b> es $\pi_1(S,s)=\Pi(S)_{s,s}$.</div>
+      <div class="box warn"><span class="tag">Convención</span>Escribimos los productos en el orden en que se recorren los caminos; así la monodromía será una acción por la derecha. En las notas $[\tau][\gamma]=[\tau\star\gamma]$ significa primero $\gamma$: es el orden de la composición de funciones.</div>
+      <div class="box thm"><span class="tag">Teorema 79</span>Si $S$ es conexo, localmente arcoconexo y localmente contráctil, $\ \tilde S=\Pi(S)_{s,\bullet}\to S$, $[\tau]\mapsto\tau(1)$, es el revestimiento universal.</div>
+    </div>
+    <div class="stack">
+    <table class="tb">
+      <tr><th>Superficie</th><th>$\pi_1$</th></tr>
+      <tr><td>$\C^*$, $D^*$</td><td>$\Z$</td></tr>
+      <tr><td>$\Cb\setminus\{z_0,\dots,z_k\}$</td><td>$\langle\gamma_0,\dots,\gamma_k\mid\gamma_0\gamma_1\cdots\gamma_k=1\rangle$,<br>libre en $k$ generadores</td></tr>
+      <tr><td>Toro $\C/\Lambda$</td><td>$\Lambda\simeq\Z^2$</td></tr>
+      <tr><td>$\Sigma_g$</td><td>$\langle a_i,b_i\mid\prod_i[a_i,b_i]=1\rangle$</td></tr>
+    </table>
+    <div class="box ex"><span class="tag">La función λ</span>$\lambda\colon\mathbb H\to\Cb\setminus\{0,1,\infty\}$ es el revestimiento universal de la esfera privada de tres puntos. Sus transformaciones de deck forman el grupo $\Gamma(2)/\{\pm1\}\simeq\pi_1$: libre, no abeliano, con dos generadores
+      $$z\mapsto z+2,\qquad z\mapsto\frac{z}{2z+1}.$$</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="4">
+  <h2><small>4. Grupo fundamental y deck</small>Monodromía: el grupoide actúa en las fibras por la derecha</h2>
+  <div class="box def"><span class="tag">Definición</span>Sea $\pi\colon X\to S$ un revestimiento, $[\gamma]\in\Pi(S)_{a,b}$ e $y\in\pi^{-1}(a)$. Se define
+    $$y\cdot[\gamma]=\tilde\gamma_y(1)\in\pi^{-1}(b),$$
+    el extremo final del levantamiento de $\gamma$ que empieza en $y$.</div>
+  <div class="cols">
+    <ul>
+      <li>Está bien definido: curvas homótopas tienen levantamientos con el mismo extremo.</li>
+      <li>$(y\cdot\gamma)\cdot\tau=y\cdot(\gamma\cdot\tau)$ e $y\cdot 1=y$. Cada $[\gamma]$ da una biyección $\pi^{-1}(a)\to\pi^{-1}(b)$.</li>
+      <li>En $a=b=s$: una acción por la derecha de $\pi_1(S,s)$ en $F=\pi^{-1}(s)$, la <b>monodromía</b>
+        $$\rho\colon\pi_1(S,s)\to\Biy(F).$$</li>
+    </ul>
+    <div class="stack">
+      <ul>
+        <li>$X$ es conexo si y solo si la acción es transitiva.</li>
+        <li>El estabilizador de $y$ es $H_y=\pi_*\pi_1(X,y)$, y $F\simeq H_y\backslash\pi_1(S,s)$. El grado es el índice de $H_y$.</li>
+      </ul>
+      <div class="box thm"><span class="tag">Teorema 93</span>Los revestimientos de $S$ con fibra $F$, salvo isomorfismo, corresponden a $\ \operatorname{Hom}(\pi_1(S,s),\Biy(F))/\Biy(F)$.</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="4">
+  <h2><small>4. Grupo fundamental y deck</small>Transformaciones de deck: actúan por la izquierda</h2>
+  <div class="cols">
+    <div class="stack">
+      <div class="box def"><span class="tag">Definición</span>$\Aut_S(X)=\{\sigma\colon X\to X\ \text{homeomorfismo}:\ \pi\circ\sigma=\pi\}$. Actúa en $X$, y en cada fibra, por la izquierda: $\sigma\cdot y=\sigma(y)$.</div>
+      <div class="box thm"><span class="tag">Lema 81</span>Si $X$ es conexo, la acción de $\Aut_S(X)$ es libre: $\sigma$ es un levantamiento de $\pi$, y queda determinado por la imagen de un punto.</div>
+      <div class="box thm"><span class="tag">Las dos acciones conmutan</span>$$\sigma(y\cdot\gamma)=\sigma(y)\cdot\gamma.$$ En efecto, $\sigma\circ\tilde\gamma_y$ es un levantamiento de $\gamma$ que empieza en $\sigma(y)$.</div>
+    </div>
+    <div class="stack">
+      <table class="tb">
+        <tr><th></th><th>Monodromía</th><th>Deck</th></tr>
+        <tr><td>Grupo</td><td>$\pi_1(S,s)$</td><td>$\Aut_S(X)$</td></tr>
+        <tr><td>Actúa en</td><td>la fibra $F$</td><td>todo $X$</td></tr>
+        <tr><td>Lado</td><td>derecha</td><td>izquierda</td></tr>
+        <tr><td>Si $X$ es conexo</td><td>transitiva</td><td>libre</td></tr>
+      </table>
+      <p>Para $X$ conexo, $\Aut_S(X)$ es el centralizador de $\rho(\pi_1)$ en $\Biy(F)$, isomorfo a $N(H_y)/H_y$.</p>
+      <div class="box ex"><span class="tag">Revestimiento universal</span>La fibra de $\tilde S$ es $\pi_1(S,s)$. La monodromía es $[\tau]\cdot[\gamma]=[\tau\gamma]$ y las transformaciones de deck son $\sigma_g[\tau]=[g\tau]$: multiplicar por la derecha y por la izquierda.</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="4">
+  <h2><small>4. Grupo fundamental y deck · Artefacto</small>Lazos, permutaciones y transformaciones de deck</h2>
+  <p class="lead">Los botones $\gamma_j$ recorren un lazo desde $s$ alrededor de cada valor de ramificación; también puede dibujar sus propios lazos. Cada lazo permuta la fibra numerada $1,\dots,d$. Elija una transformación de deck $\sigma$: la curva discontinua $\sigma\circ\tilde\gamma_1$ coincide con otro levantamiento.</p>
+  <div class="lab" data-cfg='{"id":"L4","ex":["cheb","cube","jouk","four","quart","s4","exp"],"modes":["loop"],"deck":true,"group":true}'></div>
+</section>
+
+<section class="slide" data-sec="4">
+  <h2><small>4. Grupo fundamental y deck</small>Dos revestimientos de grado 3</h2>
+  <div class="cols">
+    <div class="box ex"><span class="tag">$w=z^3$ sobre $\C^*$</span>
+      <ul>
+        <li>$\pi_1(\C^*,s)=\langle\gamma\rangle\simeq\Z$ y $\rho(\gamma)$ es un $3$-ciclo.</li>
+        <li>Grupo de monodromía: $\Z/3$, de orden $3=d$.</li>
+        <li>$\Aut=\{z\mapsto\zeta^k z\}\simeq\Z/3$: el centralizador de un $3$-ciclo en $S_3$.</li>
+        <li>Las transformaciones de deck llevan cualquier punto de la fibra a cualquier otro.</li>
+      </ul></div>
+    <div class="box ex"><span class="tag">$w=z^3-3z$ sobre $\Cb\setminus\{-2,2,\infty\}$</span>
+      <ul>
+        <li>$\pi_1$ es libre en $\gamma_{-2},\gamma_2$, y $\rho(\gamma_{\pm2})$ son dos trasposiciones distintas.</li>
+        <li>Grupo de monodromía: $S_3$, de orden $6\gt d$.</li>
+        <li>$\Aut=$ centralizador de $S_3$ en $S_3$ $=\{1\}$.</li>
+        <li>El estabilizador $H_y$ tiene índice $3$ y no es normal.</li>
+      </ul></div>
+  </div>
+  <div class="box thm"><span class="tag">Moraleja</span>Para $X$ conexo de grado $d$: $\ |\Aut_S(X)|\le d\le|\rho(\pi_1)|$. Las dos igualdades ocurren a la vez, y ese es el caso de Galois.</div>
+  <p class="sm">Las desigualdades: $\Aut$ actúa libremente en una fibra de $d$ puntos, y la monodromía actúa transitivamente en ella.</p>
+</section>
+
+<!-- ===== 5 ===== -->
+<section class="slide" data-sec="5">
+  <h2><small>5. Recubridores de Galois</small>Recubridores de Galois</h2>
+  <div class="cols a">
+    <div class="stack">
+      <div class="box def"><span class="tag">Definición 69</span>Un recubridor conexo $\pi\colon X\to S$ es <b>de Galois</b> (normal, regular) si $\Aut_S(X)$ actúa transitivamente en las fibras. Entonces actúa libre y transitivamente, y $S\simeq X/\Aut_S(X)$.</div>
+      <div class="box thm"><span class="tag">Equivalencias · $X$ conexo de grado $d$</span>
+        <ol type="a" style="margin-top:2px">
+          <li>$X$ es de Galois.</li>
+          <li>$|\Aut_S(X)|=d$.</li>
+          <li>$H_y=\pi_*\pi_1(X,y)$ es normal en $\pi_1(S,s)$.</li>
+          <li>El grupo de monodromía tiene orden $d$.</li>
+          <li>$X\times_S X$ es trivial sobre $X$ (Prop. 87).</li>
+        </ol></div>
+      <div class="box thm"><span class="tag">Proposición 71</span>Si $G$ actúa en $X$ conexo de forma totalmente discontinua, $X\to X/G$ es de Galois con grupo $G$.</div>
+    </div>
+    <div class="stack">
+      <table class="tb">
+        <tr><th>Recubridor</th><th>Grupo</th></tr>
+        <tr><td>$z\mapsto z^n$</td><td>$\Z/n$</td></tr>
+        <tr><td>$z\mapsto\tfrac12(z+\tfrac1z)$</td><td>$\Z/2$</td></tr>
+        <tr><td>$\exp\colon\C\to\C^*$</td><td>$\Z$</td></tr>
+        <tr><td>$\C\to\C/\Lambda$</td><td>$\Lambda$</td></tr>
+        <tr><td>$\tilde S\to S$</td><td>$\pi_1(S,s)$</td></tr>
+        <tr><td>grado $2$, conexo</td><td>$\Z/2$ siempre</td></tr>
+        <tr><td>$z\mapsto z^3-3z$</td><td class="no">no es de Galois</td></tr>
+      </table>
+      <p class="sm"><b>Caso ramificado.</b> $R\to S$ es de Galois si lo es fuera de la ramificación, y $\Aut_S(R)=\Aut_{S'}(R')$. Como $\Aut$ permuta transitivamente los puntos sobre $q$, todos tienen la misma multiplicidad: perfiles $(e,e,\dots,e)$. Recíprocamente, $S/G$ es una superficie de Riemann y $S\to S/G$ es de Galois (Teorema 110).</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="5">
+  <h2><small>5. Recubridores de Galois</small>La correspondencia de Galois</h2>
+  <div class="cols b">
+    <div class="stack">
+      <div style="text-align:center">$$\begin{CD} X\\ @V{\pi'}V{\text{Galois},\ H}V\\ X/H\\ @V{\bar\pi}V{\text{fibra } G/H}V\\ S\end{CD}$$</div>
+      <table class="tb sm">
+        <tr><th>Recubridores</th><th>Cuerpos</th></tr>
+        <tr><td>$X\to S$ de Galois</td><td>$L/K$ de Galois</td></tr>
+        <tr><td>intermedio $X/H$</td><td>subcuerpo $L^H$</td></tr>
+        <tr><td>$\Aut_S(X)$</td><td>$\Gal(L/K)$</td></tr>
+      </table>
+    </div>
+    <div class="stack">
+      <div class="box thm"><span class="tag">Teorema 89</span>Sea $X\to S$ de Galois con grupo $G$ y $H\subseteq G$ un subgrupo.
+        <ol type="a" style="margin-top:2px">
+          <li>$X\to X/H$ es de Galois con grupo $H$.</li>
+          <li>$X/H\to S$ es un recubridor de fibra $G/H$, de grado $[G:H]$.</li>
+          <li>$\sigma\in G$ desciende a $X/H$ si y solo si $\sigma\in N(H)$; y $\Aut_S(X/H)=N(H)/H$.</li>
+          <li>$X/H\to S$ es de Galois si y solo si $H\trianglelefteq G$, y entonces su grupo es $G/H$.</li>
+        </ol></div>
+      <div class="box thm"><span class="tag">Teorema 91 · de Galois</span>Los recubridores de $S$ que trivializan sobre $X$ equivalen a los $G$-conjuntos:
+        $$Y\ \mapsto\ \operatorname{Hom}_S(X,Y),\qquad F\ \mapsto\ X\times_G F.$$</div>
+      <p class="sm">Con $X=\tilde S$: los recubridores conexos de $S$ son los cocientes $\tilde S/H$, y subgrupos conjugados dan recubridores isomorfos (Corolario 92).</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="5">
+  <h2><small>5. Recubridores de Galois</small>La envolvente de Galois</h2>
+  <p>Sea $\pi\colon X\to S$ un recubridor conexo de grado $n$. Se considera el espacio de las <b>ordenaciones de las fibras</b>:</p>
+  <div class="box def"><span class="tag">Construcción</span>$$R(X)=\{(x_1,\dots,x_n)\in X\times_S\cdots\times_S X:\ x_i\neq x_j\}\longrightarrow S,$$ un recubridor de grado $n!$. El grupo $\Sigma_n$ actúa permutando las posiciones, de forma libre y transitiva en cada fibra. Sea $T(X)$ una componente conexa de $R(X)$ y $\ \Gal(X)=\{\sigma\in\Sigma_n: T(X)\cdot\sigma=T(X)\}$.</div>
+  <div class="cols">
+    <ul>
+      <li>$T(X)\to S$ es de Galois con grupo $\Gal(X)$: la <b>envolvente de Galois</b>.</li>
+      <li>$\Gal(X)$ es el grupo de monodromía $\rho(\pi_1)\subseteq\Sigma_n$: al recorrer $\gamma$, una ordenación $(y_1,\dots,y_n)$ pasa a $(y_1\cdot\gamma,\dots,y_n\cdot\gamma)$.</li>
+      <li>$R(X)$ tiene $n!/|\Gal(X)|$ componentes, todas isomorfas (Prop. 94).</li>
+    </ul>
+    <div class="stack">
+      <ul>
+        <li>$X$ se recupera con $\pi_1\colon T(X)\to X$, $(x_1,\dots,x_n)\mapsto x_1$.</li>
+        <li>Caso ramificado: $T(R')$ se completa tapando agujeros.</li>
+      </ul>
+      <div class="box thm"><span class="tag">Teorema 95 · minimalidad</span>Si $Y\to S$ es de Galois y hay un $S$-mapa $Y\to X$, este factoriza a través de $T(X)$.</div>
+    </div>
+  </div>
+  <p class="sm">Es el análogo del cuerpo de descomposición de un polinomio: se adjuntan todas las raíces a la vez.</p>
+</section>
+
+<section class="slide" data-sec="5">
+  <h2><small>5. Recubridores de Galois · Artefacto</small>Las componentes de R(X)</h2>
+  <p class="lead">Cada nodo es una ordenación de la fibra sobre $s$. Dos nodos están unidos si un lazo generador lleva una ordenación a la otra. Las componentes del grafo son las componentes conexas de $R(X)$; la que contiene a $12\cdots n$ es $T(X)$.</p>
+  <div class="ggraph" data-cfg='{"ex":["cheb","cube","quart","four","s4","fol","kum3"]}'></div>
+</section>
+
+<section class="slide" data-sec="5">
+  <h2><small>5. Recubridores de Galois</small>Ejemplo: la envolvente de $w=z^3-3z$</h2>
+  <div class="cols b">
+    <div class="stack">
+      <div style="text-align:center">$$\begin{CD} \Cb_u @>{z\,=\,u+1/u}>{2:1}> \Cb_z\\ @V{v\,=\,u^3}V{3:1}V @VV{w\,=\,z^3-3z}V\\ \Cb_v @>{w\,=\,v+1/v}>{2:1}> \Cb_w\end{CD}$$</div>
+      <p class="sm">El cuadrado conmuta: $(u+\tfrac1u)^3-3(u+\tfrac1u)=u^3+\tfrac1{u^3}$.</p>
+      <div class="box ex"><span class="tag">Riemann–Hurwitz</span>$\rho$ tiene grado $6$ y perfiles $(2,2,2)$, $(2,2,2)$, $(3,3)$: $\ \chi=6\cdot2-(3+3+4)=2$. $\ \checkmark$</div>
+    </div>
+    <div class="stack">
+      <ul>
+        <li>$\rho\colon\Cb_u\to\Cb_w$, $u\mapsto u^3+u^{-3}$, es invariante por $a\colon u\mapsto\zeta u$ y $b\colon u\mapsto 1/u$, que generan un grupo $G\simeq S_3$ de orden $6=\deg\rho$. Luego $\rho$ es de Galois.</li>
+        <li>$\Cb_z=\Cb_u/\langle b\rangle$. Como $\langle b\rangle$ no es normal, $w=z^3-3z$ no es de Galois.</li>
+        <li>Los tres conjugados de $\langle b\rangle$ dan $z_k=\zeta^k u+\zeta^{-k}/u$, $k=0,1,2$: las <b>tres raíces</b> de $z^3-3z=w$. Un punto $u$ es una ordenación $(z_0,z_1,z_2)$ de la fibra.</li>
+        <li>$\Cb_v=\Cb_u/\langle a\rangle$ con $\langle a\rangle=A_3$ normal: $v\mapsto v+1/v$ es de Galois de grado $2$. Corresponde a la raíz del discriminante: $v-\tfrac1v=\sqrt{w^2-4}$.</li>
+      </ul>
+      <div class="box thm"><span class="tag">Conclusión</span>$T(X)=\Cb_u$ y $\Gal(X)=S_3$.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 6 ===== -->
+<section class="slide dense" data-sec="6">
+  <h2><small>6. Extensiones de ℂ(z)</small>De revestimientos a extensiones de cuerpos</h2>
+  <p>Sea $\pi\colon X\to S$ holomorfo de grado $d$ entre superficies de Riemann compactas conexas. La composición con $\pi$ da una extensión de cuerpos $\pi^*\colon\M(S)\hookrightarrow\M(X)$.</p>
+  <div class="cols">
+    <div class="stack">
+      <div class="box thm"><span class="tag">Proposición</span>Toda $g\in\M(X)$ es raíz de un polinomio mónico de grado $d$ con coeficientes en $\M(S)$. Por tanto $[\M(X):\M(S)]\le d$.</div>
+      <div class="box pf"><span class="tag">Demostración</span>Para $s$ fuera de la ramificación sea
+        $$P_g(\lambda)=\prod_{x\in\pi^{-1}(s)}\big(\lambda-g(x)\big)=\lambda^d-\sigma_1(s)\lambda^{d-1}+\dots$$
+        Las $\sigma_k$ son funciones simétricas de los valores de $g$ en la fibra: son holomorfas donde $g$ no tiene polos (secciones locales) y crecen a lo sumo como una potencia cerca de los puntos excluidos. Luego $\sigma_k\in\M(S)$ y $P_g(g)=0$. Si el grado de la extensión superase $d$, por el teorema del elemento primitivo habría un elemento de grado mayor que $d$. $\ \blacksquare$</div>
+    </div>
+    <div class="stack">
+      <div class="box thm"><span class="tag">Teorema 106</span>$[\M(X):\M(S)]=d$.</div>
+      <div class="box warn"><span class="tag">Ingrediente analítico</span>La igualdad equivale a que exista $g\in\M(X)$ que tome $d$ valores distintos en alguna fibra. Esto es el teorema de existencia de Riemann: las funciones meromorfas de una superficie compacta separan puntos. Aquí lo asumimos.</div>
+      <div class="box thm"><span class="tag">Caso de Galois · Lemas 102–105</span>Si $X\to S$ es de Galois con grupo $G$, este actúa en $\M(X)$ por $(\sigma\cdot f)(x)=f(\sigma^{-1}x)$ y
+        $$\M(X)^G=\M(S).$$
+        Por el teorema de Artin, $\M(X)/\M(S)$ es de Galois con grupo $G$.</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide dense" data-sec="6">
+  <h2><small>6. Extensiones de ℂ(z)</small>De extensiones a revestimientos: la superficie de una curva algebraica</h2>
+  <p>Sea $P(z,y)=y^n+a_{n-1}(z)y^{n-1}+\dots+a_0(z)\in\C(z)[y]$ irreducible, con discriminante $\Delta(z)\not\equiv0$. Sea $Z\subset\Cb$ el conjunto finito formado por los ceros de $\Delta$, los polos de los $a_j$ e $\infty$.</p>
+  <div class="cols">
+    <div class="stack">
+      <div class="box def"><span class="tag">Construcción</span>
+        <ol style="margin-top:2px">
+          <li>$\Gamma'=\{(z,y):P(z,y)=0,\ z\notin Z\}\to\Cb\setminus Z$ es un revestimiento de grado $n$: las raíces simples dependen holomorfamente de los coeficientes.</li>
+          <li>Se tapan los agujeros (Teorema 101): una superficie de Riemann compacta $S_P$ con $z\colon S_P\to\Cb$ de grado $n$ e $y\in\M(S_P)$.</li>
+        </ol></div>
+      <div class="box thm"><span class="tag">Proposición 96</span>$\Gamma'$ es conexo si y solo si $P$ es irreducible.</div>
+      <div class="box pf"><span class="tag">Idea</span>Una componente de grado $m\lt n$ da el factor $\prod_{i\le m}(y-y_i(z))$, cuyos coeficientes son univaluados y de crecimiento moderado, luego racionales.</div>
+    </div>
+    <div class="stack">
+      <div class="box thm"><span class="tag">Cuerpo de funciones</span>$$\M(S_P)=\C(z)[y]/(P)=\C(z,y).$$ Aquí no hace falta el teorema de existencia: $[\M(S_P):\C(z)]\le n$ por la proposición anterior, e $y$ ya tiene grado $n$.</div>
+      <div class="box ex"><span class="tag">Puntos singulares</span>$S_P$ no es la curva plana $\{P=0\}$ sino su normalización: cada punto singular se sustituye por un número finito de puntos. En el folium $z^3+y^3=3zy$, el nodo del origen se separa en dos puntos, uno de ellos de ramificación.</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="6">
+  <h2><small>6. Extensiones de ℂ(z)</small>El diccionario</h2>
+  <div class="box thm"><span class="tag">Teorema</span>$X\mapsto\M(X)$ y $K\mapsto S_K$ establecen una correspondencia entre los revestimientos ramificados finitos conexos de $\Cb$ y las extensiones finitas de $\C(z)$, que invierte el sentido de los mapas.</div>
+  <table class="tb">
+    <tr><th>Revestimiento ramificado $\pi\colon X\to\Cb$</th><th>Extensión $\C(z)\subset\M(X)$</th></tr>
+    <tr><td>grado de $\pi$</td><td>grado de la extensión</td></tr>
+    <tr><td>función meromorfa que separa una fibra</td><td>elemento primitivo $y$, con polinomio mínimo $P(z,y)$</td></tr>
+    <tr><td>recubridor intermedio $X\to Y\to\Cb$</td><td>subcuerpo $\C(z)\subset\M(Y)\subset\M(X)$</td></tr>
+    <tr><td>transformaciones de deck $\Aut_{\Cb}(X)$</td><td>automorfismos de $\M(X)$ sobre $\C(z)$</td></tr>
+    <tr><td>$\pi$ es de Galois</td><td>la extensión es de Galois</td></tr>
+    <tr><td>envolvente de Galois $T(X)$</td><td>clausura normal: cuerpo de descomposición de $P$</td></tr>
+    <tr><td>grupo de monodromía $\subseteq\Sigma_n$</td><td>grupo de Galois de $P$ actuando en sus $n$ raíces</td></tr>
+    <tr><td>valores de ramificación</td><td>contenidos en los ceros del discriminante</td></tr>
+  </table>
+  <p class="sm">Que todo $X$ sea un $S_P$ usa el ingrediente analítico: $x\mapsto(z(x),y(x))$ es un isomorfismo de $X$ en $S_P$ cuando $y$ separa una fibra.</p>
+</section>
+
+<section class="slide dense" data-sec="6">
+  <h2><small>6. Extensiones de ℂ(z)</small>El grupo de Galois es la continuación analítica</h2>
+  <p>Fijemos $z_0\notin Z$. El polinomio $P(z_0,y)$ tiene $n$ raíces simples, y por el teorema de la función implícita hay $n$ gérmenes holomorfos $y_1,\dots,y_n$ en $z_0$ con $P(z,y_i(z))=0$. Dentro del cuerpo de gérmenes meromorfos en $z_0$,
+    $$L=\C(z)(y_1,\dots,y_n)$$ es el cuerpo de descomposición de $P$.</p>
+  <div class="cols">
+    <div class="stack">
+      <p>Un lazo $\gamma$ en $\Cb\setminus Z$ basado en $z_0$ permite continuar analíticamente cada germen: $y_i\mapsto y_{i\cdot\gamma}$. Es el levantamiento de $\gamma$ a $\Gamma'$. La continuación respeta sumas y productos y fija $\C(z)$: define un automorfismo de $L$.</p>
+      <div class="box thm"><span class="tag">Teorema</span>$\Gal(L/\C(z))$ es el grupo de monodromía $\Mon(P)$, la imagen de $\pi_1(\Cb\setminus Z,z_0)\to\Sigma_n$.</div>
+    </div>
+    <div class="stack">
+      <div class="box pf"><span class="tag">Demostración</span>Ya vimos $\Mon(P)\subseteq\Gal$. Sea $h\in L$ invariante por toda continuación. Entonces $h$ es una función meromorfa univaluada en $\Cb\setminus Z$. Como $h$ es algebraica sobre $\C(z)$, cerca de cada punto de $Z$ está acotada por una potencia de la coordenada, luego es meromorfa en $\Cb$: es racional. Así $L^{\Mon(P)}=\C(z)$, y por el teorema de Artin $\Mon(P)=\Gal(L/\C(z))$. $\ \blacksquare$</div>
+      <ul>
+        <li>$P$ es irreducible si y solo si $\Mon(P)$ es transitivo.</li>
+        <li>Geométricamente, $L=\M(T(S_P))$.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="6">
+  <h2><small>6. Extensiones de ℂ(z) · Artefacto</small>Continuación analítica de una función algebraica</h2>
+  <p class="lead">A la derecha, el plano $z$ con el punto base $s=z_0$ y los ceros del discriminante. A la izquierda, los valores $y_1(z),\dots,y_n(z)$. Recorra lazos: la permutación de los valores es un elemento del grupo de Galois de la ecuación sobre $\C(z)$.</p>
+  <div class="lab" data-cfg='{"id":"L6","ex":["cheb","sq","kum3","ell","fol","s4","s5"],"modes":["loop","draw"],"curve":true,"group":true,"arrow":"z","labels":["Plano y · las determinaciones y₁(z), …, yₙ(z)","Plano z · base"]}'></div>
+</section>
+
+<section class="slide dense" data-sec="6">
+  <h2><small>6. Extensiones de ℂ(z)</small>Ejemplos de grupos de Galois sobre $\C(z)$</h2>
+  <table class="tb">
+    <tr><th>Ecuación</th><th>Grupo</th><th>Comentario</th></tr>
+    <tr><td>$y^n=z$</td><td>$\Z/n$</td><td>Extensión de Kummer. $y_k=\zeta^k\sqrt[n]{z}$; un giro alrededor de $0$ multiplica por $\zeta$.</td></tr>
+    <tr><td>$y^2=z^3-z$</td><td>$\Z/2$</td><td>$S_P$ es un toro: $2g-2=-4+4$. El cuerpo es $\C(z)\big(\sqrt{z^3-z}\big)$.</td></tr>
+    <tr><td>$y^3=z^2-1$</td><td>$\Z/3$</td><td>Cíclica; ramifica en $\pm1$ e $\infty$ con perfil $(3)$: género $1$.</td></tr>
+    <tr><td>$y^3-3y=z$</td><td>$S_3$</td><td>$A_3$ corresponde a $\C(z)\big(\sqrt{z^2-4}\big)$. La torre de la sección 5 es la fórmula de Cardano: $y=u+1/u$ con $u^3=\tfrac12\big(z+\sqrt{z^2-4}\big)$.</td></tr>
+    <tr><td>$z^3+y^3=3zy$</td><td>$S_3$</td><td>Folium de Descartes. Género $0$, con un nodo en el origen.</td></tr>
+    <tr><td>$y^4+y=z$</td><td>$S_4$</td><td>Tres valores críticos simples: tres trasposiciones que generan $S_4$.</td></tr>
+    <tr><td>$y^5-5y=z$</td><td>$S_5$</td><td>Valores críticos $\pm4,\pm4i$. $S_5$ no es resoluble: $y(z)$ no se expresa con radicales de funciones racionales.</td></tr>
+  </table>
+  <div class="box thm"><span class="tag">Criterio</span>Si $f$ es un polinomio de grado $n$ con $n-1$ valores críticos distintos, la monodromía de $f(y)=z$ está generada por trasposiciones y es transitiva: es $S_n$.</div>
+</section>
+
+<!-- ===== 7 ===== -->
+<section class="slide dense" data-sec="7">
+  <h2><small>7. Curvas algebraicas</small>Toda superficie compacta con una función meromorfa es una curva algebraica</h2>
+  <div class="box thm"><span class="tag">Teorema</span>Sea $S$ una superficie de Riemann compacta y conexa y $f\in\M(S)$ no constante. Existe un polinomio irreducible $P(z,y)$ tal que $S$ es biholomorfa a $S_P$, y $f$ corresponde a la coordenada $z$.</div>
+  <div class="cols a">
+    <div class="box pf"><span class="tag">Demostración</span>
+      <ol style="margin-top:2px">
+        <li>$f\colon S\to\Cb$ es un revestimiento ramificado de grado $d$ (sección 2).</li>
+        <li>$\M(S)$ es una extensión algebraica de $\C(f)$ de grado $d$ (sección 6).</li>
+        <li>Sea $g$ un elemento primitivo: $\M(S)=\C(f,g)$. Su polinomio mínimo $P(z,y)$ es irreducible, de grado $d$ en $y$, y $P(f,g)=0$.</li>
+        <li>$\Phi\colon S\to S_P$, $p\mapsto(f(p),g(p))$, está definida fuera de un conjunto finito y conmuta con las proyecciones a $\Cb$. Sobre un $z$ genérico, $g$ toma en la fibra los $d$ valores distintos $y_i(z)$: $\Phi$ es biyectiva en las fibras. Es un isomorfismo de revestimientos de $\Cb\setminus Z$, y por la unicidad al tapar agujeros se extiende a un biholomorfismo. $\ \blacksquare$</li>
+      </ol></div>
+    <div class="stack">
+      <div class="box warn"><span class="tag">Punto delicado</span>El paso 2 usa que las funciones meromorfas separan una fibra de $f$. Solo con $f$ se obtiene $d'=[\M(S):\C(f)]\le d$ y un mapa $\Phi\colon S\to S_P$ de grado $d/d'$.</div>
+      <div class="box thm"><span class="tag">Teorema 112</span>Con el teorema de existencia de Riemann, la hipótesis se cumple siempre: toda superficie de Riemann compacta es la superficie de una curva algebraica.</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="7">
+  <h2><small>7. Curvas algebraicas · Artefacto</small>El toro ℂ/Λ es una cúbica</h2>
+  <p class="lead">$f=\wp$ tiene grado $2$ y $g=\wp'$ es un elemento primitivo: $\M(\C/\Lambda)=\C(\wp,\wp')$ con $\ y^2=4x^3-g_2x-g_3$. Arrastre $z$ en el toro y compruebe la ecuación; o dibuje en el plano $x$ y vea los dos levantamientos $\pm z$.</p>
+  <div class="lab" data-cfg='{"id":"L7","ex":["wpsq","wphex","wpgen"],"modes":["up","draw","loop"],"arrow":"℘","labels":["Toro ℂ/Λ · coordenada z","Esfera · coordenada x = ℘(z)"],"modeNames":{"up":"Mover z en el toro","draw":"Dibujar en el plano x","loop":"Lazos desde s"}}'></div>
+</section>
+
+<section class="slide" data-sec="7">
+  <h2><small>7. Curvas algebraicas</small>Más ejemplos y consecuencias</h2>
+  <div class="cols">
+    <div class="stack">
+      <div class="box ex"><span class="tag">Grado 1</span>Si $S$ tiene una función meromorfa con un único polo simple, $S\simeq\Cb$.</div>
+      <div class="box ex"><span class="tag">Grado 2 · Taller 3, ejercicio 9</span>Si $f$ tiene grado $2$, $\M(S)=\C(f)(\sqrt{h})$ y $S$ es la curva hiperelíptica
+        $$y^2=\prod_{i}(z-a_i),$$
+        con los $a_i$ los valores de ramificación finitos. Por Riemann–Hurwitz hay $2g+2$ valores de ramificación.</div>
+      <div class="box ex"><span class="tag">Género 1</span>$\C/\Lambda$ es la cúbica $y^2=4x^3-g_2x-g_3$.</div>
+    </div>
+    <div class="stack">
+      <ul>
+        <li>$\M(S)$ determina a $S$: los mapas holomorfos no constantes $S\to S'$ corresponden a las inclusiones de cuerpos $\M(S')\hookrightarrow\M(S)$ sobre $\C$.</li>
+        <li>Tres descripciones del mismo objeto: superficies de Riemann compactas; cuerpos finitamente generados de grado de trascendencia $1$ sobre $\C$; curvas algebraicas proyectivas.</li>
+      </ul>
+      <div class="box warn"><span class="tag">Atención</span>No toda superficie compacta es una curva plana <b>regular</b>: estas tienen género $\tfrac12(d-1)(d-2)$ (Teorema 116), que nunca vale $2$. En general $S_P$ es la normalización de una curva plana con singularidades.</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="7">
+  <h2><small>7. Curvas algebraicas</small>Resumen de la semana y Taller 3</h2>
+  <div class="cols">
+    <div class="stack">
+      <ol>
+        <li>Un revestimiento ramificado finito de $S$ es un revestimiento finito de $S\setminus Z$ con sus agujeros tapados.</li>
+        <li>Holomorfo, no constante y compacto implica revestimiento ramificado.</li>
+        <li>$\chi(T)=d\,\chi(S)-\sum_p(\mult_p-1)$.</li>
+        <li>$\pi_1$ actúa en la fibra por la derecha; $\Aut_S(X)$, por la izquierda. Conmutan.</li>
+        <li>De Galois: $|\Aut|=d$. La envolvente $T(X)$ tiene por grupo la monodromía.</li>
+        <li>Revestimientos de $\Cb$ y extensiones de $\C(z)$ se corresponden; Galois es continuación analítica.</li>
+        <li>Compacta con función meromorfa no constante implica curva algebraica.</li>
+      </ol>
+    </div>
+    <div class="box ex"><span class="tag">Taller 3</span>
+      <ol style="margin-top:2px" class="sm">
+        <li>Todo recubridor conexo de $n$ hojas de $\C^*$ es $z^n$.</li>
+        <li>Los recubridores conexos de $2$ hojas de $\C\setminus\{\pm1\}$ son tres.</li>
+        <li>Todo recubridor conexo de $2$ hojas es de Galois.</li>
+        <li>Los recubridores de un toro $\C/G$ son $\C/H$, $\C^*$ y $\C$.</li>
+        <li>De Galois de grado primo $p$: ramificación de multiplicidad $p$.</li>
+        <li>Género de la curva cuspidal $z^p=w^q$.</li>
+        <li>$w^2=P(z)$ es regular si y solo si $P$ tiene raíces simples.</li>
+        <li>Género de las hiperelípticas regulares.</li>
+        <li>Función de grado $2$ implica hiperelíptica.</li>
+      </ol></div>
+  </div>
+</section>
+
+<div id="bar">
+  <button type="button" class="nav" id="prev" aria-label="Diapositiva anterior">←</button>
+  <button type="button" class="nav" id="next" aria-label="Diapositiva siguiente">→</button>
+  <div id="chips" aria-label="Secciones"></div>
+  <button type="button" class="nav" id="full">Pantalla completa</button>
+</div>
+</div>
+<script>
+/* ===== Motor matemático: complejos, revestimientos, continuación, grupos ===== */
+const RS = (() => {
+  const add = (a, b) => [a[0] + b[0], a[1] + b[1]];
+  const sub = (a, b) => [a[0] - b[0], a[1] - b[1]];
+  const mul = (a, b) => [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]];
+  const div = (a, b) => { const d = b[0] * b[0] + b[1] * b[1]; return [(a[0] * b[0] + a[1] * b[1]) / d, (a[1] * b[0] - a[0] * b[1]) / d]; };
+  const sc = (a, t) => [a[0] * t, a[1] * t];
+  const abs = a => Math.hypot(a[0], a[1]);
+  const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+  const cexp = a => { const e = Math.exp(a[0]); return [e * Math.cos(a[1]), e * Math.sin(a[1])]; };
+  const clog = a => [Math.log(abs(a)), Math.atan2(a[1], a[0])];
+  const cpow = (a, n) => { let r = [1, 0]; for (let i = 0; i < n; i++) r = mul(r, a); return r; };
+  const neg = a => [-a[0], -a[1]];
+  const TAU = 2 * Math.PI;
+
+  /* polinomio mónico en y: c = [c0..c_{n-1}] ; devuelve [P(y), P'(y)] */
+  function pEval(c, y) {
+    let p = [1, 0], d = [0, 0];
+    for (let j = c.length - 1; j >= 0; j--) { d = add(mul(d, y), p); p = add(mul(p, y), c[j]); }
+    return [p, d];
+  }
+  function polyRoots(c) {
+    const n = c.length; let R = 0;
+    for (let j = 0; j < n; j++) R = Math.max(R, Math.pow(abs(c[j]), 1 / (n - j)));
+    R = Math.max(R, 1e-3) * 1.3;
+    let z = []; for (let k = 0; k < n; k++) z.push([R * Math.cos(TAU * k / n + 0.4), R * Math.sin(TAU * k / n + 0.4)]);
+    for (let it = 0; it < 600; it++) {
+      let mx = 0;
+      for (let k = 0; k < n; k++) {
+        const num = pEval(c, z[k])[0]; let den = [1, 0];
+        for (let j = 0; j < n; j++) if (j !== k) den = mul(den, sub(z[k], z[j]));
+        if (abs(den) < 1e-300) continue;
+        const dz = div(num, den); z[k] = sub(z[k], dz); mx = Math.max(mx, abs(dz));
+      }
+      if (mx < 1e-15 * (1 + R)) break;
+    }
+    return z;
+  }
+  const sortRoots = r => r.slice().sort((a, b) => Math.abs(a[0] - b[0]) > 1e-7 ? a[0] - b[0] : a[1] - b[1]);
+
+  /* ---- función ℘ de Weierstrass para el retículo Z + τZ ---- */
+  function wpMaker(tau) {
+    const N = 7, PI = Math.PI;
+    const csc2 = u => { // 1/sin^2(u), cos(u)/sin^3(u)
+      const s = [Math.sin(u[0]) * Math.cosh(u[1]), Math.cos(u[0]) * Math.sinh(u[1])];
+      const co = [Math.cos(u[0]) * Math.cosh(u[1]), -Math.sin(u[0]) * Math.sinh(u[1])];
+      const s2 = mul(s, s); return [div([1, 0], s2), div(co, mul(s2, s))];
+    };
+    let K = [PI * PI / 3, 0];
+    for (let n = 1; n <= N; n++) K = add(K, sc(csc2(sc(tau, PI * n))[0], 2 * PI * PI));
+    return z => {
+      let P = [0, 0], D = [0, 0];
+      for (let n = -N; n <= N; n++) {
+        const [a, b] = csc2(sc(sub(z, sc(tau, n)), PI));
+        P = add(P, a); D = add(D, b);
+      }
+      return [sub(sc(P, PI * PI), K), sc(D, -2 * PI * PI * PI)];
+    };
+  }
+
+  /* ---- paso de continuación: raíces en xa -> raíces en xb ---- */
+  function newton(cv, x, y) {
+    for (let i = 0; i < 30; i++) {
+      const [F, D] = cv.eval(x, y); if (abs(D) < 1e-300) break;
+      const dy = div(F, D); y = sub(y, dy);
+      if (!isFinite(y[0]) || !isFinite(y[1])) return [y, false];
+      if (abs(dy) < 1e-12 * (1 + abs(y))) return [y, true];
+    }
+    return [y, false];
+  }
+  function step(cv, roots, xa, xb, depth) {
+    depth = depth || 0;
+    const n = roots.length, out = []; let ok = true;
+    for (let i = 0; i < n && ok; i++) {
+      const [y, c] = newton(cv, xb, roots[i]); out.push(y); if (!c) ok = false;
+      else {
+        let sep = Infinity; for (let j = 0; j < n; j++) if (j !== i) sep = Math.min(sep, dist(roots[i], roots[j]));
+        if (dist(y, roots[i]) > 0.3 * sep) ok = false;
+      }
+    }
+    if (ok) for (let i = 0; i < n && ok; i++) for (let j = i + 1; j < n; j++) if (dist(out[i], out[j]) < 1e-9) { ok = false; break; }
+    if (ok) return out;
+    if (depth >= 34 || dist(xa, xb) < 1e-10) { // paso (casi) por un valor de ramificación: mejor esfuerzo
+      const res = []; for (let i = 0; i < n; i++) res.push(newton(cv, xb, roots[i])[0]); return res;
+    }
+    const xm = sc(add(xa, xb), 0.5);
+    return step(cv, step(cv, roots, xa, xm, depth + 1), xm, xb, depth + 1);
+  }
+  function trackPath(cv, roots, pts) {
+    let r = roots; for (let i = 1; i < pts.length; i++) r = step(cv, r, pts[i - 1], pts[i]); return r;
+  }
+  function matchPerm(cv, start, end) {
+    const d = cv.dist || dist;
+    return end.map(e => { let b = 0, bd = Infinity; start.forEach((s, j) => { const q = d(e, s); if (q < bd) { bd = q; b = j; } }); return b; });
+  }
+  /* lazo desde base que rodea b (antihorario) */
+  function genLoop(base, b, rho, K) {
+    K = K || 48; const v = sub(base, b), L = abs(v), u = sc(v, 1 / L), a0 = Math.atan2(u[1], u[0]), pts = [];
+    const p1 = add(b, sc(u, rho));
+    for (let i = 0; i <= K; i++) pts.push(add(base, sc(sub(p1, base), i / K)));
+    for (let i = 1; i <= 2 * K; i++) { const a = a0 + TAU * i / (2 * K); pts.push([b[0] + rho * Math.cos(a), b[1] + rho * Math.sin(a)]); }
+    for (let i = 1; i <= K; i++) pts.push(add(p1, sc(sub(base, p1), i / K)));
+    return pts;
+  }
+  function loopRadius(ex, j) {
+    let m = Infinity; ex.branch.forEach((b, k) => { if (k !== j) m = Math.min(m, dist(b, ex.branch[j])); });
+    return Math.min(0.3 * m, 0.5 * dist(ex.base, ex.branch[j]), 0.12 * ex.vd[2]);
+  }
+
+  /* ---- permutaciones (acción por la derecha: i·γ = p[i]) ---- */
+  const idp = n => Array.from({ length: n }, (_, i) => i);
+  const compose = (p, q) => p.map(i => q[i]);           // primero p, luego q
+  const isId = p => p.every((v, i) => v === i);
+  const isPerm = p => new Set(p).size === p.length;
+  function cycles(p) {
+    const seen = new Array(p.length).fill(false), out = [];
+    for (let i = 0; i < p.length; i++) {
+      if (seen[i] || p[i] === i) continue; const c = []; let j = i;
+      while (!seen[j]) { seen[j] = true; c.push(j + 1); j = p[j]; }
+      out.push('(' + c.join(' ') + ')');
+    }
+    return out.length ? out.join('') : 'id';
+  }
+  function generate(gens, n) {
+    const seen = new Map(), q = [idp(n)]; seen.set(q[0].join(), q[0]);
+    while (q.length) { const g = q.pop(); for (const s of gens) { const h = compose(g, s), k = h.join(); if (!seen.has(k)) { seen.set(k, h); q.push(h); } } }
+    return [...seen.values()];
+  }
+  function allPerms(n) { const res = []; const rec = (a, rest) => { if (!rest.length) res.push(a); rest.forEach((v, i) => rec(a.concat(v), rest.filter((_, j) => j !== i))); }; rec([], idp(n)); return res; }
+  function order(p) { let k = 1, q = p; while (!isId(q)) { q = compose(q, p); k++; } return k; }
+  function groupName(n, els) {
+    const o = els.length; if (o === 1) return 'trivial';
+    const mo = Math.max(...els.map(order));
+    const T = { 2: { 2: 'ℤ/2' }, 3: { 3: 'ℤ/3', 6: 'S₃', 2: 'ℤ/2' }, 4: { 2: 'ℤ/2', 3: 'ℤ/3', 6: 'S₃', 8: 'D₄', 12: 'A₄', 24: 'S₄' }, 5: { 5: 'ℤ/5', 10: 'D₅', 20: 'F₂₀', 60: 'A₅', 120: 'S₅' } };
+    if (n === 4 && o === 4) return mo === 4 ? 'ℤ/4' : 'ℤ/2 × ℤ/2';
+    return (T[n] && T[n][o]) || ('orden ' + o);
+  }
+  function monodromy(ex) {
+    if (ex._mono) return ex._mono;
+    const n = ex.cover.n, start = ex.cover.init(ex.base);
+    const gens = ex.branch.map((b, j) => {
+      const pts = genLoop(ex.base, b, loopRadius(ex, j));
+      return matchPerm(ex.cover, start, trackPath(ex.cover, start, pts));
+    });
+    const els = generate(gens, n);
+    const cent = allPerms(n).filter(s => gens.every(g => compose(s, g).join() === compose(g, s).join()));
+    return ex._mono = { gens, els, order: els.length, name: groupName(n, els), aut: cent.length, galois: els.length === n };
+  }
+
+  /* ---- ejemplos ---- */
+  const polyCover = (n, coef) => ({ n, eval: (x, y) => pEval(coef(x), y), init: x => sortRoots(polyRoots(coef(x))) });
+  const rot = (k, n) => z => mul(z, [Math.cos(TAU * k / n), Math.sin(TAU * k / n)]);
+  const O = [0, 0];
+  const EX = {};
+  const def = (id, o) => { o.id = id; EX[id] = o; };
+  def('sq', { name: 'w = z²', cname: 'y² = z', cover: polyCover(2, x => [neg(x), O]), f: z => mul(z, z),
+    branch: [[0, 0]], blab: ['0'], prof: [{ v: '0', p: [2] }, { v: '∞', p: [2] }], base: [1.1, 0.7], vd: [0, 0, 2.4], vu: [0, 0, 1.9],
+    deck: [{ name: 'z ↦ −z', fn: neg }] });
+  def('cube', { name: 'w = z³', cname: 'y³ = z', cover: polyCover(3, x => [neg(x), O, O]), f: z => cpow(z, 3),
+    branch: [[0, 0]], blab: ['0'], prof: [{ v: '0', p: [3] }, { v: '∞', p: [3] }], base: [1.1, 0.7], vd: [0, 0, 2.4], vu: [0, 0, 1.7],
+    deck: [{ name: 'z ↦ ζz', fn: rot(1, 3) }, { name: 'z ↦ ζ²z', fn: rot(2, 3) }] });
+  def('four', { name: 'w = z⁴', cname: 'y⁴ = z', cover: polyCover(4, x => [neg(x), O, O, O]), f: z => cpow(z, 4),
+    branch: [[0, 0]], blab: ['0'], prof: [{ v: '0', p: [4] }, { v: '∞', p: [4] }], base: [1.1, 0.7], vd: [0, 0, 2.4], vu: [0, 0, 1.6],
+    deck: [{ name: 'z ↦ iz', fn: rot(1, 4) }, { name: 'z ↦ −z', fn: neg }, { name: 'z ↦ −iz', fn: rot(3, 4) }] });
+  def('jouk', { name: 'w = ½(z + 1/z)', cname: 'y² − 2zy + 1 = 0', cover: polyCover(2, x => [[1, 0], sc(x, -2)]), f: z => sc(add(z, div([1, 0], z)), 0.5),
+    branch: [[-1, 0], [1, 0]], blab: ['−1', '1'], prof: [{ v: '−1', p: [2] }, { v: '1', p: [2] }, { v: '∞', p: [1, 1] }], base: [0.3, 1.2], vd: [0, 0, 2.6], vu: [0, 0, 2.6],
+    deck: [{ name: 'z ↦ 1/z', fn: z => div([1, 0], z) }] });
+  def('cheb', { name: 'w = z³ − 3z', cname: 'y³ − 3y = z', cover: polyCover(3, x => [neg(x), [-3, 0], O]), f: z => sub(cpow(z, 3), sc(z, 3)),
+    branch: [[-2, 0], [2, 0]], blab: ['−2', '2'], prof: [{ v: '−2', p: [2, 1] }, { v: '2', p: [2, 1] }, { v: '∞', p: [3] }], base: [0.4, 2.2], vd: [0, 0, 4.6], vu: [0, 0, 2.7], deck: [] });
+  def('quart', { name: 'w = z⁴ − 2z²', cname: 'y⁴ − 2y² = z', cover: polyCover(4, x => [neg(x), O, [-2, 0], O]), f: z => sub(cpow(z, 4), sc(mul(z, z), 2)),
+    branch: [[-1, 0], [0, 0]], blab: ['−1', '0'], prof: [{ v: '−1', p: [2, 2] }, { v: '0', p: [2, 1, 1] }, { v: '∞', p: [4] }], base: [0.5, 1.4], vd: [0, 0, 3], vu: [0, 0, 2.1],
+    deck: [{ name: 'z ↦ −z', fn: neg }] });
+  { const r = Math.cbrt(0.25), cs = [1, 3, 5].map(k => [r * Math.cos(Math.PI * k / 3), r * Math.sin(Math.PI * k / 3)]);
+    def('s4', { name: 'w = z⁴ + z', cname: 'y⁴ + y = z', cover: polyCover(4, x => [neg(x), [1, 0], O, O]), f: z => add(cpow(z, 4), z),
+      branch: cs.map(c => sc(c, 0.75)), blab: ['b₁', 'b₂', 'b₃'], prof: null, base: [0.95, 0.35], vd: [0, 0, 1.7], vu: [0, 0, 1.6], deck: [] }); }
+  def('s5', { name: 'w = z⁵ − 5z', cname: 'y⁵ − 5y = z', cover: polyCover(5, x => [neg(x), [-5, 0], O, O, O]), f: z => sub(cpow(z, 5), sc(z, 5)),
+    branch: [[4, 0], [0, 4], [-4, 0], [0, -4]], blab: ['4', '4i', '−4', '−4i'], prof: null, base: [2.6, 1.9], vd: [0, 0, 7.5], vu: [0, 0, 2.4], deck: [] });
+  def('ell', { name: 'y² = z³ − z', cname: 'y² = z³ − z', cover: polyCover(2, x => [neg(sub(cpow(x, 3), x)), O]),
+    branch: [[-1, 0], [0, 0], [1, 0]], blab: ['−1', '0', '1'], prof: null, base: [0.45, 1.3], vd: [0, 0, 2.4], vu: [0, 0, 2.6], deck: [] });
+  def('kum3', { name: 'y³ = z² − 1', cname: 'y³ = z² − 1', cover: polyCover(3, x => [neg(sub(mul(x, x), [1, 0])), O, O]),
+    branch: [[-1, 0], [1, 0]], blab: ['−1', '1'], prof: null, base: [0.3, 1.3], vd: [0, 0, 2.6], vu: [0, 0, 2.2], deck: [] });
+  { const r = Math.cbrt(4);
+    def('fol', { name: 'z³ + y³ = 3zy', cname: 'z³ + y³ = 3zy (folium)', cover: polyCover(3, x => [cpow(x, 3), sc(x, -3), O]),
+      branch: [[0, 0], [r, 0], [r * Math.cos(TAU / 3), r * Math.sin(TAU / 3)], [r * Math.cos(TAU / 3), -r * Math.sin(TAU / 3)]], blab: ['0', '∛4', '∛4·ζ', '∛4·ζ²'],
+      prof: null, base: [0.75, 0.55], vd: [0, 0, 2.7], vu: [0, 0, 3.2], deck: [] }); }
+  { const K = [-2, -1, 0, 1, 2];
+    def('exp', { name: 'w = eᶻ', cname: 'eʸ = z', infinite: true,
+      cover: { n: 5, eval: (x, y) => { const e = cexp(y); return [sub(e, x), e]; }, init: x => { const l = clog(x); return K.map(k => [l[0], l[1] + TAU * k]); } },
+      f: cexp, branch: [[0, 0]], blab: ['0'], omitted: true, prof: null, base: [1.2, 0.8], vd: [0, 0, 3], vu: [-3, 0, 13],
+      deck: [{ name: 'z ↦ z + 2πi', fn: z => [z[0], z[1] + TAU] }, { name: 'z ↦ z − 2πi', fn: z => [z[0], z[1] - TAU] }] }); }
+  function defWp(id, name, tau) {
+    const wp = wpMaker(tau);
+    const wrap = z => { const b = z[1] / tau[1], a = z[0] - b * tau[0]; const a1 = a - Math.floor(a), b1 = b - Math.floor(b); return [a1 + b1 * tau[0], b1 * tau[1]]; };
+    const ldist = (p, q) => { let m = Infinity; const d = sub(p, q), b0 = Math.round(d[1] / tau[1]), a0 = Math.round(d[0] - b0 * tau[0]);
+      for (let a = a0 - 1; a <= a0 + 1; a++) for (let b = b0 - 1; b <= b0 + 1; b++) m = Math.min(m, Math.hypot(d[0] - a - b * tau[0], d[1] - b * tau[1])); return m; };
+    const hp = [[0.5, 0], sc(tau, 0.5), sc(add([1, 0], tau), 0.5)], e = hp.map(h => wp(h)[0]);
+    const g2 = sc(add(add(mul(e[0], e[1]), mul(e[0], e[2])), mul(e[1], e[2])), -4), g3 = sc(mul(mul(e[0], e[1]), e[2]), 4);
+    const cover = { n: 2, dist: ldist, eval: (x, y) => { const [p, d] = wp(y); return [sub(p, x), d]; },
+      init: (x, hint) => {
+        const seeds = hint ? [hint] : [];
+        for (let i = 1; i < 6; i++) for (let j = 1; j < 6; j++) seeds.push(add(sc([1, 0], i / 6 + 0.03), sc(tau, j / 6 + 0.02)));
+        for (const s of seeds) { const [y, ok] = newton(cover, x, s); if (ok && ldist(y, [0, 0]) > 1e-6) { const w1 = wrap(y), w2 = wrap(neg(y)); return hint ? [w1, w2] : sortRoots([w1, w2]); } }
+        return [[0.25, 0.25], [0.75, 0.75]];
+      } };
+    const R = Math.max(...e.map(abs));
+    def(id, { name, cname: name, kind: 'wp', tau, wp, wrap, hp, e, g2, g3, cover, f: z => wp(z)[0],
+      branch: e, blab: ['e₁', 'e₂', 'e₃'], prof: null, base: [0.35 * R, 0.8 * R], vd: [0, 0, 2.1 * R], vu: [0.5 + tau[0] / 2, tau[1] / 2, 0.5 * Math.max(1 + Math.abs(tau[0]), tau[1]) + 0.12], deck: [] });
+  }
+  defWp('wpsq', 'Λ = ℤ + iℤ (cuadrado)', [0, 1]);
+  defWp('wphex', 'Λ = ℤ + e^{iπ/3}ℤ (hexagonal)', [0.5, Math.sqrt(3) / 2]);
+  defWp('wpgen', 'Λ = ℤ + (0.3 + 1.25i)ℤ', [0.3, 1.25]);
+
+  return { add, sub, mul, div, sc, abs, dist, cexp, clog, neg, TAU, pEval, polyRoots, sortRoots, newton, step, trackPath, matchPerm, genLoop, loopRadius,
+    idp, compose, isId, isPerm, cycles, generate, allPerms, groupName, monodromy, EX };
+})();
+if (typeof module !== 'undefined') module.exports = RS;
+
+/* ===== Interfaz: artefactos y presentación ===== */
+const COLORS = ['#168079', '#b5791a', '#6c53b8', '#2f6fb0', '#6f8f1e', '#c2528b', '#8a5a3c'];
+const INK = '#232019', RED = '#c13d38', PAPER = '#fbfbf9', SZ = 440;
+const SUB = '₀₁₂₃₄₅₆₇₈₉';
+const sub = n => String(n).split('').map(d => SUB[+d]).join('');
+const fmt = (z, k) => { k = k == null ? 2 : k; const a = z[0].toFixed(k), b = Math.abs(z[1]).toFixed(k); return `${a.replace('-', '−')} ${z[1] < 0 ? '−' : '+'} ${b}i`; };
+let RATIO = 2;
+const LABS = [];
+
+class LiftLab {
+  constructor(root, cfg) {
+    this.root = root; this.cfg = cfg; this.exs = cfg.ex.map(id => RS.EX[id]); this.mode = cfg.modes[0];
+    const L = cfg.labels || ['Arriba · superficie R, coordenada z', 'Abajo · superficie S, coordenada w'];
+    const MN = { draw: 'Dibujar curva', loop: 'Lazos desde s', point: 'Mover w (abajo)', up: 'Mover z (arriba)' };
+    root.innerHTML = `<div class="lab-panels">
+      <figure><figcaption>${L[0]}</figcaption><canvas class="cv up"></canvas></figure>
+      <div class="lab-arrow"><span>${cfg.arrow || 'f'}</span><i>⟶</i></div>
+      <figure><figcaption>${L[1]}</figcaption><canvas class="cv dn"></canvas></figure></div>
+      <div class="lab-side">
+        <label class="fld" for="${cfg.id}-ex"><span>Ejemplo</span><select id="${cfg.id}-ex">${this.exs.map((e, i) => `<option value="${i}">${cfg.curve ? e.cname : e.name}</option>`).join('')}</select></label>
+        <div class="modes" role="group" aria-label="Modo">${cfg.modes.length > 1 ? cfg.modes.map(m => `<button type="button" class="btn mode" data-m="${m}">${(cfg.modeNames && cfg.modeNames[m]) || MN[m]}</button>`).join('') : ''}</div>
+        <div class="gens"></div>
+        <label class="fld deckf" for="${cfg.id}-dk"><span>Transformación de deck</span><select id="${cfg.id}-dk"></select></label>
+        <div class="lab-info"></div><div class="lab-out" aria-live="polite"></div>
+        <button type="button" class="btn clear">Borrar</button></div>`;
+    const q = s => root.querySelector(s);
+    this.up = q('.up'); this.dn = q('.dn'); this.info = q('.lab-info'); this.out = q('.lab-out'); this.gens = q('.gens');
+    this.deckf = q('.deckf'); this.dk = q(`#${cfg.id}-dk`);
+    q(`#${cfg.id}-ex`).addEventListener('change', e => this.setEx(this.exs[+e.target.value]));
+    root.querySelectorAll('.mode').forEach(b => b.addEventListener('click', () => this.setMode(b.dataset.m)));
+    q('.clear').addEventListener('click', () => { this.stopAnim(); this.reset(); this.draw(); });
+    this.dk.addEventListener('change', () => { this.sigma = this.ex.deck[+this.dk.value - 1] || null; this.renderOut(); this.draw(); });
+    this.bind(this.dn, false); this.bind(this.up, true);
+    this.resize(true); this.setEx(this.exs[0]); LABS.push(this);
+  }
+  resize(skip) {
+    for (const c of [this.up, this.dn]) { c.width = c.height = Math.round(SZ * RATIO); }
+    if (!skip) this.draw();
+  }
+  /* --- coordenadas --- */
+  toPx(v, z) { const H = SZ / 2; return [H + (z[0] - v[0]) / v[2] * H, H - (z[1] - v[1]) / v[2] * H]; }
+  fromPx(v, p) { const H = SZ / 2; return [v[0] + (p[0] - H) / H * v[2], v[1] - (p[1] - H) / H * v[2]]; }
+  evPx(c, e) { const r = c.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * SZ, (e.clientY - r.top) / r.height * SZ]; }
+  lab(i) { return this.ex.infinite ? String(i - 2).replace('-', '−') : String(i + 1); }
+  /* --- estado --- */
+  setEx(ex) {
+    this.stopAnim(); this.ex = ex; this.sigma = null; this.tile = null;
+    this.mono = ex.infinite ? null : RS.monodromy(ex);
+    this.ram = [];
+    if (ex.kind === 'wp') this.ram = ex.hp.concat([[0, 0], [1, 0], ex.tau, RS.add([1, 0], ex.tau)]);
+    else if (!ex.infinite) ex.branch.forEach(b => this.cluster(ex.cover.init(b)).forEach(c => { if (c.m > 1) this.ram.push(c.z); }));
+    this.startBase = ex.cover.init(ex.base);
+    const dk = this.cfg.deck && ex.deck.length;
+    this.deckf.style.display = this.cfg.deck ? '' : 'none';
+    this.dk.innerHTML = '<option value="0">identidad</option>' + ex.deck.map((d, i) => `<option value="${i + 1}">${d.name}</option>`).join('');
+    this.dk.disabled = !dk;
+    this.renderInfo(); this.setMode(this.mode);
+  }
+  setMode(m) {
+    this.stopAnim(); this.mode = m;
+    this.root.querySelectorAll('.mode').forEach(b => b.classList.toggle('on', b.dataset.m === m));
+    this.gens.innerHTML = m === 'loop' ? '<span class="gl">Lazos generadores:</span>' + this.ex.branch.map((b, j) => `<button type="button" class="btn gen" data-j="${j}" title="lazo alrededor de ${this.ex.blab[j]}">γ${sub(j + 1)}</button>`).join('') : '';
+    this.gens.querySelectorAll('.gen').forEach(b => b.addEventListener('click', () => this.playGen(+b.dataset.j)));
+    this.reset();
+    if (m === 'draw' && this.cfg.demo !== false) { this.run(RS.genLoop(this.ex.base, this.ex.branch[0], RS.loopRadius(this.ex, 0), 30)); this.finishDraw(true); }
+    if (m === 'loop' && this.cfg.demo !== false) { this.begin(this.ex.base, this.startBase); this.run(RS.genLoop(this.ex.base, this.ex.branch[0], RS.loopRadius(this.ex, 0), 30).slice(1), true); this.finishLoop('γ' + sub(1)); }
+    this.draw();
+  }
+  reset() {
+    this.path = []; this.lifts = []; this.start = []; this.cur = []; this.hist = []; this.msg = ''; this.drawing = false;
+    const ex = this.ex;
+    if (this.mode === 'point') this.setPoint(ex.base);
+    if (this.mode === 'up') this.setUp(ex.kind === 'wp' ? RS.add(RS.sc([1, 0], 0.31), RS.sc(ex.tau, 0.27)) : [ex.vu[0] + 0.33 * ex.vu[2], ex.vu[1] + 0.27 * ex.vu[2]]);
+    this.renderOut();
+  }
+  cluster(roots) {
+    const tol = 4e-3 * this.ex.vu[2], d = this.ex.cover.dist || RS.dist, cl = [];
+    roots.forEach(z => { const c = cl.find(c => d(c.z, z) < tol); if (c) c.m++; else cl.push({ z, m: 1 }); });
+    return cl;
+  }
+  begin(x, roots) { this.path = [x]; this.start = roots || this.ex.cover.init(x); this.cur = this.start.slice(); this.lifts = this.start.map(r => [r]); }
+  extend(x) {
+    const last = this.path[this.path.length - 1], h = 0.02 * this.ex.vd[2], k = Math.max(1, Math.ceil(RS.dist(last, x) / h));
+    let a = last;
+    for (let i = 1; i <= k; i++) {
+      const b = RS.add(last, RS.sc(RS.sub(x, last), i / k));
+      this.cur = RS.step(this.ex.cover, this.cur, a, b); this.cur.forEach((r, j) => this.lifts[j].push(r)); this.path.push(b); a = b;
+    }
+  }
+  run(pts, cont) { if (!cont) this.begin(pts[0]); for (let i = cont ? 0 : 1; i < pts.length; i++) this.extend(pts[i]); }
+  setPoint(x) { this.pt = x; this.fiber = this.cluster(this.ex.cover.init(x)); }
+  setUp(z) {
+    const ex = this.ex; if (ex.wrap) z = ex.wrap(z);
+    this.zup = z; this.pt = ex.f(z);
+    if (!isFinite(this.pt[0]) || RS.abs(this.pt) > 1e6) return;
+    let roots = ex.kind === 'wp' ? [z, ex.wrap(RS.neg(z))] : ex.cover.init(this.pt);
+    const d = ex.cover.dist || RS.dist; roots = roots.slice().sort((a, b) => d(a, z) - d(b, z)); roots[0] = z;
+    this.fiber = this.cluster(roots);
+  }
+  /* --- eventos --- */
+  bind(c, isUp) {
+    c.addEventListener('pointerdown', e => {
+      if (this.anim) return; const p = this.evPx(c, e);
+      if (isUp) { if (this.mode !== 'up') return; this.drawing = true; this.setUp(this.fromPx(this.ex.vu, p)); }
+      else {
+        const x = this.fromPx(this.ex.vd, p); this.lastPx = p;
+        if (this.mode === 'draw') { this.begin(x); this.msg = ''; }
+        else if (this.mode === 'loop') { this.begin(this.ex.base, this.startBase); this.extend(x); }
+        else if (this.mode === 'point') this.setPoint(this.snap(x, p));
+        else return;
+        this.drawing = true;
+      }
+      c.setPointerCapture(e.pointerId); e.preventDefault(); this.renderOut(); this.draw();
+    });
+    c.addEventListener('pointermove', e => {
+      if (!this.drawing) return; const p = this.evPx(c, e);
+      if (isUp) this.setUp(this.fromPx(this.ex.vu, p));
+      else {
+        const x = this.fromPx(this.ex.vd, p);
+        if (this.mode === 'point') this.setPoint(this.snap(x, p));
+        else { if (Math.hypot(p[0] - this.lastPx[0], p[1] - this.lastPx[1]) < 2) return; this.lastPx = p; this.extend(x); }
+      }
+      if (this.mode === 'point' || this.mode === 'up') this.renderOut();
+      this.draw();
+    });
+    const end = () => {
+      if (!this.drawing) return; this.drawing = false;
+      if (!isUp && this.mode === 'draw') this.finishDraw();
+      if (!isUp && this.mode === 'loop') { this.extend(this.ex.base); this.finishLoop('ℓ' + sub(this.hist.filter(h => h.user).length + 1), true); }
+      this.draw();
+    };
+    c.addEventListener('pointerup', end); c.addEventListener('pointercancel', end);
+  }
+  snap(x, p) {
+    for (const b of this.ex.branch) { const q = this.toPx(this.ex.vd, b); if (Math.hypot(q[0] - p[0], q[1] - p[1]) < 9) return b.slice(); }
+    return x;
+  }
+  finishDraw(silent) {
+    const a = this.toPx(this.ex.vd, this.path[0]), b = this.toPx(this.ex.vd, this.path[this.path.length - 1]);
+    if (this.path.length > 4 && Math.hypot(a[0] - b[0], a[1] - b[1]) < 14) {
+      this.extend(this.path[0]);
+      if (this.ex.infinite) { const m = Math.round((this.cur[2][1] - this.start[2][1]) / RS.TAU); this.msg = `Curva cerrada. Cada levantamiento termina ${m ? 'en otra hoja: k ↦ k ' + (m > 0 ? '+ ' : '− ') + Math.abs(m) : 'donde empezó'}.`; }
+      else {
+        const p = RS.matchPerm(this.ex.cover, this.start, this.cur), fixed = p.filter((v, i) => v === i).length;
+        this.msg = `Curva cerrada. Levantamientos cerrados: ${fixed} de ${p.length}.<br>Permutación de la fibra: <b>${RS.cycles(p)}</b>`;
+      }
+    } else this.msg = silent ? '' : `Curva abierta: ${this.ex.infinite ? 'un levantamiento por cada hoja' : this.cur.length + ' levantamientos, uno por cada punto de la fibra inicial'}.`;
+    this.renderOut();
+  }
+  finishLoop(name, user) {
+    if (this.ex.infinite) this.hist.push({ name, user, shift: Math.round((this.cur[2][1] - this.start[2][1]) / RS.TAU) });
+    else this.hist.push({ name, user, perm: RS.matchPerm(this.ex.cover, this.start, this.cur) });
+    this.renderOut();
+  }
+  playGen(j) {
+    this.stopAnim(); const ex = this.ex, pts = RS.genLoop(ex.base, ex.branch[j], RS.loopRadius(ex, j), 36);
+    this.begin(ex.base, this.startBase);
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) { this.run(pts.slice(1), true); this.finishLoop('γ' + sub(j + 1)); this.draw(); return; }
+    let i = 1; const tick = () => {
+      for (let k = 0; k < 2 && i < pts.length; k++) this.extend(pts[i++]);
+      this.draw();
+      if (i < pts.length) this.anim = requestAnimationFrame(tick); else { this.anim = 0; this.finishLoop('γ' + sub(j + 1)); this.draw(); }
+    };
+    this.anim = requestAnimationFrame(tick);
+  }
+  stopAnim() { if (this.anim) { cancelAnimationFrame(this.anim); this.anim = 0; this.path = []; this.lifts = []; } }
+  /* --- textos --- */
+  renderInfo() {
+    const ex = this.ex, m = this.mono; let h = '';
+    h += `<div><b>Grado:</b> ${ex.infinite ? '∞ (se dibujan 5 hojas)' : ex.cover.n}</div>`;
+    if (ex.kind === 'wp') h += `<div><b>Ramificación:</b> e₁, e₂, e₃, ∞</div><div><b>g₂</b> = ${fmt(ex.g2, 1)}<br><b>g₃</b> = ${fmt(ex.g3, 1)}</div>`;
+    else if (ex.omitted) h += `<div><b>Valor omitido:</b> 0 (no hay ramificación finita)</div>`;
+    else if (ex.prof) h += `<div><b>Valores de ramificación</b> (perfil):<br>${ex.prof.filter(p => p.p.some(k => k > 1)).map(p => `${p.v} (${p.p.join(',')})`).join(' · ')}</div>`;
+    else h += `<div><b>Valores de ramificación finitos:</b> ${ex.blab.join(', ')}</div>`;
+    if (m && this.cfg.group) h += `<div><b>Monodromía:</b> ${m.name}, orden ${m.order}</div><div><b>Aut:</b> orden ${m.aut} · ${m.galois ? '<span class="ok">de Galois</span>' : '<span class="no">no es de Galois</span>'}</div>`;
+    if (this.cfg.rh && ex.prof) {
+      const d = ex.cover.n, k = ex.prof.length, V = ex.prof.reduce((s, p) => s + p.p.length, 0), R = ex.prof.reduce((s, p) => s + p.p.reduce((t, q) => t + q - 1, 0), 0);
+      h += `<table class="rht"><tr><th></th><th>V</th><th>A</th><th>C</th><th>χ</th></tr>
+        <tr><td>abajo</td><td>${k}</td><td>${k}</td><td>2</td><td>2</td></tr>
+        <tr><td>arriba</td><td>${V}</td><td>${d * k}</td><td>${2 * d}</td><td>${V - d * k + 2 * d}</td></tr></table>
+        <div>V↑ = ${d}·${k} − ${R} = ${V}, así que<br>χ(R) = ${d}·2 − ${R} = <b>${2 * d - R}</b>, g = ${(2 - (2 * d - R)) / 2}.</div>`;
+    }
+    this.info.innerHTML = h;
+  }
+  renderOut() {
+    const ex = this.ex; let h = '';
+    if (this.mode === 'draw') h = this.msg || (this.path.length ? '' : 'Dibuje una curva en el panel de la derecha.');
+    if (this.mode === 'loop') {
+      if (!this.hist.length) h = 'Pulse un generador o dibuje un lazo en el panel derecho: empieza y termina en s.';
+      else if (ex.infinite) {
+        h = this.hist.slice(-4).map(x => `${x.name}: k ↦ k ${x.shift < 0 ? '−' : '+'} ${Math.abs(x.shift)}`).join('<br>');
+        const t = this.hist.reduce((s, x) => s + x.shift, 0); h += `<br>Producto: k ↦ k ${t < 0 ? '−' : '+'} ${Math.abs(t)}`;
+      } else {
+        h = this.hist.slice(-4).map(x => `${x.name} = <b>${RS.cycles(x.perm)}</b>`).join('<br>');
+        if (this.hist.length > 1) {
+          const prod = this.hist.reduce((p, x) => RS.compose(p, x.perm), RS.idp(ex.cover.n));
+          h += `<br>Producto en el orden recorrido: <b>${RS.cycles(prod)}</b><br>Subgrupo generado: orden ${RS.generate(this.hist.map(x => x.perm), ex.cover.n).length}`;
+        }
+      }
+      if (this.sigma && this.start.length) {
+        const i0 = ex.infinite ? 2 : 0, s = this.sigma.fn(this.start[i0]); let k = -1;
+        this.start.forEach((r, j) => { if (RS.dist(r, s) < 1e-6 * (1 + RS.abs(r))) k = j; });
+        h += `<div class="sg">Línea discontinua: σ aplicada al levantamiento desde y${ex.infinite ? '₀' : '₁'}. Coincide con el levantamiento desde ${k < 0 ? 'otra hoja' : (ex.infinite ? 'la hoja ' + this.lab(k) : 'y' + sub(k + 1))}.</div>`;
+      } else if (this.cfg.deck && !ex.deck.length) h += `<div class="sg">Este revestimiento no tiene transformaciones de deck distintas de la identidad.</div>`;
+    }
+    if (this.mode === 'point' && this.fiber) {
+      const ms = this.fiber.map(c => c.m).sort((a, b) => b - a);
+      h = `w = ${fmt(this.pt)}<br>Puntos en la fibra: <b>${this.fiber.length}</b><br>Multiplicidades: (${ms.join(', ')})<br>Suma = <b>${ms.reduce((a, b) => a + b, 0)}</b> = grado`;
+      if (ms[0] > 1) h += '<br><span class="no">w es un valor de ramificación</span>';
+    }
+    if (this.mode === 'up' && this.fiber) {
+      if (ex.kind === 'wp') {
+        const [p, d] = ex.wp(this.zup), rhs = RS.sub(RS.sub(RS.sc(RS.mul(RS.mul(p, p), p), 4), RS.mul(ex.g2, p)), ex.g3), lhs = RS.mul(d, d);
+        h = `z = ${fmt(this.zup)}<br>x = ℘(z) = ${fmt(p)}<br>y = ℘′(z) = ${fmt(d)}<br><b>y²</b> = ${fmt(lhs, 1)}<br><b>4x³ − g₂x − g₃</b> = ${fmt(rhs, 1)}`;
+      } else h = `z = ${fmt(this.zup)}<br>w = f(z) = ${fmt(this.pt)}<br>La fibra de w tiene ${this.fiber.length} punto${this.fiber.length > 1 ? 's' : ''} (grado ${ex.cover.n}).`;
+    }
+    this.out.innerHTML = h;
+  }
+  /* --- dibujo --- */
+  tileImg() {
+    if (this.tile) return this.tile;
+    const N = 230, c = document.createElement('canvas'); c.width = c.height = N;
+    const g = c.getContext('2d'), im = g.createImageData(N, N), v = this.ex.vu;
+    for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
+      const z = [v[0] + ((i + 0.5) / N * 2 - 1) * v[2], v[1] - ((j + 0.5) / N * 2 - 1) * v[2]], w = this.ex.f(z), o = 4 * (j * N + i), up = w[1] > 0;
+      im.data[o] = up ? 212 : 251; im.data[o + 1] = up ? 231 : 251; im.data[o + 2] = up ? 225 : 249; im.data[o + 3] = 255;
+    }
+    g.putImageData(im, 0, 0); return this.tile = c;
+  }
+  axes(g, v) {
+    const o = this.toPx(v, [0, 0]); g.strokeStyle = '#d6d1c3'; g.lineWidth = 1; g.beginPath();
+    g.moveTo(0, o[1]); g.lineTo(SZ, o[1]); g.moveTo(o[0], 0); g.lineTo(o[0], SZ); g.stroke();
+    const st = v[2] > 9 ? 5 : v[2] > 4.5 ? 2 : v[2] < 1 ? 0.25 : 1; g.fillStyle = '#8c8778'; g.font = '11px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif'; g.textAlign = 'center';
+    for (let t = Math.ceil((v[0] - v[2]) / st) * st; t <= v[0] + v[2]; t += st) { if (Math.abs(t) < 1e-9) continue; const p = this.toPx(v, [t, 0]); g.fillRect(p[0] - 0.5, o[1] - 3, 1, 6); g.fillText(String(t).replace('-', '−'), p[0], o[1] + 15); }
+    for (let t = Math.ceil((v[1] - v[2]) / st) * st; t <= v[1] + v[2]; t += st) { if (Math.abs(t) < 1e-9) continue; const p = this.toPx(v, [0, t]); g.fillRect(o[0] - 3, p[1] - 0.5, 6, 1); }
+  }
+  cross(g, p, s, lab) {
+    g.strokeStyle = RED; g.lineWidth = 2.2; g.beginPath(); g.moveTo(p[0] - s, p[1] - s); g.lineTo(p[0] + s, p[1] + s); g.moveTo(p[0] - s, p[1] + s); g.lineTo(p[0] + s, p[1] - s); g.stroke();
+    if (lab) { g.fillStyle = RED; g.font = '600 12px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif'; g.textAlign = 'left'; g.fillText(lab, p[0] + s + 3, p[1] - s - 2); }
+  }
+  dot(g, p, r, fill, lab, ring) {
+    g.beginPath(); g.arc(p[0], p[1], r, 0, 7); g.fillStyle = ring ? '#fff' : fill; g.fill(); g.lineWidth = ring ? 2.4 : 1.2; g.strokeStyle = ring ? fill : '#fff'; g.stroke();
+    if (lab) { g.font = '700 13px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif'; g.textAlign = 'left'; g.lineWidth = 3.5; g.strokeStyle = '#fff'; g.strokeText(lab, p[0] + r + 3, p[1] - r); g.fillStyle = fill; g.fillText(lab, p[0] + r + 3, p[1] - r); }
+  }
+  poly(g, v, pts, col, w, dash) {
+    if (pts.length < 2) return; const wr = this.ex.wrap && v === this.ex.vu;
+    g.strokeStyle = col; g.lineWidth = w; g.lineJoin = g.lineCap = 'round'; g.setLineDash(dash || []); g.beginPath();
+    let prev = null;
+    for (const z0 of pts) {
+      const z = wr ? this.ex.wrap(z0) : z0, p = this.toPx(v, z);
+      if (!prev || Math.hypot(p[0] - prev[0], p[1] - prev[1]) > (wr ? 60 : 4000) || !isFinite(p[0] + p[1])) g.moveTo(p[0], p[1]); else g.lineTo(p[0], p[1]);
+      prev = p;
+    }
+    g.stroke(); g.setLineDash([]);
+  }
+  draw() {
+    const ex = this.ex, vu = ex.vu, vd = ex.vd, W = z => ex.wrap ? ex.wrap(z) : z;
+    /* abajo */
+    let g = this.dn.getContext('2d'); g.setTransform(RATIO, 0, 0, RATIO, 0, 0); g.fillStyle = PAPER; g.fillRect(0, 0, SZ, SZ);
+    if (this.cfg.tiling && ex.prof) { g.fillStyle = 'rgb(212,231,225)'; g.fillRect(0, 0, SZ, this.toPx(vd, [0, 0])[1]); }
+    this.axes(g, vd);
+    ex.branch.forEach((b, j) => this.cross(g, this.toPx(vd, b), 5.5, ex.blab[j]));
+    if (this.path.length) {
+      this.poly(g, vd, this.path, INK, 2.4);
+      const n = this.path.length, e = this.toPx(vd, this.path[n - 1]);
+      if (n > 3) { const a = this.toPx(vd, this.path[Math.max(0, n - 4)]), t = Math.atan2(e[1] - a[1], e[0] - a[0]); g.fillStyle = INK; g.beginPath(); g.moveTo(e[0] + 9 * Math.cos(t), e[1] + 9 * Math.sin(t)); g.lineTo(e[0] + 6 * Math.cos(t + 2.4), e[1] + 6 * Math.sin(t + 2.4)); g.lineTo(e[0] + 6 * Math.cos(t - 2.4), e[1] + 6 * Math.sin(t - 2.4)); g.fill(); }
+      if (this.mode === 'draw') this.dot(g, this.toPx(vd, this.path[0]), 4.5, INK);
+    }
+    if (this.mode === 'loop') this.dot(g, this.toPx(vd, ex.base), 5.5, INK, 's');
+    if ((this.mode === 'point' || this.mode === 'up') && this.pt) this.dot(g, this.toPx(vd, this.pt), 6.5, INK, ex.kind === 'wp' ? 'x' : 'w');
+    /* arriba */
+    g = this.up.getContext('2d'); g.setTransform(RATIO, 0, 0, RATIO, 0, 0); g.fillStyle = PAPER; g.fillRect(0, 0, SZ, SZ);
+    if (this.cfg.tiling && ex.prof && ex.f) { g.imageSmoothingEnabled = true; g.drawImage(this.tileImg(), 0, 0, SZ, SZ); }
+    if (ex.kind === 'wp') {
+      const P = [[0, 0], [1, 0], RS.add([1, 0], ex.tau), ex.tau].map(z => this.toPx(vu, z));
+      g.fillStyle = '#e3ede9'; g.beginPath(); P.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.closePath(); g.fill();
+      g.strokeStyle = '#9dbdb6'; g.lineWidth = 1.4; g.stroke();
+      g.strokeStyle = '#e0dcd0'; g.lineWidth = 1; g.beginPath();
+      for (let a = -3; a <= 4; a++) { let p = this.toPx(vu, RS.add([a, 0], RS.sc(ex.tau, -3))), q = this.toPx(vu, RS.add([a, 0], RS.sc(ex.tau, 4))); g.moveTo(p[0], p[1]); g.lineTo(q[0], q[1]); p = this.toPx(vu, RS.add([-4, 0], RS.sc(ex.tau, a))); q = this.toPx(vu, RS.add([5, 0], RS.sc(ex.tau, a))); g.moveTo(p[0], p[1]); g.lineTo(q[0], q[1]); }
+      g.stroke();
+    } else this.axes(g, vu);
+    this.ram.forEach(z => this.cross(g, this.toPx(vu, z), 4));
+    this.lifts.forEach((L, i) => this.poly(g, vu, L, COLORS[i % 7], 2.6));
+    if (this.sigma && this.lifts.length) { const i0 = ex.infinite ? 2 : 0; this.poly(g, vu, this.lifts[i0].map(this.sigma.fn), INK, 1.8, [6, 5]); }
+    this.lifts.forEach((L, i) => {
+      if (L.length > 1) this.dot(g, this.toPx(vu, W(L[L.length - 1])), 5, COLORS[i % 7], null, true);
+    });
+    this.start.forEach((r, i) => { if (this.lifts.length) this.dot(g, this.toPx(vu, W(r)), 5, COLORS[i % 7], this.lab(i)); });
+    if ((this.mode === 'point' || this.mode === 'up') && this.fiber) this.fiber.forEach((c, i) => {
+      const main = this.mode === 'up' && i === 0;
+      this.dot(g, this.toPx(vu, W(c.z)), main ? 7.5 : 6 + (c.m - 1) * 2, c.m > 1 ? RED : COLORS[i % 7], c.m > 1 ? '×' + c.m : (main ? 'z' : null));
+    });
+  }
+}
+
+/* ===== Componentes de R(X): envolvente de Galois ===== */
+class GaloisGraph {
+  constructor(root, cfg) {
+    this.root = root; this.exs = cfg.ex.map(id => RS.EX[id]);
+    root.innerHTML = `<div class="gg-main"></div><div class="lab-side"><label class="fld" for="gg-ex"><span>Revestimiento X → S</span><select id="gg-ex">${this.exs.map((e, i) => `<option value="${i}">${e.name}</option>`).join('')}</select></label><div class="lab-info"></div></div>`;
+    root.querySelector('select').addEventListener('change', e => this.render(this.exs[+e.target.value]));
+    this.render(this.exs[0]);
+  }
+  render(ex) {
+    const m = RS.monodromy(ex), n = ex.cover.n, all = RS.allPerms(n), key = t => t.join('');
+    const gens = []; m.gens.forEach((g, j) => { if (!RS.isId(g) && !gens.some(h => h.p.join() === g.join())) gens.push({ p: g, j }); });
+    const comp = new Map(), comps = [];
+    for (const t of all) {
+      if (comp.has(key(t))) continue; const c = [], q = [t]; comp.set(key(t), comps.length);
+      while (q.length) { const u = q.shift(); c.push(u); for (const g of gens) { const w = u.map(i => g.p[i]); if (!comp.has(key(w))) { comp.set(key(w), comps.length); q.push(w); } } }
+      comps.push(c);
+    }
+    const W = 900, H = 470, k = comps.length, cols = Math.min(k, Math.ceil(Math.sqrt(k * W / H))), rows = Math.ceil(k / cols), cw = W / cols, ch = H / rows;
+    const pos = new Map(); let s = '';
+    comps.forEach((c, ci) => {
+      const cx = cw * (ci % cols + 0.5), cy = ch * (Math.floor(ci / cols) + 0.5), R = Math.min(cw, ch) / 2 - 30;
+      // ordenar el ciclo siguiendo el primer generador para que el dibujo sea legible
+      const ord = [], seen = new Set(); let u = c[0], gi = 0;
+      while (u) {
+        seen.add(key(u)); ord.push(u); let nx = null;
+        for (let q = 0; q < gens.length && !nx; q++) { const w = u.map(i => gens[(gi + q) % gens.length].p[i]); if (!seen.has(key(w))) { nx = w; gi = (gi + q + 1) % gens.length; } }
+        u = nx || c.find(t => !seen.has(key(t)));
+      }
+      ord.forEach((t, i) => { const a = 2 * Math.PI * i / ord.length - Math.PI / 2; pos.set(key(t), [cx + (ord.length > 1 ? R : 0) * Math.cos(a), cy + (ord.length > 1 ? R : 0) * Math.sin(a), ci]); });
+    });
+    const done = new Set();
+    gens.forEach((g, gi) => all.forEach(t => {
+      const w = t.map(i => g.p[i]), a = key(t), b = key(w), id = gi + (a < b ? a + b : b + a); if (done.has(id) || a === b) return; done.add(id);
+      const p = pos.get(a), q = pos.get(b); s += `<line x1="${p[0].toFixed(1)}" y1="${p[1].toFixed(1)}" x2="${q[0].toFixed(1)}" y2="${q[1].toFixed(1)}" stroke="${COLORS[gi % 7]}" stroke-width="2" opacity="${p[2] === 0 ? 0.85 : 0.4}"/>`;
+    }));
+    const r = n >= 4 ? 13 : 15;
+    pos.forEach((p, kx) => { const on = p[2] === 0; s += `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${r}" fill="${on ? '#232019' : '#fff'}" stroke="${on ? '#232019' : '#b9b4a6'}" stroke-width="1.5"/><text x="${p[0].toFixed(1)}" y="${(p[1] + 4).toFixed(1)}" text-anchor="middle" font-size="${n >= 4 ? 10 : 12}" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-weight="600" fill="${on ? '#fff' : '#6b6659'}">${kx.split('').map(d => +d + 1).join('')}</text>`; });
+    this.root.querySelector('.gg-main').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Grafo de las ordenaciones de la fibra">${s}</svg>`;
+    let nf = 1; for (let i = 2; i <= n; i++) nf *= i;
+    this.root.querySelector('.lab-info').innerHTML = `<div><b>Grado de X:</b> n = ${n}</div>
+      <div><b>Fibra de R(X):</b> n! = ${nf} ordenaciones (y₁,…,yₙ)</div>
+      <div><b>Generadores de la monodromía:</b><br>${gens.map((g, i) => `<span class="sw" style="background:${COLORS[i % 7]}"></span>γ${sub(g.j + 1)} = ${RS.cycles(g.p)}`).join('<br>')}</div>
+      <div><b>Componentes de R(X):</b> ${k} = ${nf}/${m.order}</div>
+      <div><b>T(X)</b> (nodos oscuros): grado ${m.order}</div>
+      <div><b>Gal(X)</b> ≅ ${m.name}</div>
+      <div>${m.galois ? '<span class="ok">|Gal(X)| = n: X ya es de Galois y T(X) ≅ X.</span>' : `<span class="no">|Gal(X)| &gt; n: X no es de Galois.</span> T(X) → X tiene grado ${m.order / n}.`}</div>`;
+  }
+}
+
+/* ===== Calculadora de Riemann–Hurwitz ===== */
+class RHCalc {
+  constructor(root) {
+    this.root = root;
+    root.innerHTML = `<div class="rh-row"><label for="rh-g">género de S <input id="rh-g" type="number" min="0" max="20" value="0"></label><label for="rh-d">grado d <input id="rh-d" type="number" min="1" max="60" value="3"></label></div>
+      <div class="rh-list"></div>
+      <div class="rh-row"><button type="button" class="btn" id="rh-add">Añadir valor de ramificación</button></div>
+      <div class="rh-pre"><span>Ejemplos:</span></div><div class="rh-out" aria-live="polite"></div>`;
+    this.list = root.querySelector('.rh-list'); this.outEl = root.querySelector('.rh-out');
+    const PRE = [['z³ − 3z', 0, 3, ['2,1', '2,1', '3']], ['zⁿ, n = 5', 0, 5, ['5', '5']], ['℘: toro → esfera', 0, 2, ['2', '2', '2', '2']], ['hiperelíptica, 6 puntos', 0, 2, ['2', '2', '2', '2', '2', '2']], ['Fermat n = 4', 0, 4, ['4', '4', '4', '4']], ['toro → toro', 1, 3, []]];
+    const pre = root.querySelector('.rh-pre');
+    PRE.forEach(p => { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn sm'; b.textContent = p[0]; b.addEventListener('click', () => this.load(p[1], p[2], p[3])); pre.appendChild(b); });
+    root.querySelector('#rh-add').addEventListener('click', () => { this.addRow(String(root.querySelector('#rh-d').value)); this.calc(); });
+    root.querySelectorAll('#rh-g,#rh-d').forEach(i => i.addEventListener('input', () => this.calc()));
+    this.n = 0; this.load(...PRE[0].slice(1));
+  }
+  addRow(v) {
+    const r = document.createElement('div'); r.className = 'rh-item'; const id = 'rh-p' + (++this.n);
+    r.innerHTML = `<label for="${id}">perfil</label><input id="${id}" type="text" value="${v}" inputmode="numeric" autocomplete="off"><button type="button" class="btn sm" aria-label="Quitar">×</button><span class="rh-e"></span>`;
+    r.querySelector('input').addEventListener('input', () => this.calc());
+    r.querySelector('button').addEventListener('click', () => { r.remove(); this.calc(); });
+    this.list.appendChild(r);
+  }
+  load(g, d, ps) { this.root.querySelector('#rh-g').value = g; this.root.querySelector('#rh-d').value = d; this.list.innerHTML = ''; ps.forEach(p => this.addRow(p)); this.calc(); }
+  calc() {
+    const g = Math.max(0, parseInt(this.root.querySelector('#rh-g').value) || 0), d = Math.max(1, parseInt(this.root.querySelector('#rh-d').value) || 1);
+    let R = 0, bad = false;
+    this.list.querySelectorAll('.rh-item').forEach(r => {
+      const p = r.querySelector('input').value.split(/[\s,;+]+/).filter(Boolean).map(Number), e = r.querySelector('.rh-e');
+      if (!p.length || p.some(x => !Number.isInteger(x) || x < 1) || p.reduce((a, b) => a + b, 0) !== d) { e.textContent = `debe ser una partición de ${d}`; bad = true; }
+      else { e.textContent = `aporta ${p.reduce((a, b) => a + b - 1, 0)}`; R += p.reduce((a, b) => a + b - 1, 0); }
+    });
+    if (bad) { this.outEl.innerHTML = '<span class="no">Corrija los perfiles: cada uno es una lista de multiplicidades que suma d (por ejemplo 2,1).</span>'; return; }
+    const chi = d * (2 - 2 * g) - R; let h = `Σ(mult − 1) = <b>${R}</b><br>χ(T) = ${d}·(${2 - 2 * g}) − ${R} = <b>${chi}</b><br>`;
+    if (chi % 2) h += '<span class="no">χ(T) es impar: no existe tal revestimiento.</span>';
+    else if (chi > 2) h += '<span class="no">χ(T) &gt; 2: imposible con T conexa.</span>';
+    else h += `género de T: <b>g = ${(2 - chi) / 2}</b>`;
+    this.outEl.innerHTML = h + '<br><small>La fórmula es una condición necesaria, no suficiente: falta que existan permutaciones con esos tipos cíclicos y producto 1.</small>';
+  }
+}
+
+/* ===== Figura: modelo local z ↦ zⁿ ===== */
+function wedge(root) {
+  root.innerHTML = `<div class="wg-fig"></div><label for="wg-n">n = <b id="wg-v">3</b> <input id="wg-n" type="range" min="1" max="7" value="3"></label>`;
+  const fig = root.querySelector('.wg-fig'), inp = root.querySelector('input');
+  const render = () => {
+    const n = +inp.value; root.querySelector('#wg-v').textContent = n; let s = '';
+    const disc = (cx, m) => { let t = ''; for (let i = 0; i < 2 * m; i++) { const a0 = Math.PI * i / m, a1 = Math.PI * (i + 1) / m; t += `<path d="M${cx},110 L${(cx + 95 * Math.cos(a0)).toFixed(2)},${(110 - 95 * Math.sin(a0)).toFixed(2)} A95,95 0 0 0 ${(cx + 95 * Math.cos(a1)).toFixed(2)},${(110 - 95 * Math.sin(a1)).toFixed(2)} Z" fill="${i % 2 ? '#fbfbf9' : '#d4e7e1'}" stroke="#9dbdb6" stroke-width="1"/>`; } return t + `<circle cx="${cx}" cy="110" r="95" fill="none" stroke="#232019" stroke-width="1.6"/><circle cx="${cx}" cy="110" r="4" fill="#c13d38"/>`; };
+    s += disc(110, n) + disc(410, 1);
+    s += `<text x="260" y="100" text-anchor="middle" font-family="Palatino Linotype, Palatino, Georgia, serif" font-style="italic" font-size="20" fill="#232019">z ↦ z${n > 1 ? '<tspan baseline-shift="super" font-size="14">' + n + '</tspan>' : ''}</text><path d="M222,114 H296 m-9,-6 l9,6 l-9,6" fill="none" stroke="#232019" stroke-width="1.6"/>`;
+    fig.innerHTML = `<svg viewBox="0 0 520 220" role="img" aria-label="El disco se enrolla n veces sobre el disco">${s}</svg>`;
+  };
+  inp.addEventListener('input', render); render();
+}
+
+/* ===== Presentación ===== */
+const Deck = (() => {
+  const SEC = ['', 'Revestimientos y revestimientos ramificados', 'Mapas holomorfos entre superficies compactas', 'Fórmula de Riemann–Hurwitz', 'Grupo fundamental y transformaciones de deck', 'Recubridores de Galois y envolvente de Galois', 'Extensiones algebraicas de ℂ(z)', 'Superficies compactas y curvas algebraicas'];
+  let slides, cur = -1, scale = 1;
+  const $ = s => document.querySelector(s);
+  function fit() {
+    const st = $('#stage'), w = innerWidth, h = innerHeight; scale = Math.min(w / 1280, h / 720);
+    st.style.transform = `translate(${((w - 1280 * scale) / 2).toFixed(1)}px, ${((h - 720 * scale) / 2).toFixed(1)}px) scale(${scale.toFixed(4)})`;
+    const r = Math.min(3, (devicePixelRatio || 1) * Math.max(1, scale));
+    if (Math.abs(r - RATIO) > 0.05) { RATIO = r; LABS.forEach(l => l.resize()); }
+  }
+  function typeset(el) { if (el.dataset.tex || !window.MathJax || !MathJax.typesetPromise) return; el.dataset.tex = '1';
+    MathJax.typesetPromise([el]).then(() => el.querySelectorAll('mjx-container:not([display="true"])').forEach(m => {
+      const n = m.nextSibling; if (!n || n.nodeType !== 3 || !/^[.,;:)!?]/.test(n.nodeValue)) return;
+      const s = document.createElement('span'); s.style.whiteSpace = 'nowrap'; m.parentNode.insertBefore(s, m); s.appendChild(m); s.appendChild(document.createTextNode(n.nodeValue[0])); n.nodeValue = n.nodeValue.slice(1);
+    })).catch(() => { }); }
+  function init(el) {
+    if (el.dataset.init) return; el.dataset.init = '1';
+    el.querySelectorAll('.lab').forEach(l => new LiftLab(l, JSON.parse(l.dataset.cfg)));
+    el.querySelectorAll('.ggraph').forEach(l => new GaloisGraph(l, JSON.parse(l.dataset.cfg)));
+    el.querySelectorAll('.rhcalc').forEach(l => new RHCalc(l));
+    el.querySelectorAll('.wedge').forEach(wedge);
+  }
+  function show(i, quiet) {
+    i = Math.max(0, Math.min(slides.length - 1, i)); if (i === cur) return;
+    if (cur >= 0) slides[cur].classList.remove('on');
+    cur = i; const s = slides[i]; s.classList.add('on'); typeset(s); init(s);
+    const sec = +s.dataset.sec;
+    $('#crumb').textContent = sec ? `${sec}. ${SEC[sec]}` : 'Introducción a las Superficies de Riemann';
+    $('#count').textContent = `${i + 1} / ${slides.length}`;
+    document.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', +c.dataset.sec === sec));
+    $('#prev').disabled = i === 0; $('#next').disabled = i === slides.length - 1;
+    if (!quiet) { const want = sec ? '#seccion-' + sec : '#inicio'; if (location.hash !== want) { try { location.hash = want; } catch (e) { } } }
+  }
+  function fromHash() {
+    const m = /^#seccion-(\d)$/.exec(location.hash);
+    if (m) { if (cur < 0 || +slides[cur].dataset.sec !== +m[1]) show(slides.findIndex(s => +s.dataset.sec === +m[1]), true); }
+    else if (cur < 0 || location.hash === '#inicio') show(0, true);
+  }
+  function start() {
+    slides = [...document.querySelectorAll('.slide')];
+    const chips = $('#chips');
+    for (let k = 1; k <= 7; k++) { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.dataset.sec = k; b.textContent = k; b.title = `${k}. ${SEC[k]}`; b.addEventListener('click', () => show(slides.findIndex(s => +s.dataset.sec === k))); chips.appendChild(b); }
+    document.querySelectorAll('[data-go]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); show(slides.findIndex(s => +s.dataset.sec === +a.dataset.go)); }));
+    $('#prev').addEventListener('click', () => show(cur - 1)); $('#next').addEventListener('click', () => show(cur + 1));
+    $('#full').addEventListener('click', () => { try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().catch(() => { }); } catch (e) { } });
+    addEventListener('keydown', e => {
+      if (/^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName) || e.ctrlKey || e.metaKey || e.altKey) return;
+      if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { show(cur + 1); e.preventDefault(); }
+      else if (['ArrowLeft', 'PageUp'].includes(e.key)) { show(cur - 1); e.preventDefault(); }
+      else if (e.key === 'Home') show(0); else if (e.key === 'End') show(slides.length - 1);
+    });
+    addEventListener('resize', fit); addEventListener('hashchange', fromHash);
+    fit(); fromHash(); if (cur < 0) show(0, true);
+  }
+  return { start, typesetCurrent: () => { if (cur >= 0) typeset(slides[cur]); }, show, get n() { return slides.length; } };
+})();
+
+Deck.start();
+</script>
+</body>
+</html>
