@@ -92,6 +92,11 @@ select,input[type=number],input[type=text]{font:500 14px var(--display);color:va
 .wedge input{vertical-align:middle;width:150px}
 @media (prefers-reduced-motion:no-preference){.slide.on{animation:in .18s ease-out}} @keyframes in{from{opacity:.4}to{opacity:1}}
 .lab-side{font-weight:400} .lab-out{font-family:var(--mono);font-size:12.5px} .rht{font-family:var(--mono);font-size:12.5px}
+code{font-family:var(--mono);font-size:.9em;background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:0 4px}
+.perr{font-size:12px}
+.cols>*{min-width:0}
+.pq{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.lab-side.tall{max-height:478px;gap:5px;padding-top:14px}
 </style>
 <script>
 window.MathJax={tex:{inlineMath:[['$','$']],displayMath:[['$$','$$']],macros:{C:'\\mathbb{C}',Cb:'\\overline{\\mathbb{C}}',Z:'\\mathbb{Z}',M:'\\mathcal{M}',Aut:'\\operatorname{Aut}',Gal:'\\operatorname{Gal}',Mon:'\\operatorname{Mon}',mult:'\\operatorname{mult}',Biy:'\\operatorname{Biy}',ord:'\\operatorname{ord}'}},
@@ -399,7 +404,7 @@ window.MathJax={tex:{inlineMath:[['$','$']],displayMath:[['$$','$$']],macros:{C:
         $$[\gamma]\cdot[\tau]=[\text{primero }\gamma,\ \text{después }\tau]\in\Pi(S)_{a,c}.$$
         El <b>grupo fundamental</b> es $\pi_1(S,s)=\Pi(S)_{s,s}$.</div>
       <div class="box warn"><span class="tag">Convención</span>Escribimos los productos en el orden en que se recorren los caminos; así la monodromía será una acción por la derecha. En las notas $[\tau][\gamma]=[\tau\star\gamma]$ significa primero $\gamma$: es el orden de la composición de funciones.</div>
-      <div class="box thm"><span class="tag">Teorema 79</span>Si $S$ es conexo, localmente arcoconexo y localmente contráctil, $\ \tilde S=\Pi(S)_{s,\bullet}\to S$, $[\tau]\mapsto\tau(1)$, es el revestimiento universal.</div>
+      <div class="box thm"><span class="tag">Nota 78</span>Si $S$ es arcoconexo, cada $[\tau]\in\Pi(S)_{a,b}$ da un isomorfismo $\pi_1(S,b)\to\pi_1(S,a)$, $[\gamma]\mapsto[\tau][\gamma][\tau]^{-1}$. El grupo fundamental no depende, salvo conjugación, del punto base.</div>
     </div>
     <div class="stack">
     <table class="tb">
@@ -411,6 +416,33 @@ window.MathJax={tex:{inlineMath:[['$','$']],displayMath:[['$$','$$']],macros:{C:
     </table>
     <div class="box ex"><span class="tag">La función λ</span>$\lambda\colon\mathbb H\to\Cb\setminus\{0,1,\infty\}$ es el revestimiento universal de la esfera privada de tres puntos. Sus transformaciones de deck forman el grupo $\Gamma(2)/\{\pm1\}\simeq\pi_1$: libre, no abeliano, con dos generadores
       $$z\mapsto z+2,\qquad z\mapsto\frac{z}{2z+1}.$$</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide dense" data-sec="4">
+  <h2><small>4. Grupo fundamental y deck</small>Teorema 79: el revestimiento universal es un espacio de caminos</h2>
+  <div class="box thm"><span class="tag">Teorema 79</span>Sea $S$ conexo, localmente arcoconexo y localmente contráctil, y $s\in S$.
+    <ol type="a" style="margin-top:3px">
+      <li>$\Pi(S)$ admite una topología para la que $[\gamma]\mapsto(\gamma(0),\gamma(1))$ es un revestimiento de $S\times S$.</li>
+      <li>$\tilde S=\Pi(S)_{s,\bullet}$, las clases de caminos que salen de $s$, con $\tilde\pi[\tau]=\tau(1)$, es un revestimiento universal de $S$.</li>
+      <li>$\pi_1(S,s)$ es isomorfo a $\Aut_S(\tilde S)$.</li>
+    </ol></div>
+  <div class="cols a">
+    <div class="box pf"><span class="tag">Idea de la demostración</span>
+      <ul style="margin-top:3px">
+        <li><b>Topología.</b> Si $U\ni\tau(1)$ es un abierto contráctil, sea $U_{[\tau]}=\{[\tau\cdot\delta]:\delta\ \text{camino en }U\text{ que sale de }\tau(1)\}$. En $U$ dos caminos son homótopos si y solo si tienen los mismos extremos, luego $\tilde\pi\colon U_{[\tau]}\to U$ es biyectiva y $\tilde\pi^{-1}(U)$ es la unión disjunta de los $U_{[\tau]}$: $U$ es trivializante.</li>
+        <li><b>Levantamientos.</b> El levantamiento de $\gamma$ que empieza en $[\tau]$ es $t\mapsto[\tau\cdot\gamma|_{[0,t]}]$, y termina en $[\tau\cdot\gamma]$.</li>
+        <li><b>Simplemente conexo.</b> Un lazo $\Gamma$ en $\tilde S$ basado en la clase constante es el levantamiento de $\gamma=\tilde\pi\circ\Gamma$ y termina en $[\gamma]$. Como es cerrado, $\gamma$ es contráctil, y la homotopía levantada contrae $\Gamma$.</li>
+        <li><b>Automorfismos.</b> $\sigma_g[\tau]=[g\cdot\tau]$, con $g\in\pi_1(S,s)$, actúa libre y transitivamente en la fibra $\tilde\pi^{-1}(s)=\pi_1(S,s)$.</li>
+      </ul></div>
+    <div class="stack">
+      <p><b>Un punto de $\tilde S$ es un punto de $S$ junto con una manera de llegar a él desde $s$.</b></p>
+      <div class="box ex"><span class="tag">$S=\C^*$, $s=1$</span>Un camino desde $1$ queda determinado, salvo homotopía, por su extremo $z$ y su número de vueltas alrededor de $0$; es decir, por
+        $$[\tau]\ \mapsto\ \int_\tau\frac{dz}{z}\in\C,$$
+        una determinación de $\log z$. Así $\tilde S\simeq\C$ y $\tilde\pi=\exp$.</div>
+      <div class="box ex"><span class="tag">Toro $\C/\Lambda$</span>$[\tau]\mapsto\int_\tau dz$ identifica $\tilde S$ con $\C$.</div>
+      <p class="sm">En las notas el producto se escribe en el orden contrario, y por eso allí la proyección es el mapa origen $s$.</p>
     </div>
   </div>
 </section>
@@ -432,9 +464,15 @@ window.MathJax={tex:{inlineMath:[['$','$']],displayMath:[['$$','$$']],macros:{C:
         <li>$X$ es conexo si y solo si la acción es transitiva.</li>
         <li>El estabilizador de $y$ es $H_y=\pi_*\pi_1(X,y)$, y $F\simeq H_y\backslash\pi_1(S,s)$. El grado es el índice de $H_y$.</li>
       </ul>
-      <div class="box thm"><span class="tag">Teorema 93</span>Los revestimientos de $S$ con fibra $F$, salvo isomorfismo, corresponden a $\ \operatorname{Hom}(\pi_1(S,s),\Biy(F))/\Biy(F)$.</div>
+      <div class="box thm"><span class="tag">Hacia el teorema 93</span>La monodromía $\rho$ determina el revestimiento: es el contenido del teorema de clasificación, al final de esta sección.</div>
     </div>
   </div>
+</section>
+
+<section class="slide" data-sec="4">
+  <h2><small>4. Grupo fundamental y deck · Artefacto</small>La acción del grupoide: transporte de fibras</h2>
+  <p class="lead">Un camino de $a$ a $b$ transporta la fibra de $a$ a la fibra de $b$. Use los caminos de ejemplo o dibuje los suyos entre los puntos $a$, $b$, $c$. Compare $\gamma$ y $\gamma'$: tienen los mismos extremos pero no son homótopos. Componga $\gamma\cdot\tau$, o invierta un camino para cerrar un lazo.</p>
+  <div class="lab" data-cfg='{"id":"L4g","ex":["cheb","cube","jouk","quart","s4"],"modes":["gpd"]}'></div>
 </section>
 
 <section class="slide" data-sec="4">
@@ -485,6 +523,90 @@ window.MathJax={tex:{inlineMath:[['$','$']],displayMath:[['$$','$$']],macros:{C:
   </div>
   <div class="box thm"><span class="tag">Moraleja</span>Para $X$ conexo de grado $d$: $\ |\Aut_S(X)|\le d\le|\rho(\pi_1)|$. Las dos igualdades ocurren a la vez, y ese es el caso de Galois.</div>
   <p class="sm">Las desigualdades: $\Aut$ actúa libremente en una fibra de $d$ puntos, y la monodromía actúa transitivamente en ella.</p>
+</section>
+
+<section class="slide dense" data-sec="4">
+  <h2><small>4. Grupo fundamental y deck</small>Teorema 93: clasificación de los revestimientos</h2>
+  <div class="box thm"><span class="tag">Teorema 93</span>Sea $S$ como en el teorema 79, $s\in S$ y $F$ un conjunto. Hay biyecciones naturales entre:
+    <ol type="a" style="margin-top:3px">
+      <li>las clases de isomorfismo de revestimientos de $S$ con fibra $F$;</li>
+      <li>las clases de isomorfismo de acciones de $\pi_1(S,s)$ en $F$;</li>
+      <li>$\operatorname{Hom}\big(\pi_1(S,s),\Biy(F)\big)/\Biy(F)$, donde $\Biy(F)$ actúa por conjugación.</li>
+    </ol>
+    Los revestimientos conexos corresponden a las acciones transitivas.</div>
+  <div class="cols">
+    <div class="stack">
+      <ul>
+        <li><b>De $X$ a $\rho$.</b> La monodromía en $\pi^{-1}(s)$. Identificar la fibra con $F$ de otra manera conjuga $\rho$.</li>
+        <li><b>De $\rho$ a $X$.</b> $X_\rho=(F\times\tilde S)/\pi_1(S,s)$, identificando $(y\cdot g,\,x)$ con $(y,\,g\cdot x)$.</li>
+        <li><b>Caso conexo</b> (Corolario 92). Una acción transitiva es $F\simeq H\backslash\pi_1$ y $X=\tilde S/H$: los revestimientos conexos son las clases de conjugación de subgrupos de $\pi_1(S,s)$. El grado es el índice.</li>
+      </ul>
+      <div class="box def"><span class="tag">Versión ramificada · con el teorema 101</span>Los revestimientos ramificados de grado $n$ de $\Cb$ con ramificación en $\{z_0,\dots,z_k\}$ son las tuplas $(\sigma_0,\dots,\sigma_k)\in\Sigma_n^{k+1}$ con $\sigma_0\sigma_1\cdots\sigma_k=1$, módulo conjugación simultánea. El tipo cíclico de $\sigma_j$ es el perfil de $z_j$.</div>
+    </div>
+    <table class="tb">
+      <tr><th>Revestimiento $X\to S$</th><th>Acción de $\pi_1(S,s)$ en $F$</th></tr>
+      <tr><td>grado</td><td>cardinal de $F$</td></tr>
+      <tr><td>componentes conexas</td><td>órbitas</td></tr>
+      <tr><td>conexo</td><td>transitiva</td></tr>
+      <tr><td>trivial, $S\times F$</td><td>acción trivial</td></tr>
+      <tr><td>de Galois</td><td>transitiva, y $\rho(\pi_1)$ actúa libremente</td></tr>
+      <tr><td>$\Aut_S(X)$</td><td>biyecciones de $F$ que conmutan con la acción</td></tr>
+      <tr><td>mapas $X\to X'$ sobre $S$</td><td>mapas equivariantes $F\to F'$</td></tr>
+    </table>
+  </div>
+</section>
+
+<section class="slide dense" data-sec="4">
+  <h2><small>4. Grupo fundamental y deck</small>El teorema 93 en ejemplos</h2>
+  <div class="cols">
+    <div class="stack">
+      <div class="box ex"><span class="tag">$\pi_1=1$</span>Si $S$ es simplemente conexa solo existe la acción trivial: todo revestimiento es $S\times F$.</div>
+      <div class="box ex"><span class="tag">$S=\C^*$, $\pi_1=\Z$</span>Una acción de $\Z$ es una sola biyección $\sigma=\rho(\gamma)$.
+        <ul style="margin-top:3px">
+          <li>Grado $n$: $\sigma\in\Sigma_n$ módulo conjugación, es decir, una partición de $n$. Cada ciclo de longitud $m$ es una componente $z\mapsto z^m$.</li>
+          <li>Conexo: $\sigma$ es un $n$-ciclo. El único es $z\mapsto z^n$ (Taller 3, ejercicio 1).</li>
+          <li>$F=\Z$, $\sigma(k)=k+1$: la exponencial.</li>
+        </ul></div>
+      <div class="box ex"><span class="tag">Toro, $\pi_1=\Lambda$</span>El grupo es abeliano: los revestimientos conexos son los subgrupos $\Lambda'\subseteq\Lambda$, todos de Galois.
+        <ul style="margin-top:3px">
+          <li>Índice $n$: $\C/\Lambda'\to\C/\Lambda$. Hay tantos como subretículos de índice $n$: tres para $n=2$.</li>
+          <li>Rango $1$: el cilindro $\C^*$. Rango $0$: el plano $\C$ (Taller 3, ejercicio 4).</li>
+        </ul></div>
+    </div>
+    <div class="stack">
+      <div class="box ex"><span class="tag">$S=\C\setminus\{\pm1\}$, $\pi_1$ libre en $a,b$</span>Una acción es un par $(\sigma_a,\sigma_b)$ arbitrario de biyecciones, módulo conjugación simultánea. Aquí $a$ rodea $-1$ y $b$ rodea $1$.
+        <ul style="margin-top:3px">
+          <li><b>Grado 2, conexos: tres.</b> Con $\tau$ la trasposición:
+            $$(\tau,1):\ y^2=z+1,\quad(1,\tau):\ y^2=z-1,$$ $$(\tau,\tau):\ y^2=z^2-1.$$
+            Es el ejercicio 2 del Taller 3.</li>
+          <li><b>Grado 3, conexos: siete.</b> Cuatro son de Galois con grupo $\Z/3$: los $8$ pares no triviales de $A_3$, módulo inversión. Tres no lo son: los $18$ pares que generan $S_3$, módulo las $6$ conjugaciones.</li>
+          <li>$w=z^3-3z$ es uno de esos tres: el par de dos trasposiciones distintas. Los otros dos son (trasposición, $3$-ciclo) y ($3$-ciclo, trasposición).</li>
+        </ul></div>
+      <p class="sm">El mismo recuento con tres generadores clasifica los revestimientos de $\C\setminus\{0,1\}$: todos son cocientes de $\mathbb H$ por subgrupos de $\Gamma(2)/\{\pm1\}$.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide dense" data-sec="4">
+  <h2><small>4. Grupo fundamental y deck</small>Consecuencia: la lista de todas las superficies de Riemann</h2>
+  <p>Sea $S$ una superficie de Riemann conexa. Por los teoremas 79 y 93, $S\simeq\tilde S/\Gamma$, donde $\Gamma\simeq\pi_1(S)$ es un grupo de biholomorfismos de $\tilde S$ que actúa sin puntos fijos y de forma totalmente discontinua. Basta conocer las superficies simplemente conexas y sus automorfismos.</p>
+  <div class="box warn"><span class="tag">Teorema de uniformización · lo asumimos</span>Toda superficie de Riemann simplemente conexa es biholomorfa a $\Cb$, a $\C$ o al disco $D\simeq\mathbb H$.</div>
+  <table class="tb">
+    <tr><th>$\tilde S$</th><th>$\Aut(\tilde S)$</th><th>Subgrupos $\Gamma$ admisibles</th><th>$S=\tilde S/\Gamma$</th></tr>
+    <tr><td>$\Cb$</td><td>$PSL_2(\C)$</td><td>Toda transformación de Möbius tiene un punto fijo: $\Gamma=1$.</td><td><b>la esfera</b></td></tr>
+    <tr><td>$\C$</td><td>$z\mapsto az+b$</td><td>Sin puntos fijos obliga a $a=1$: traslaciones. Subgrupos discretos de $\C$: $0$, $\Z\omega$, $\Z\omega_1\oplus\Z\omega_2$.</td><td><b>el plano</b>, <b>el cilindro</b> $\C/\Z\simeq\C^*$, <b>los toros</b> $\C/\Lambda$</td></tr>
+    <tr><td>$D$</td><td>$PSL_2(\mathbb R)$, las isometrías de la métrica hiperbólica</td><td>Grupos discretos de isometrías sin puntos fijos.</td><td><b>todas las demás</b>: $D/\Gamma$</td></tr>
+  </table>
+  <div class="cols">
+    <ul>
+      <li>Ejemplos de $D/\Gamma$: el disco, $D^*$, las coronas, $\C\setminus\{0,1\}=\mathbb H/\Gamma(2)$ y toda superficie compacta de género $g\ge2$. Todas heredan una métrica hiperbólica completa.</li>
+      <li>Compactas: género $0$, la esfera; género $1$, los toros; género $\ge2$, cocientes del disco.</li>
+    </ul>
+    <ul>
+      <li><b>Pequeño teorema de Picard.</b> Una función entera $f\colon\C\to\C\setminus\{0,1\}$ se levanta a $\tilde f\colon\C\to\mathbb H$ (Proposición 67), que es constante por Liouville.</li>
+      <li>Si $\Gamma$ tiene puntos fijos, el cociente sigue siendo una superficie de Riemann pero la proyección ramifica (Teorema 110): $\mathbb H/PSL_2(\Z)\simeq\C$ mediante $j$.</li>
+    </ul>
+  </div>
 </section>
 
 <!-- ===== 5 ===== -->
@@ -689,6 +811,68 @@ window.MathJax={tex:{inlineMath:[['$','$']],displayMath:[['$$','$$']],macros:{C:
     <tr><td>$y^5-5y=z$</td><td>$S_5$</td><td>Valores críticos $\pm4,\pm4i$. $S_5$ no es resoluble: $y(z)$ no se expresa con radicales de funciones racionales.</td></tr>
   </table>
   <div class="box thm"><span class="tag">Criterio</span>Si $f$ es un polinomio de grado $n$ con $n-1$ valores críticos distintos, la monodromía de $f(y)=z$ está generada por trasposiciones y es transitiva: es $S_n$.</div>
+</section>
+
+<section class="slide dense" data-sec="6">
+  <h2><small>6. Extensiones de ℂ(z)</small>La cúbica genérica $w^3+p(z)\,w+q(z)=0$</h2>
+  <p>Sean $p,q\in\C(z)$ con $P(z,w)=w^3+p\,w+q$ irreducible sobre $\C(z)$, es decir, sin raíz racional. Su superficie $S_P\to\Cb$ tiene $3$ hojas. Sean $w_1,w_2,w_3$ las raíces y
+    $$\delta=(w_1-w_2)(w_1-w_3)(w_2-w_3),\qquad \delta^2=\Delta=-4p^3-27q^2\in\C(z).$$</p>
+  <div class="cols a">
+    <div class="stack">
+      <div class="box thm"><span class="tag">Teorema</span>El grupo de monodromía $G$ es un subgrupo transitivo de $S_3$: es $A_3$ o $S_3$, y la envolvente de Galois $T$ tiene $3$ o $6$ hojas. Además
+        $$G=A_3\iff\Delta\text{ es un cuadrado en }\C(z)$$
+        y esto ocurre si y solo si todos los ceros y polos de $\Delta$ en $\Cb$ tienen orden par.</div>
+      <div class="box pf"><span class="tag">Demostración</span>La continuación a lo largo de un lazo $\gamma$ permuta las raíces y multiplica $\delta$ por el signo de $\rho(\gamma)$. Luego $\delta$ es univaluada, es decir racional, si y solo si $G\subseteq A_3$. Y $\delta\in\C(z)$ equivale a que $\Delta$ sea un cuadrado. Como $\C$ es algebraicamente cerrado, una función racional es un cuadrado si y solo si sus órdenes son pares. $\ \blacksquare$</div>
+    </div>
+    <div class="stack">
+      <div style="text-align:center">$$\begin{CD} T @>{2:1}>> S_P\\ @V{3:1}V{\text{cíclico}}V @VV{3:1}V\\ \{y^2=\Delta(z)\} @>>{2:1}> \Cb_z\end{CD}$$</div>
+      <div class="box ex"><span class="tag">Cardano</span>$L=\C(z)(w_1,w_2,w_3)=\C(z)\big(\sqrt\Delta,\,u\big)$ con
+        $$u^3=-\frac q2+\sqrt{-\frac{\Delta}{108}},\qquad w=u-\frac{p}{3u}.$$
+        Primero una raíz cuadrada, grado $2$; después una raíz cúbica, grado $3$. Si $\Delta$ es un cuadrado, el primer paso sobra.</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide dense" data-sec="6">
+  <h2><small>6. Extensiones de ℂ(z)</small>La cúbica: ramificación y géneros</h2>
+  <div class="cols b">
+    <div class="stack">
+      <table class="tb">
+        <tr><th>Monodromía en $z_0$</th><th>$\ord_{z_0}\Delta$</th><th>Perfil en $S_P$</th><th>Perfil en $T$</th></tr>
+        <tr><td>identidad</td><td>par</td><td>$(1,1,1)$</td><td>sin ramificación</td></tr>
+        <tr><td>trasposición</td><td>impar</td><td>$(2,1)$</td><td>$(2,2,2)$</td></tr>
+        <tr><td>$3$-ciclo</td><td>par</td><td>$(3)$</td><td>$(3,3)$</td></tr>
+      </table>
+      <p class="sm">La paridad sale de $\delta^2=\Delta$: al rodear $z_0$, $\delta$ se multiplica por $(-1)^{\ord_{z_0}\Delta}$, que es el signo de la permutación.</p>
+      <div class="box thm"><span class="tag">Riemann–Hurwitz</span>Si hay $t$ puntos de $\Cb$ con trasposición y $c$ con $3$-ciclo:
+        $$g(S_P)=\tfrac t2+c-2,\qquad g(y^2=\Delta)=\tfrac t2-1,$$
+        $$g(T)=\tfrac{3t}2+2c-5\quad\text{si }G=S_3.$$
+        Si $G=A_3$ entonces $t=0$, $T=S_P$ y $g=c-2$.</div>
+    </div>
+    <div class="stack">
+      <table class="tb">
+        <tr><th>$P$</th><th>$\Delta$</th><th>$t,\ c$</th><th>$G$</th><th>$g(S_P)$</th><th>$g(T)$</th></tr>
+        <tr><td>$w^3-3w-z$</td><td>$27(4-z^2)$</td><td>$2,\ 1$</td><td>$S_3$</td><td>$0$</td><td>$0$</td></tr>
+        <tr><td>$w^3-z$</td><td>$-27z^2$</td><td>$0,\ 2$</td><td>$A_3$</td><td>$0$</td><td>$0$</td></tr>
+        <tr><td>$w^3-3zw+z^3$</td><td>$27z^3(4-z^3)$</td><td>$4,\ 0$</td><td>$S_3$</td><td>$0$</td><td>$1$</td></tr>
+        <tr><td>$w^3+zw+1$</td><td>$-4z^3-27$</td><td>$4,\ 0$</td><td>$S_3$</td><td>$0$</td><td>$1$</td></tr>
+        <tr><td>$w^3-3w-z^2$</td><td>$27(4-z^4)$</td><td>$4,\ 1$</td><td>$S_3$</td><td>$1$</td><td>$3$</td></tr>
+        <tr><td>Shanks</td><td>$(z^2+3z+9)^2$</td><td>$0,\ 2$</td><td>$A_3$</td><td>$0$</td><td>$0$</td></tr>
+        <tr><td>$w^3-3w-\big(z+\tfrac1z\big)$</td><td>$-27\,\dfrac{(z^2-1)^2}{z^2}$</td><td>$0,\ 2$</td><td>$A_3$</td><td>$0$</td><td>$0$</td></tr>
+      </table>
+      <ul class="sm">
+        <li>Shanks: $p=-\tfrac13(z^2+3z+9)$, $q=-\tfrac1{27}(2z+3)(z^2+3z+9)$.</li>
+        <li>Folium y $w^3+zw+1$: $S_P$ es una esfera, pero su envolvente $T$ es una curva elíptica, un revestimiento cíclico no ramificado de grado $3$ de la curva elíptica $y^2=\Delta(z)$.</li>
+        <li>En la última, $z=\pm1$ son ceros dobles de $\Delta$ sin monodromía: son nodos de la curva plana, no puntos de ramificación.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-sec="6">
+  <h2><small>6. Extensiones de ℂ(z) · Artefacto</small>Laboratorio de la cúbica genérica</h2>
+  <p class="lead">Elija un ejemplo o escriba sus propias funciones racionales $p(z)$ y $q(z)$, como <code>-3z</code>, <code>z^3</code> o <code>(z^2+1)/z</code>. La tabla da los ceros y polos de $\Delta$ con su monodromía, el grupo, las hojas de la envolvente y los géneros. Los lazos $\gamma_j$ permutan las tres raíces.</p>
+  <div class="lab" data-cfg='{"id":"L6c","ex":["c1","c2","c3","c4","c5","c6","c7"],"modes":["loop"],"curve":true,"cubic":true,"arrow":"z","labels":["Plano w · las tres raíces w₁(z), w₂(z), w₃(z)","Plano z · base"]}'></div>
 </section>
 
 <!-- ===== 7 ===== -->
@@ -938,7 +1122,7 @@ const RS = (() => {
     branch: [[0, 0]], blab: ['0'], prof: [{ v: '0', p: [4] }, { v: '∞', p: [4] }], base: [1.1, 0.7], vd: [0, 0, 2.4], vu: [0, 0, 1.6],
     deck: [{ name: 'z ↦ iz', fn: rot(1, 4) }, { name: 'z ↦ −z', fn: neg }, { name: 'z ↦ −iz', fn: rot(3, 4) }] });
   def('jouk', { name: 'w = ½(z + 1/z)', cname: 'y² − 2zy + 1 = 0', cover: polyCover(2, x => [[1, 0], sc(x, -2)]), f: z => sc(add(z, div([1, 0], z)), 0.5),
-    branch: [[-1, 0], [1, 0]], blab: ['−1', '1'], prof: [{ v: '−1', p: [2] }, { v: '1', p: [2] }, { v: '∞', p: [1, 1] }], base: [0.3, 1.2], vd: [0, 0, 2.6], vu: [0, 0, 2.6],
+    branch: [[-1, 0], [1, 0]], blab: ['−1', '1'], prof: [{ v: '−1', p: [2] }, { v: '1', p: [2] }, { v: '∞', p: [1, 1] }], base: [0.3, 1.2], vd: [0, 0, 2.6], vu: [0, 0, 2.6], gp: { a: [0, 1.25], b: [2.0, 0.9], c: [0.3, -1.7] }, gpc: { left: [0.15, -0.2] },
     deck: [{ name: 'z ↦ 1/z', fn: z => div([1, 0], z) }] });
   def('cheb', { name: 'w = z³ − 3z', cname: 'y³ − 3y = z', cover: polyCover(3, x => [neg(x), [-3, 0], O]), f: z => sub(cpow(z, 3), sc(z, 3)),
     branch: [[-2, 0], [2, 0]], blab: ['−2', '2'], prof: [{ v: '−2', p: [2, 1] }, { v: '2', p: [2, 1] }, { v: '∞', p: [3] }], base: [0.4, 2.2], vd: [0, 0, 4.6], vu: [0, 0, 2.7], deck: [] });
@@ -985,8 +1169,72 @@ const RS = (() => {
   defWp('wphex', 'Λ = ℤ + e^{iπ/3}ℤ (hexagonal)', [0.5, Math.sqrt(3) / 2]);
   defWp('wpgen', 'Λ = ℤ + (0.3 + 1.25i)ℤ', [0.3, 1.25]);
 
+  /* ---- cúbica genérica w³ + p(z) w + q(z): funciones racionales, discriminante, ramificación ---- */
+  const pTrim = a => { let m = 0; a.forEach(c => m = Math.max(m, abs(c))); a = a.slice(); while (a.length > 1 && abs(a[a.length - 1]) <= 1e-11 * (m || 1)) a.pop(); return a; };
+  const pAdd = (a, b) => { const r = []; for (let i = 0; i < Math.max(a.length, b.length); i++) r.push(add(a[i] || O, b[i] || O)); return pTrim(r); };
+  const pMul = (a, b) => { const r = Array.from({ length: a.length + b.length - 1 }, () => [0, 0]); a.forEach((x, i) => b.forEach((y, j) => { r[i + j] = add(r[i + j], mul(x, y)); })); return pTrim(r); };
+  const pVal = (a, z) => { let r = [0, 0]; for (let i = a.length - 1; i >= 0; i--) r = add(mul(r, z), a[i]); return r; };
+  const pZero = a => a.length === 1 && abs(a[0]) < 1e-14;
+  const pRootsM = a => { // raíces con multiplicidad de un polinomio cualquiera
+    a = pTrim(a); if (a.length < 2) return []; const lc = a[a.length - 1], rs = polyRoots(a.slice(0, -1).map(c => div(c, lc))), cl = [];
+    rs.forEach(z => { const c = cl.find(c => dist(c.z, z) < 3e-3 * (1 + abs(z))); if (c) { c.z = sc(add(sc(c.z, c.m), z), 1 / (c.m + 1)); c.m++; } else cl.push({ z, m: 1 }); });
+    return cl;
+  };
+  const R1 = { n: [[1, 0]], d: [[1, 0]] };
+  const rAdd = (a, b) => ({ n: pAdd(pMul(a.n, b.d), pMul(b.n, a.d)), d: pMul(a.d, b.d) });
+  const rMul = (a, b) => ({ n: pMul(a.n, b.n), d: pMul(a.d, b.d) });
+  const rInv = a => { if (pZero(a.n)) throw new Error('División por cero.'); return { n: a.d, d: a.n }; };
+  const rPow = (a, k) => { let r = R1; for (let i = 0; i < Math.abs(k); i++) r = rMul(r, a); return k < 0 ? rInv(r) : r; };
+  const rConst = c => ({ n: [c], d: [[1, 0]] });
+  const rVal = (a, z) => div(pVal(a.n, z), pVal(a.d, z));
+  function parseRat(src) {
+    const tk = []; let s = src.replace(/\s+/g, '').replace(/−/g, '-').replace(/·/g, '*');
+    if (!s) throw new Error('Expresión vacía.');
+    while (s) { const m = /^(\d+\.?\d*|\.\d+|[zi]|[-+*\/^()])/.exec(s); if (!m) throw new Error('No entiendo «' + s[0] + '».'); tk.push(m[1]); s = s.slice(m[1].length); }
+    let k = 0; const peek = () => tk[k], isAtom = t => t !== undefined && (/^[\d.zi(]/.test(t));
+    const atom = () => { const t = tk[k++]; if (t === undefined) throw new Error('Expresión incompleta.');
+      if (t === '(') { const r = expr(); if (tk[k++] !== ')') throw new Error('Falta un paréntesis.'); return r; }
+      if (t === 'z') return { n: [[0, 0], [1, 0]], d: [[1, 0]] }; if (t === 'i') return rConst([0, 1]);
+      if (/^[\d.]/.test(t)) return rConst([parseFloat(t), 0]); throw new Error('No entiendo «' + t + '».'); };
+    const power = () => { let b = atom(); if (peek() === '^') { k++; let sg = 1; if (peek() === '-') { sg = -1; k++; } const t = tk[k++]; if (!/^\d+$/.test(t || '')) throw new Error('El exponente debe ser entero.'); b = rPow(b, sg * parseInt(t)); } return b; };
+    const unary = () => { if (peek() === '-') { k++; return rMul(rConst([-1, 0]), unary()); } if (peek() === '+') { k++; return unary(); } return power(); };
+    const term = () => { let a = unary(); for (;;) { const t = peek(); if (t === '*') { k++; a = rMul(a, unary()); } else if (t === '/') { k++; a = rMul(a, rInv(unary())); } else if (isAtom(t)) a = rMul(a, power()); else return a; } };
+    function expr() { let a = term(); for (;;) { const t = peek(); if (t === '+') { k++; a = rAdd(a, term()); } else if (t === '-') { k++; a = rAdd(a, rMul(rConst([-1, 0]), term())); } else return a; } }
+    const r = expr(); if (k < tk.length) throw new Error('Sobra «' + tk[k] + '».'); return r;
+  }
+  const fz = z => { const f = x => { const s = (Math.round(x * 100) / 100).toString(); return s.replace('-', '−'); }; if (Math.abs(z[1]) < 5e-4 * (1 + abs(z))) return f(z[0]); if (Math.abs(z[0]) < 5e-4 * (1 + abs(z))) return f(z[1]) + 'i'; return f(z[0]) + (z[1] < 0 ? '−' : '+') + f(Math.abs(z[1])) + 'i'; };
+  const ptype = p => isId(p) ? 0 : (p.filter((v, i) => v === i).length === 1 ? 2 : 3);
+  function makeCubic(ps, qs, name) {
+    const p = parseRat(ps), q = parseRat(qs);
+    const D = rAdd(rMul(rConst([-4, 0]), rPow(p, 3)), rMul(rConst([-27, 0]), rPow(q, 2)));
+    if (pZero(D.n)) throw new Error('Δ es idénticamente cero: el polinomio tiene una raíz múltiple.');
+    const zs = pRootsM(D.n), ps_ = pRootsM(D.d), poles = pRootsM(pMul(p.d, q.d)), cand = [];
+    const put = (z, o, pole) => { let c = cand.find(c => dist(c.z, z) < 3e-3 * (1 + abs(z))); if (!c) { c = { z, ord: 0, pole: false }; cand.push(c); } c.ord += o; if (pole) c.pole = true; };
+    zs.forEach(c => put(c.z, c.m)); ps_.forEach(c => put(c.z, -c.m)); poles.forEach(c => put(c.z, 0, true));
+    const pts = cand.filter(c => c.ord !== 0 || c.pole);
+    const ordInf = (pTrim(D.d).length - 1) - (pTrim(D.n).length - 1);
+    let R = 0; pts.forEach(c => R = Math.max(R, abs(c.z))); R = Math.max(R, 1);
+    const vdR = Math.max(2, 1.7 * R); let base = null;
+    for (let a = 1.13; !base; a += 0.37) { const b = [0.8 * vdR * Math.cos(a), 0.8 * vdR * Math.sin(a)]; if (pts.every(c => dist(c.z, b) > 0.12 * vdR)) base = b; }
+    const cover = polyCover(3, x => [rVal(q, x), rVal(p, x), O]);
+    let mw = 0; for (let j = 0; j < 24; j++) cover.init([0.6 * vdR * Math.cos(j * 0.2618 + 0.1), 0.6 * vdR * Math.sin(j * 0.2618 + 0.1)]).forEach(w => mw = Math.max(mw, abs(w)));
+    const ex = { id: 'cub', name: name || 'personalizada', cname: name || 'personalizada', ps, qs, cover, branch: pts.map(c => c.z), blab: pts.map(c => fz(c.z)), prof: null, base, vd: [0, 0, vdR], vu: [0, 0, Math.min(14, Math.max(1.5, 1.45 * mw))], deck: [] };
+    const m = monodromy(ex), types = m.gens.map(ptype);
+    const u = sc(base, 1 / abs(base)), Rb = 1.25 * R + 0.2, far = sc(u, Math.max(Rb, abs(base) * 1.02)), a0 = Math.atan2(u[1], u[0]), lp = [];
+    for (let j = 0; j <= 20; j++) lp.push(add(base, sc(sub(far, base), j / 20)));
+    for (let j = 1; j <= 240; j++) lp.push([abs(far) * Math.cos(a0 + TAU * j / 240), abs(far) * Math.sin(a0 + TAU * j / 240)]);
+    const st = cover.init(base), tInf = ptype(matchPerm(cover, st, trackPath(cover, st, lp)));
+    const all = types.concat(tInf), t = all.filter(x => x === 2).length, c = all.filter(x => x === 3).length;
+    const orb = new Set(m.els.map(g => g[0])).size, square = pts.every(c => c.ord % 2 === 0) && ordInf % 2 === 0;
+    ex.cub = { rows: pts.map((c, j) => ({ lab: fz(c.z), ord: c.ord, type: types[j] })).concat({ lab: '∞', ord: ordInf, type: tInf }), square, t, c, order: m.order, irreducible: orb === 3,
+      gP: t / 2 + c - 2, gD: t / 2 - 1, gT: m.order === 6 ? 1.5 * t + 2 * c - 5 : t / 2 + c - 2 };
+    return ex;
+  }
+  [['c1', '-3', '-z', 'w³ − 3w − z'], ['c2', '0', '-z', 'w³ − z'], ['c3', '-3z', 'z^3', 'w³ − 3zw + z³ (folium)'], ['c4', 'z', '1', 'w³ + zw + 1'], ['c5', '-3', '-z^2', 'w³ − 3w − z²'],
+   ['c6', '-(z^2+3z+9)/3', '-(2z+3)(z^2+3z+9)/27', 'cúbica cíclica de Shanks'], ['c7', '-3', '-(z+1/z)', 'w³ − 3w − (z + 1/z)']].forEach(([id, p, q, n]) => { const ex = makeCubic(p, q, n); ex.id = id; EX[id] = ex; });
+
   return { add, sub, mul, div, sc, abs, dist, cexp, clog, neg, TAU, pEval, polyRoots, sortRoots, newton, step, trackPath, matchPerm, genLoop, loopRadius,
-    idp, compose, isId, isPerm, cycles, generate, allPerms, groupName, monodromy, EX };
+    idp, compose, isId, isPerm, cycles, generate, allPerms, groupName, monodromy, makeCubic, parseRat, EX };
 })();
 if (typeof module !== 'undefined') module.exports = RS;
 
@@ -997,19 +1245,21 @@ const SUB = '₀₁₂₃₄₅₆₇₈₉';
 const sub = n => String(n).split('').map(d => SUB[+d]).join('');
 const fmt = (z, k) => { k = k == null ? 2 : k; const a = z[0].toFixed(k), b = Math.abs(z[1]).toFixed(k); return `${a.replace('-', '−')} ${z[1] < 0 ? '−' : '+'} ${b}i`; };
 let RATIO = 2;
+const GPRE = [{ name: 'γ', from: 'a', to: 'b', k: 'up' }, { name: 'γ′', from: 'a', to: 'b', k: 'down' }, { name: 'τ', from: 'b', to: 'c', k: 'right' }, { name: 'κ', from: 'c', to: 'a', k: 'left' }];
 const LABS = [];
 
 class LiftLab {
   constructor(root, cfg) {
     this.root = root; this.cfg = cfg; this.exs = cfg.ex.map(id => RS.EX[id]); this.mode = cfg.modes[0];
     const L = cfg.labels || ['Arriba · superficie R, coordenada z', 'Abajo · superficie S, coordenada w'];
-    const MN = { draw: 'Dibujar curva', loop: 'Lazos desde s', point: 'Mover w (abajo)', up: 'Mover z (arriba)' };
+    const MN = { gpd: 'Caminos entre a, b, c', draw: 'Dibujar curva', loop: 'Lazos desde s', point: 'Mover w (abajo)', up: 'Mover z (arriba)' };
     root.innerHTML = `<div class="lab-panels">
       <figure><figcaption>${L[0]}</figcaption><canvas class="cv up"></canvas></figure>
       <div class="lab-arrow"><span>${cfg.arrow || 'f'}</span><i>⟶</i></div>
       <figure><figcaption>${L[1]}</figcaption><canvas class="cv dn"></canvas></figure></div>
-      <div class="lab-side">
+      <div class="lab-side${cfg.cubic ? ' tall' : ''}">
         <label class="fld" for="${cfg.id}-ex"><span>Ejemplo</span><select id="${cfg.id}-ex">${this.exs.map((e, i) => `<option value="${i}">${cfg.curve ? e.cname : e.name}</option>`).join('')}</select></label>
+        ${cfg.cubic ? `<div class="pq"><label class="fld" for="${cfg.id}-p"><span>p(z)</span><input type="text" id="${cfg.id}-p" autocomplete="off" spellcheck="false"></label><label class="fld" for="${cfg.id}-q"><span>q(z)</span><input type="text" id="${cfg.id}-q" autocomplete="off" spellcheck="false"></label></div><div class="modes"><button type="button" class="btn apply">Aplicar p y q</button><span class="perr no"></span></div>` : ''}
         <div class="modes" role="group" aria-label="Modo">${cfg.modes.length > 1 ? cfg.modes.map(m => `<button type="button" class="btn mode" data-m="${m}">${(cfg.modeNames && cfg.modeNames[m]) || MN[m]}</button>`).join('') : ''}</div>
         <div class="gens"></div>
         <label class="fld deckf" for="${cfg.id}-dk"><span>Transformación de deck</span><select id="${cfg.id}-dk"></select></label>
@@ -1019,6 +1269,11 @@ class LiftLab {
     this.up = q('.up'); this.dn = q('.dn'); this.info = q('.lab-info'); this.out = q('.lab-out'); this.gens = q('.gens');
     this.deckf = q('.deckf'); this.dk = q(`#${cfg.id}-dk`);
     q(`#${cfg.id}-ex`).addEventListener('change', e => this.setEx(this.exs[+e.target.value]));
+    if (cfg.cubic) {
+      const go = () => { const err = q('.perr'); try { const ex = RS.makeCubic(q(`#${cfg.id}-p`).value, q(`#${cfg.id}-q`).value); err.textContent = ''; q(`#${cfg.id}-ex`).selectedIndex = -1; this.setEx(ex); } catch (e) { err.textContent = e.message; } };
+      q('.apply').addEventListener('click', go);
+      root.querySelectorAll(`#${cfg.id}-p, #${cfg.id}-q`).forEach(i => i.addEventListener('keydown', e => { if (e.key === 'Enter') go(); }));
+    }
     root.querySelectorAll('.mode').forEach(b => b.addEventListener('click', () => this.setMode(b.dataset.m)));
     q('.clear').addEventListener('click', () => { this.stopAnim(); this.reset(); this.draw(); });
     this.dk.addEventListener('change', () => { this.sigma = this.ex.deck[+this.dk.value - 1] || null; this.renderOut(); this.draw(); });
@@ -1042,6 +1297,7 @@ class LiftLab {
     if (ex.kind === 'wp') this.ram = ex.hp.concat([[0, 0], [1, 0], ex.tau, RS.add([1, 0], ex.tau)]);
     else if (!ex.infinite) ex.branch.forEach(b => this.cluster(ex.cover.init(b)).forEach(c => { if (c.m > 1) this.ram.push(c.z); }));
     this.startBase = ex.cover.init(ex.base);
+    if (this.cfg.cubic) { this.root.querySelector(`#${this.cfg.id}-p`).value = ex.ps; this.root.querySelector(`#${this.cfg.id}-q`).value = ex.qs; }
     const dk = this.cfg.deck && ex.deck.length;
     this.deckf.style.display = this.cfg.deck ? '' : 'none';
     this.dk.innerHTML = '<option value="0">identidad</option>' + ex.deck.map((d, i) => `<option value="${i + 1}">${d.name}</option>`).join('');
@@ -1053,6 +1309,11 @@ class LiftLab {
     this.root.querySelectorAll('.mode').forEach(b => b.classList.toggle('on', b.dataset.m === m));
     this.gens.innerHTML = m === 'loop' ? '<span class="gl">Lazos generadores:</span>' + this.ex.branch.map((b, j) => `<button type="button" class="btn gen" data-j="${j}" title="lazo alrededor de ${this.ex.blab[j]}">γ${sub(j + 1)}</button>`).join('') : '';
     this.gens.querySelectorAll('.gen').forEach(b => b.addEventListener('click', () => this.playGen(+b.dataset.j)));
+    if (m === 'gpd') {
+      this.gens.innerHTML = '<span class="gl">Caminos de ejemplo:</span>' + GPRE.map((p, i) => `<button type="button" class="btn gpb" data-i="${i}">${p.name}: ${p.from} → ${p.to}</button>`).join('') + '<button type="button" class="btn gpinv">Invertir el último</button>';
+      this.gens.querySelectorAll('.gpb').forEach(b => b.addEventListener('click', () => { this.gpPreset(+b.dataset.i); this.draw(); }));
+      this.gens.querySelector('.gpinv').addEventListener('click', () => { this.gpInvert(); this.draw(); });
+    }
     this.reset();
     if (m === 'draw' && this.cfg.demo !== false) { this.run(RS.genLoop(this.ex.base, this.ex.branch[0], RS.loopRadius(this.ex, 0), 30)); this.finishDraw(true); }
     if (m === 'loop' && this.cfg.demo !== false) { this.begin(this.ex.base, this.startBase); this.run(RS.genLoop(this.ex.base, this.ex.branch[0], RS.loopRadius(this.ex, 0), 30).slice(1), true); this.finishLoop('γ' + sub(1)); }
@@ -1061,6 +1322,11 @@ class LiftLab {
   reset() {
     this.path = []; this.lifts = []; this.start = []; this.cur = []; this.hist = []; this.msg = ''; this.drawing = false;
     const ex = this.ex;
+    if (this.mode === 'gpd') {
+      const r = ex.vd[2], P = ex.gp || { a: [-0.72 * r, 0.4 * r], b: [0.72 * r, 0.36 * r], c: [0.1 * r, -0.62 * r] };
+      this.gp = { P, fib: {}, paths: [] }; for (const k in P) this.gp.fib[k] = ex.cover.init(P[k]);
+      this.gpPreset(0);
+    }
     if (this.mode === 'point') this.setPoint(ex.base);
     if (this.mode === 'up') this.setUp(ex.kind === 'wp' ? RS.add(RS.sc([1, 0], 0.31), RS.sc(ex.tau, 0.27)) : [ex.vu[0] + 0.33 * ex.vu[2], ex.vu[1] + 0.27 * ex.vu[2]]);
     this.renderOut();
@@ -1070,6 +1336,25 @@ class LiftLab {
     roots.forEach(z => { const c = cl.find(c => d(c.z, z) < tol); if (c) c.m++; else cl.push({ z, m: 1 }); });
     return cl;
   }
+  gpPath(i) {
+    const p = GPRE[i], P = this.gp.P, A = P[p.from], B = P[p.to], r = this.ex.vd[2], mx = (A[0] + B[0]) / 2, my = (A[1] + B[1]) / 2;
+    const C = (this.ex.gpc && this.ex.gpc[p.k]) || (p.k === 'up' ? [mx, my + 0.75 * r] : p.k === 'down' ? [mx, -1.45 * r] : p.k === 'right' ? [0.85 * r, -0.45 * r] : [-0.85 * r, -0.45 * r]), pts = [];
+    for (let j = 0; j <= 70; j++) { const s = j / 70, q = 1 - s; pts.push([q * q * A[0] + 2 * s * q * C[0] + s * s * B[0], q * q * A[1] + 2 * s * q * C[1] + s * s * B[1]]); }
+    return pts;
+  }
+  gpPreset(i) { const p = GPRE[i], pts = this.gpPath(i); this.begin(pts[0], this.gp.fib[p.from]); this.run(pts.slice(1), true); this.gpRecord(p.name, p.from, p.to); }
+  gpRecord(name, from, to) {
+    const map = RS.matchPerm(this.ex.cover, this.gp.fib[to], this.cur);
+    this.gp.paths.push({ name, from, to, map, pts: this.path, lifts: this.lifts });
+    this.path = []; this.lifts = []; this.start = []; this.msg = ''; this.renderOut();
+  }
+  gpInvert() {
+    const p = this.gp.paths[this.gp.paths.length - 1]; if (!p) return;
+    const inv = [], lifts = []; p.map.forEach((j, i) => { inv[j] = i; lifts[j] = p.lifts[i].slice().reverse(); });
+    this.gp.paths.push({ name: p.name.endsWith('⁻¹') ? p.name.slice(0, -2) : p.name + '⁻¹', from: p.to, to: p.from, map: inv, pts: p.pts.slice().reverse(), lifts });
+    this.renderOut();
+  }
+  gpNear(p) { let best = null, bd = 30; for (const k in this.gp.P) { const q = this.toPx(this.ex.vd, this.gp.P[k]), d = Math.hypot(q[0] - p[0], q[1] - p[1]); if (d < bd) { bd = d; best = k; } } return best; }
   begin(x, roots) { this.path = [x]; this.start = roots || this.ex.cover.init(x); this.cur = this.start.slice(); this.lifts = this.start.map(r => [r]); }
   extend(x) {
     const last = this.path[this.path.length - 1], h = 0.02 * this.ex.vd[2], k = Math.max(1, Math.ceil(RS.dist(last, x) / h));
@@ -1099,6 +1384,10 @@ class LiftLab {
         if (this.mode === 'draw') { this.begin(x); this.msg = ''; }
         else if (this.mode === 'loop') { this.begin(this.ex.base, this.startBase); this.extend(x); }
         else if (this.mode === 'point') this.setPoint(this.snap(x, p));
+        else if (this.mode === 'gpd') {
+          const k = this.gpNear(p); if (!k) { this.msg = 'Empiece el camino en a, b o c.'; this.renderOut(); return; }
+          this.gfrom = k; this.begin(this.gp.P[k], this.gp.fib[k]); this.extend(x);
+        }
         else return;
         this.drawing = true;
       }
@@ -1118,6 +1407,11 @@ class LiftLab {
     const end = () => {
       if (!this.drawing) return; this.drawing = false;
       if (!isUp && this.mode === 'draw') this.finishDraw();
+      if (!isUp && this.mode === 'gpd') {
+        const k = this.gpNear(this.lastPx);
+        if (k && this.path.length > 3) { this.extend(this.gp.P[k]); this.gpRecord('δ' + sub(this.gp.paths.filter(q => q.name[0] === 'δ' && !q.name.endsWith('⁻¹')).length + 1), this.gfrom, k); }
+        else { this.path = []; this.lifts = []; this.start = []; this.msg = 'El camino debe terminar en a, b o c.'; this.renderOut(); }
+      }
       if (!isUp && this.mode === 'loop') { this.extend(this.ex.base); this.finishLoop('ℓ' + sub(this.hist.filter(h => h.user).length + 1), true); }
       this.draw();
     };
@@ -1159,6 +1453,14 @@ class LiftLab {
   /* --- textos --- */
   renderInfo() {
     const ex = this.ex, m = this.mono; let h = '';
+    if (ex.cub) {
+      const c = ex.cub, T = ['—', '', 'trasposición', '3-ciclo'], g = x => Number.isInteger(x) ? x : x.toFixed(1);
+      h = `<table class="rht"><tr><th>z₀</th><th>ord Δ</th><th>monodromía</th></tr>${c.rows.map(r => `<tr><td>${r.lab}</td><td>${String(r.ord).replace('-', '−')}</td><td>${T[r.type]}</td></tr>`).join('')}</table>`;
+      h += `<div>Δ ${c.square ? '<span class="ok">es un cuadrado</span>' : '<span class="no">no es un cuadrado</span>'} en ℂ(z)${c.irreducible ? ` · <b>${c.order === 3 ? 'A₃' : 'S₃'}</b> · envolvente de <b>${c.order} hojas</b>` : ''}</div>`;
+      if (!c.irreducible) h += `<div class="no">La monodromía no es transitiva: el polinomio es reducible sobre ℂ(z).</div>`;
+      else h += `<div>t = ${c.t}, c = ${c.c} · <b>g(S<sub>P</sub>)</b> = ${g(c.gP)}${c.order === 6 ? ` · <b>g(y² = Δ)</b> = ${g(c.gD)} · <b>g(T)</b> = ${g(c.gT)}` : ' = g(T)'}</div>`;
+      this.info.innerHTML = h; return;
+    }
     h += `<div><b>Grado:</b> ${ex.infinite ? '∞ (se dibujan 5 hojas)' : ex.cover.n}</div>`;
     if (ex.kind === 'wp') h += `<div><b>Ramificación:</b> e₁, e₂, e₃, ∞</div><div><b>g₂</b> = ${fmt(ex.g2, 1)}<br><b>g₃</b> = ${fmt(ex.g3, 1)}</div>`;
     else if (ex.omitted) h += `<div><b>Valor omitido:</b> 0 (no hay ramificación finita)</div>`;
@@ -1183,7 +1485,7 @@ class LiftLab {
         h = this.hist.slice(-4).map(x => `${x.name}: k ↦ k ${x.shift < 0 ? '−' : '+'} ${Math.abs(x.shift)}`).join('<br>');
         const t = this.hist.reduce((s, x) => s + x.shift, 0); h += `<br>Producto: k ↦ k ${t < 0 ? '−' : '+'} ${Math.abs(t)}`;
       } else {
-        h = this.hist.slice(-4).map(x => `${x.name} = <b>${RS.cycles(x.perm)}</b>`).join('<br>');
+        h = this.hist.slice(-4).map(x => `${x.name} = <b>${RS.cycles(x.perm)}</b>${ex.cub ? (x.perm.filter((v, i) => v === i).length === 1 ? ' · √Δ ↦ −√Δ' : ' · √Δ ↦ √Δ') : ''}`).join('<br>');
         if (this.hist.length > 1) {
           const prod = this.hist.reduce((p, x) => RS.compose(p, x.perm), RS.idp(ex.cover.n));
           h += `<br>Producto en el orden recorrido: <b>${RS.cycles(prod)}</b><br>Subgrupo generado: orden ${RS.generate(this.hist.map(x => x.perm), ex.cover.n).length}`;
@@ -1194,6 +1496,19 @@ class LiftLab {
         this.start.forEach((r, j) => { if (RS.dist(r, s) < 1e-6 * (1 + RS.abs(r))) k = j; });
         h += `<div class="sg">Línea discontinua: σ aplicada al levantamiento desde y${ex.infinite ? '₀' : '₁'}. Coincide con el levantamiento desde ${k < 0 ? 'otra hoja' : (ex.infinite ? 'la hoja ' + this.lab(k) : 'y' + sub(k + 1))}.</div>`;
       } else if (this.cfg.deck && !ex.deck.length) h += `<div class="sg">Este revestimiento no tiene transformaciones de deck distintas de la identidad.</div>`;
+    }
+    if (this.mode === 'gpd') {
+      const ps = this.gp.paths, n = ex.cover.n, row = (k, m) => '[' + m.map(j => k + sub(j + 1)).join(' ') + ']', id = RS.idp(n);
+      h = ps.slice(-3).map(p => `<b>${p.name}</b>: ${p.from} → ${p.to}<br>${row(p.from, id)} ↦ ${row(p.to, p.map)}`).join('<br>');
+      if (ps.length > 1) {
+        const L = ps[ps.length - 1], Q = ps[ps.length - 2];
+        if (Q.to === L.from) {
+          let i = ps.length - 1; while (i > 0 && ps[i - 1].to === ps[i].from) i--;
+          const run = ps.slice(i), m = run.reduce((a, p) => RS.compose(a, p.map), id), f = run[0].from, t = L.to;
+          h += `<div class="sg"><b>${run.map(p => p.name).join('·')}</b>: ${f} → ${t}<br>${row(f, id)} ↦ ${row(t, m)}${f === t ? `<br>Es un lazo en ${f}: permutación <b>${RS.cycles(m)}</b>` : ''}</div>`;
+        } else if (Q.from === L.from && Q.to === L.to) h += `<div class="sg">${Q.name} y ${L.name} tienen los mismos extremos y ${Q.map.join() === L.map.join() ? 'dan la <b>misma</b> biyección.' : 'dan biyecciones <b>distintas</b>: no son homótopos.'}</div>`;
+      }
+      if (this.msg) h += `<div class="sg no">${this.msg}</div>`;
     }
     if (this.mode === 'point' && this.fiber) {
       const ms = this.fiber.map(c => c.m).sort((a, b) => b - a);
@@ -1259,6 +1574,11 @@ class LiftLab {
       if (this.mode === 'draw') this.dot(g, this.toPx(vd, this.path[0]), 4.5, INK);
     }
     if (this.mode === 'loop') this.dot(g, this.toPx(vd, ex.base), 5.5, INK, 's');
+    if (this.mode === 'gpd') {
+      const ps = this.gp.paths.slice(-3);
+      ps.forEach((p, i) => { g.globalAlpha = i === ps.length - 1 ? 1 : 0.28; this.poly(g, vd, p.pts, INK, 2.2); const m = this.toPx(vd, p.pts[p.pts.length >> 1]); g.fillStyle = INK; g.font = 'italic 600 14px Georgia, serif'; g.textAlign = 'left'; g.fillText(p.name, m[0] + 7, m[1] - 7); });
+      g.globalAlpha = 1; for (const k in this.gp.P) this.dot(g, this.toPx(vd, this.gp.P[k]), 5.5, INK, k);
+    }
     if ((this.mode === 'point' || this.mode === 'up') && this.pt) this.dot(g, this.toPx(vd, this.pt), 6.5, INK, ex.kind === 'wp' ? 'x' : 'w');
     /* arriba */
     g = this.up.getContext('2d'); g.setTransform(RATIO, 0, 0, RATIO, 0, 0); g.fillStyle = PAPER; g.fillRect(0, 0, SZ, SZ);
@@ -1272,12 +1592,18 @@ class LiftLab {
       g.stroke();
     } else this.axes(g, vu);
     this.ram.forEach(z => this.cross(g, this.toPx(vu, z), 4));
+    if (this.mode === 'gpd') {
+      const ps = this.gp.paths.slice(-3);
+      ps.forEach((p, i) => { g.globalAlpha = i === ps.length - 1 ? 1 : 0.25; p.lifts.forEach((L, j) => this.poly(g, vu, L, COLORS[j % 7], 2.6)); });
+      g.globalAlpha = 1;
+    }
     this.lifts.forEach((L, i) => this.poly(g, vu, L, COLORS[i % 7], 2.6));
     if (this.sigma && this.lifts.length) { const i0 = ex.infinite ? 2 : 0; this.poly(g, vu, this.lifts[i0].map(this.sigma.fn), INK, 1.8, [6, 5]); }
     this.lifts.forEach((L, i) => {
       if (L.length > 1) this.dot(g, this.toPx(vu, W(L[L.length - 1])), 5, COLORS[i % 7], null, true);
     });
-    this.start.forEach((r, i) => { if (this.lifts.length) this.dot(g, this.toPx(vu, W(r)), 5, COLORS[i % 7], this.lab(i)); });
+    this.start.forEach((r, i) => { if (this.lifts.length && this.mode !== 'gpd') this.dot(g, this.toPx(vu, W(r)), 5, COLORS[i % 7], this.lab(i)); });
+    if (this.mode === 'gpd') for (const k in this.gp.P) this.gp.fib[k].forEach((r, i) => this.dot(g, this.toPx(vu, r), 4.5, COLORS[i % 7], k + sub(i + 1)));
     if ((this.mode === 'point' || this.mode === 'up') && this.fiber) this.fiber.forEach((c, i) => {
       const main = this.mode === 'up' && i === 0;
       this.dot(g, this.toPx(vu, W(c.z)), main ? 7.5 : 6 + (c.m - 1) * 2, c.m > 1 ? RED : COLORS[i % 7], c.m > 1 ? '×' + c.m : (main ? 'z' : null));
